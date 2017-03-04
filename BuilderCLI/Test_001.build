@@ -1,0 +1,62 @@
+describe port
+has mode text : 'none', 'analog', 'digital', 'pwm'
+has direction text : 'none', 'input', 'output', 'bidirectional'
+has voltage text : 'none', 'ttl', 'cmos'
+
+port
+port
+port
+
+describe device
+has port list
+
+device
+# add port
+
+
+############
+
+# Note: Test this one with the debugger!
+# Date: 2017-03-01
+describe port
+has mode text
+port
+set mode 'digital'
+set mode 'analog'
+
+
+# Note: BUG. Calling "set port port(id:9)" repeatedly creates duplicate constructs!
+# Date: 2017-03-01
+describe ports
+has port
+port
+print port
+set port port(id:9)
+set port port(id:9)
+set port port(id:9)
+
+# Note: Tests duplicate list retrieval.
+# Date: 2017-03-03
+describe port
+has mode list : text
+port
+port
+port(id:10)
+add mode 'digital'
+add mode 'analog'
+port(id:11)
+add mode 'digital'
+add mode 'analog'
+
+# Note: Tests duplicate list retrieval.
+# Date: 2017-03-03
+describe port
+has mode list : text
+port
+port
+port(id:10)
+add mode 'digital'
+add mode 'analog'
+port(id:11)
+add mode 'analog'
+add mode 'digital'
