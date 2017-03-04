@@ -81,12 +81,10 @@ public class Interpreter {
             // TODO: get "element" (or "characters"?) feature for primitive types
         }
 
-        /*
         if (!Concept.has(Type.get("list"))) {
-            Concept.get(Type.get("list"));
+            Concept listConcept = Concept.add(Type.get("list"));
             // TODO: get "elements" feature for primitive types?
         }
-        */
     }
 
     public static Interpreter getInstance() {
@@ -717,7 +715,7 @@ public class Interpreter {
                 }
 
                 if (type != null && concept != null) {
-                    Construct construct = Construct.get(type);
+                    Construct construct = Construct.create(type);
 
                     Reference constructReference = Reference.create(construct);
                     System.out.println("reference " + type + " (id: " + constructReference.uid + ") -> construct " + construct.type + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")");
@@ -844,29 +842,81 @@ public class Interpreter {
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
                 Construct currentConstruct = (Construct) ((Reference) currentIdentifier).object;
-//                Construct currentFeatureConstruct = currentConstruct.states.get(featureIdentifier);
+                HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentConstruct.object;
 
-//                Construct replacementFeatureConstruct = Construct.get(stateExpression);
-//                Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
-
-//                ((Construct) currentIdentifier).insert(featureIdentifier, featureContentToken);
-
-                System.out.print(featureIdentifier + " : ");
-//                List list = (List) ((Construct) currentIdentifier).states.get(featureIdentifier).object;
-
-
-                Construct additionalFeatureConstruct = Construct.get(stateExpression); // replacementConstruct
-                // TODO: Search for list!
-
-
-                List list = (List) currentConstruct.states.get(featureIdentifier).object;
-                for (int i = 0; i < list.size(); i++) {
-                    System.out.print(((Construct) list.get(i)));
-                    if ((i + 1) < list.size()) {
-                        System.out.print(", ");
-                    }
+                // Check if feature is valid. If not, show error.
+                if (!currentConstructFeatures.containsKey(featureIdentifier)) {
+                    System.out.println(Error.get("Error: " + stateExpression + " is not a feature."));
+                    return;
                 }
-                System.out.println();
+
+                Construct currentFeatureConstruct = currentConstruct.states.get(featureIdentifier);
+
+                if ((currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.get("list")))
+                        || currentFeatureConstruct.type == Type.get("list")) {
+
+                    Construct additionalFeatureConstruct = Construct.get(stateExpression); // replacementConstruct
+
+                    ArrayList requestedConstructList = new ArrayList();
+                    if (currentFeatureConstruct.type == Type.get("list")) {
+                        requestedConstructList.addAll(((List) currentFeatureConstruct.object));
+                    }
+                    requestedConstructList.add(additionalFeatureConstruct);
+
+                    // TODO: Search for list!
+                    Construct replacementFeatureConstruct = Manager.getPersistentListConstruct(requestedConstructList);
+                    System.out.println(replacementFeatureConstruct);
+
+                    // TODO: Search for Construct with new list...
+                    Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+//                    System.out.println("reference -> " + replacementConstruct);
+
+                    if (replacementConstruct != null) {
+                        ((Reference) currentIdentifier).object = replacementConstruct;
+                        if (currentConstruct == replacementConstruct) {
+                            System.out.print("[SAME CONSTRUCT] ");
+                        } else {
+                            System.out.print("[SWITCHED CONSTRUCT] ");
+                        }
+                        currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+//                    System.out.println("REPLACEMENT: " + replacementConstruct);
+                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
+                    }
+
+                } else {
+                    System.out.println(Color.ANSI_RED + "Error: Cannot assign non-list to a list." + Color.ANSI_RESET);
+
+                }
+
+
+
+
+
+//                Construct currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+////                Construct currentFeatureConstruct = currentConstruct.states.get(featureIdentifier);
+//
+////                Construct replacementFeatureConstruct = Construct.get(stateExpression);
+////                Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+//
+////                ((Construct) currentIdentifier).insert(featureIdentifier, featureContentToken);
+//
+//                System.out.print(featureIdentifier + " : ");
+////                List list = (List) ((Construct) currentIdentifier).states.get(featureIdentifier).object;
+//
+//
+//                Construct additionalFeatureConstruct = Construct.get(stateExpression); // replacementConstruct
+//                ArrayList requestedConstructList = new ArrayList();
+//                // TODO: Search for list!
+//
+//
+//                List list = (List) currentConstruct.states.get(featureIdentifier).object;
+//                for (int i = 0; i < list.size(); i++) {
+//                    System.out.print(((Construct) list.get(i)));
+//                    if ((i + 1) < list.size()) {
+//                        System.out.print(", ");
+//                    }
+//                }
+//                System.out.println();
             }
 
         }

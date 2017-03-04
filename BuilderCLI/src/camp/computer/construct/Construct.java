@@ -1,12 +1,10 @@
 package camp.computer.construct;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import camp.computer.Application;
 import camp.computer.util.terminal.Color;
 import camp.computer.workspace.Manager;
 
@@ -74,7 +72,7 @@ public class Construct extends Identifier {
                 if (feature.types.size() == 1) {
                     // TODO: get default construct...
 //                    states.put(feature.identifier, Construct.get(feature.types.get(0).identifier)); // Initialize with only available types if there's only one available
-                    states.put(feature.identifier, Construct.get(Type.get("none"))); // Initialize with only available types if there's only one available
+                    states.put(feature.identifier, Construct.create(Type.get("none"))); // Initialize with only available types if there's only one available
                 } else {
                     states.put(feature.identifier, null); // Default to "any" types by setting null
                 }
@@ -93,7 +91,29 @@ public class Construct extends Identifier {
 
     }
 
-    public static Construct get(Type type) {
+//    public static boolean isPrimitive(Construct construct) {
+//        return construct.type != Type.get("none")
+//                && construct.type != Type.get("number")
+//                && construct.type != Type.get("text")
+//                && construct.type != Type.get("list");
+//    }
+
+    /**
+     * Returns {@code true} if {@code construct} is configured to store one or more
+     * <em>primitive</em> constructs. This configuration is determined to be present if the
+     * {@code construct} references a {@code Map}.
+     * @param construct
+     * @return
+     */
+    public static boolean isComposite(Construct construct) {
+//        if (!Construct.isPrimitive(construct) && construct.objectType == Map.class && construct.object != null) {
+        if (construct.objectType == Map.class && construct.object != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Construct create(Type type) {
         Concept concept = Concept.get(type);
         if (concept != null) {
             Construct construct = Manager.getPersistentConstruct(type);
@@ -125,7 +145,7 @@ public class Construct extends Identifier {
                 if (construct == null) {
                     // State wasn't found, so create a new one and return it
                     // TODO: Store in the database
-                    construct = Construct.get(constructType);
+                    construct = Construct.create(constructType);
                 }
                 return construct;
             } else if (constructType == Type.get("text")) {
@@ -139,7 +159,7 @@ public class Construct extends Identifier {
                         long uid = Manager.add(construct);
                         construct.object = expression.substring(1, expression.length() - 1);
                     } else {
-                        construct = Construct.get(constructType);
+                        construct = Construct.create(constructType);
                         construct.object = "";
                     }
                 }
@@ -179,6 +199,23 @@ public class Construct extends Identifier {
 
         }
         return null;
+    }
+
+//    public static Construct REFACTOR_getList(Construct currentConstruct, String featureToReplace, Construct featureConstructReplacement) {
+    public static Construct REFACTOR_getList(List requestedConstructList) {
+
+        Concept concept = Concept.get(Type.get("list"));
+        Construct newListConstruct = new Construct(concept);
+
+        // Copy elements into construct list.
+        List constructList = (List) newListConstruct.object;
+        for (int i = 0; i < requestedConstructList.size(); i++) {
+            constructList.add(requestedConstructList.get(i));
+        }
+
+        long uid = Manager.add(newListConstruct);
+        return newListConstruct;
+
     }
 
     public static Construct REFACTOR_getRevise(Construct currentConstruct, String featureToReplace, Construct featureConstructReplacement) {
@@ -421,9 +458,9 @@ public class Construct extends Identifier {
             if (featureState.type != Type.get("list")) {
                 // Change the types of the stored object if it is not a list
                 if (featureState == null) {
-                    featureState = Construct.get(Type.get("list"));
+                    featureState = Construct.create(Type.get("list"));
                 } else if (featureState.type != Type.get("list")) {
-                    featureState = Construct.get(Type.get("list"));
+                    featureState = Construct.create(Type.get("list"));
                 }
             }
 
@@ -447,11 +484,11 @@ public class Construct extends Identifier {
 
                     // Change the types of the stored object if it is not a list
                     if (featureState == null) {
-                        featureState = Construct.get(stateType);
+                        featureState = Construct.create(stateType);
                     } else if (featureState.type != stateType) {
 //                        featureContent.objectType = List.class;
 //                        featureContent.object = new ArrayList<>();
-                        featureState = Construct.get(stateType);
+                        featureState = Construct.create(stateType);
                     }
 
                     // Update the object
