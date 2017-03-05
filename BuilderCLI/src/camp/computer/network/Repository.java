@@ -1,4 +1,4 @@
-package camp.computer.community;
+package camp.computer.network;
 
 import java.util.UUID;
 

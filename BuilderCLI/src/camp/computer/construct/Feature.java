@@ -3,7 +3,7 @@ package camp.computer.construct;
 import java.util.ArrayList;
 import java.util.List;
 
-import camp.computer.util.terminal.Color;
+import camp.computer.util.console.Color;
 
 /**
  * An {@code VariableValueSet} stores a list of identifier values for a specified identifier identified by its unique label.

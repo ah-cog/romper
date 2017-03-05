@@ -3,13 +3,10 @@ package camp.computer.construct;
 import java.util.HashMap;
 import java.util.List;
 
-import camp.computer.Application;
-import camp.computer.util.terminal.Color;
+import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
 public class Concept extends Identifier {
-
-    // TODO: public boolean isPrimitive = false;
 
     public Type type = null;
 
@@ -17,15 +14,22 @@ public class Concept extends Identifier {
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Concept
 
-    private Concept() {
+    private Concept(Type type) {
+        this.type = type;
     }
 
-    public static Concept add(Type type) {
-        if (!has(type)) {
-            Concept concept = new Concept();
-            concept.type = type;
-            long uid = Manager.add(concept);
+    private static Concept create(Type type) {
+        Concept concept = new Concept(type);
+        long uid = Manager.add(concept);
+        if (uid != -1) {
             return concept;
+        }
+        return null;
+    }
+
+    public static Concept request(Type type) {
+        if (!Concept.exists(type)) {
+            return create(type);
         } else {
             List<Concept> conceptList = Manager.get(Concept.class);
             for (int i = 0; i < conceptList.size(); i++) {
@@ -37,25 +41,14 @@ public class Concept extends Identifier {
         return null;
     }
 
-    public static Concept get(Type type) {
-        if (has(type)) {
-            List<Concept> conceptList = Manager.get(Concept.class);
-            for (int i = 0; i < conceptList.size(); i++) {
-                if (conceptList.get(i).type == type) {
-                    return conceptList.get(i);
-                }
-            }
-        }
-        return null;
-    }
-
     /**
-     * Returns true of a construct has been defined with the specified {@code identifier}.
+     * Returns {@code true} if at least one {@code Concept} exists for the specified
+     * {@code identifier}.
      *
      * @param type
      * @return True
      */
-    public static boolean has(Type type) {
+    public static boolean exists(Type type) {
         List<Concept> conceptList = Manager.get(Concept.class);
         for (int i = 0; i < conceptList.size(); i++) {
             if (conceptList.get(i).type == type) {

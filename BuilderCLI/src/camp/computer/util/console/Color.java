@@ -1,4 +1,4 @@
-package camp.computer.util.terminal;
+package camp.computer.util.console;
 
 public class Color {
 

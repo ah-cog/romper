@@ -1,6 +1,6 @@
 package camp.computer.construct;
 
-import camp.computer.util.terminal.Color;
+import camp.computer.util.console.Color;
 
 public class Error {
 

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
-import camp.computer.community.Repository;
+import camp.computer.network.Repository;
 import camp.computer.OLD_construct.Construct_v1;
 import camp.computer.OLD_construct.ControllerConstruct;
 import camp.computer.OLD_construct.DeviceConstruct;
@@ -29,7 +29,7 @@ import camp.computer.data.format.configuration.Variable;
 import camp.computer.platform_infrastructure.LoadBuildFileTask;
 import camp.computer.util.Pair;
 import camp.computer.util.Tuple;
-import camp.computer.util.terminal.Color;
+import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager_v1;
 import camp.computer.workspace.Manager;
 
@@ -46,7 +46,9 @@ public class Interpreter {
 
     private static Interpreter instance = null;
 
-    Workspace workspace;
+    private Context context = null;
+
+    private Workspace workspace;
 
     private Interpreter() {
         Interpreter.instance = this;
@@ -54,36 +56,27 @@ public class Interpreter {
 
         // Instantiate primitive types
         Type.add("none");
-        Type.add("text");
         // Type.get("number");
+        Type.add("text");
         Type.add("list");
 
-        /*
-        if (!Concept.has(Type.get("none"))) {
-            Concept.get(Type.get("none"));
+        // Instantiate primitive concepts
+        if (!Concept.exists(Type.get("none"))) {
+            Concept noneConcept = Concept.request(Type.get("none"));
         }
 
-//        if (!Concept.has(Type.get("number"))) {
-//            Concept.get(Type.get("number"));
-//            // TODO: get "element" (or "value"?) feature to primitive types (state types number)
-//        }
+        /*
+        if (!Concept.exists(Type.get("number"))) {
+            Concept numberConcept = Concept.request(Type.get("number"));
+        }
         */
 
-        if (!Concept.has(Type.get("none"))) {
-            Concept noneConcept = Concept.add(Type.get("none"));
+        if (!Concept.exists(Type.get("text"))) {
+            Concept textConcept = Concept.request(Type.get("text"));
         }
 
-        if (!Concept.has(Type.get("text"))) {
-            Concept textConcept = Concept.add(Type.get("text"));
-//            Feature feature = new Feature("content");
-//            feature.types.add(Type.get("text"));
-//            textConcept.features.put("content", feature);
-            // TODO: get "element" (or "characters"?) feature for primitive types
-        }
-
-        if (!Concept.has(Type.get("list"))) {
-            Concept listConcept = Concept.add(Type.get("list"));
-            // TODO: get "elements" feature for primitive types?
+        if (!Concept.exists(Type.get("list"))) {
+            Concept listConcept = Concept.request(Type.get("list"));
         }
     }
 
@@ -109,19 +102,6 @@ public class Interpreter {
 
     }
 
-    // <UTILS>
-    public boolean isConceptContext() {
-        return (currentIdentifier != null && currentIdentifier.getClass() == Concept.class);
-    }
-
-    public boolean isConstructContext() {
-//        return (currentIdentifier != null && currentIdentifier.getClass() == Construct.class);
-        return (currentIdentifier != null && currentIdentifier.getClass() == Reference.class && ((Reference) currentIdentifier).object.getClass() == Construct.class);
-    }
-    // </UTILS>
-
-    Identifier currentIdentifier = null;
-
     public void interpretLine(String inputLine) {
 
         // <SANITIZE_INPUT>
@@ -145,8 +125,11 @@ public class Interpreter {
             // Save line in history
             this.inputLines.add(inputLine);
 
-            // Store object
-            Context context = new Context();
+            // Store context in history
+            // Context context = new Context();
+            if (context == null) {
+                context = new Context();
+            }
             context.inputLine = inputLine.trim();
 
             // These tokens are chosen based on the idea that they narrate the work that you do when
@@ -156,22 +139,35 @@ public class Interpreter {
 
             if (context.inputLine.startsWith("import file")) {
                 importFileTask(context);
-            } else if (context.inputLine.startsWith("describe")) { // "new"
-                describeTask(context);
+            } else if (context.inputLine.startsWith("define") || context.inputLine.startsWith("def")) { // "new", "describe"
+                defineTask(context);
+            } else if (context.inputLine.startsWith("tag")) {
+                // TODO: tag or alias given identifier (construct) with given text tag
             } else if (context.inputLine.startsWith("has")) {
                 hasTask(context);
             } else if (context.inputLine.startsWith("let")) {
                 letTask(context);
             } else if (context.inputLine.startsWith("set")) {
                 setTask(context);
-            } else if (context.inputLine.startsWith("print")) {
-                printTask(context);
             } else if (context.inputLine.startsWith("add")) {
                 addTask(context);
-            } else if (context.inputLine.startsWith("remove")) {
-
-            } else if (context.inputLine.startsWith("ls")) { // previously: list, index, inspect, view
-                viewTask(context);
+            } else if (context.inputLine.startsWith("remove") || context.inputLine.startsWith("rem") || context.inputLine.startsWith("rm")) {
+                removeTask(context);
+            } else if (context.inputLine.equals("what")) {
+                whatTask(context);
+            } else if (context.inputLine.equals("which")) {
+                whichTask(context);
+            } else if (context.inputLine.startsWith("describe") || context.inputLine.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
+                // TODO: full command "list"
+                describeTask(context);
+            } else if (context.inputLine.startsWith("locate")) { // previously: ws, show, ls
+                searchTask(context);
+            } else if (context.inputLine.startsWith("next")) {
+                // TODO: Allow if previous command was "search" and more items exist (or say no more exist)
+            } else if (context.inputLine.startsWith("previous")) {
+                // TODO: Allow if previous command was "search" and previous items exist (or say no more exist)
+//            } else if (context.inputLine.startsWith("print")) {
+//                printTask(context);
             } else if (context.inputLine.equals("exit")) {
                 exitTask(context);
             } else {
@@ -201,14 +197,14 @@ public class Interpreter {
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
-                                currentIdentifier = reference;
+                                context.currentIdentifier = reference;
                             } else if (identifier.getClass() == Construct.class) {
                                 Construct construct = (Construct) identifier;
                                 System.out.println("Found " + construct.type + " construct (UID: " + uid + ")");
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
-                                currentIdentifier = construct;
+                                context.currentIdentifier = construct;
 
                             } else if (identifier.getClass() == Concept.class) {
                                 System.out.println(Color.ANSI_RED + "Error: The UID is for a concept." + Color.ANSI_RESET);
@@ -226,7 +222,7 @@ public class Interpreter {
         }
     }
 
-    public void describeTask(Context context) {
+    public void defineTask(Context context) {
 
         String[] inputLineTokens = context.inputLine.split("[ ]+");
 
@@ -251,18 +247,18 @@ public class Interpreter {
                 return;
             }
 
-            if (!Concept.has(type)) {
-                Concept.add(type);
+            if (!Concept.exists(type)) {
+                Concept.request(type);
             }
 
             // System.out.println("Error: Construct already exists.");
 
-            Concept concept = Concept.get(type);
+            Concept concept = Concept.request(type);
 
             System.out.println("concept " + concept + " (uuid: " + concept.uuid + ")");
 
             // Update object
-            currentIdentifier = concept;
+            context.currentIdentifier = concept;
 
         }
     }
@@ -274,10 +270,10 @@ public class Interpreter {
         String[] inputLineSegments = context.inputLine.split("[ ]*:[ ]*");
 
         // Determine interpreter's object. Concept or instance?
-        if (isConceptContext()) {
+        if (Context.isConcept(context)) {
 
             // Defaults
-            String featureIdentifierToken = null;
+            String featureIdentifier = null;
             List<Type> featureTypes = null; // new ArrayList<>(); // if size == 0, then unconstrained!
             List<Type> listTypes = null; // new ArrayList<>(); // if size == 0, then unconstrained!
 
@@ -289,12 +285,12 @@ public class Interpreter {
                 String[] inputLineTokens = inputLineSegments[0].split("[ ]+");
 
                 // Determine identifier
-                featureIdentifierToken = inputLineTokens[1];
+                featureIdentifier = inputLineTokens[1];
 
                 // <REFACTOR>
                 // Check if the feature already exists in the current object
-                if (((Concept) currentIdentifier).features.containsKey(featureIdentifierToken)) {
-                    System.out.println(Color.ANSI_RED + "Warning: Context already contains feature '" + featureIdentifierToken + "'. A new construct revision will be generated." + Color.ANSI_RESET);
+                if (Context.getConcept(context).features.containsKey(featureIdentifier)) {
+                    System.out.println(Color.ANSI_RED + "Warning: Context already contains feature '" + featureIdentifier + "'. A new construct revision will be generated." + Color.ANSI_RESET);
                 }
                 // </REFACTOR>
 
@@ -311,11 +307,11 @@ public class Interpreter {
 //                    } else
                     if (featureTypeToken.equals("list")) {
                         featureTypes.add(Type.get(featureTypeToken));
-                        if (Type.has(featureIdentifierToken)) {
+                        if (Type.has(featureIdentifier)) {
                             if (listTypes == null) {
                                 listTypes = new ArrayList<>();
                             }
-                            listTypes.add(Type.get(featureIdentifierToken)); // If identifier is a construct types, then constraint list to that types by default
+                            listTypes.add(Type.get(featureIdentifier)); // If identifier is a construct types, then constraint list to that types by default
                         } else {
 //                            listTypes.get(Type.get("any")); // If identifier is non-construct types then default list types is "any"
                             listTypes = null;
@@ -327,14 +323,14 @@ public class Interpreter {
                         }
                     }
                 } else {
-                    if (Type.has(featureIdentifierToken)) {
+                    if (Type.has(featureIdentifier)) {
 //                    if (camp.computer.construct.Concept.has(featureTagToken)) {
 //                            // TODO: Replace with ConstructType for reserved construct types
 //            System.out.println("(id: " + concept.uid + ") " + Application.ANSI_BLUE + typeToken + Application.ANSI_RESET + " (uuid: " + concept.uuid + ")");
                         if (featureTypes == null) {
                             featureTypes = new ArrayList<>();
                         }
-                        featureTypes.add(Type.get(featureIdentifierToken));
+                        featureTypes.add(Type.get(featureIdentifier));
                     } else {
                         // Can contain any types (no types is specified)
 //                        featureTypes.get(Type.get("any")); // Default types
@@ -563,9 +559,9 @@ public class Interpreter {
             // Instantiate feature, get to construct, and print response
             if (hasError) {
                 System.out.println(Color.ANSI_RED + "Error: Conflicting types present in expression." + Color.ANSI_RESET);
-            } else if (featureIdentifierToken != null) {
+            } else if (featureIdentifier != null) {
                 // Store feature. Allocates memory for and stores feature.
-                Feature feature = new Feature(featureIdentifierToken);
+                Feature feature = new Feature(featureIdentifier);
                 if (featureTypes != null) {
                     feature.types.addAll(featureTypes);
                 }
@@ -585,20 +581,24 @@ public class Interpreter {
                     feature.domain.addAll(featureDomain);
                 }
                 // TODO: Create new version of concept here if feature is changed?
-                ((Concept) currentIdentifier).features.put(featureIdentifierToken, feature);
+                Context.getConcept(context).features.put(featureIdentifier, feature);
                 long uid = Manager.add(feature);
                 // TODO: initialize "text" with default empty string construct reference (and other types accordingly)
 
                 // Print response
                 String typeString = "";
                 for (int i = 0; i < feature.types.size(); i++) {
-                    typeString += "" + feature.types.get(i);
+                    typeString += "" + feature.types.get(i).toColorString();
                     if ((i + 1) < feature.types.size()) {
                         typeString += ", ";
                     }
                 }
-//                System.out.println(currentConcept.features.size() + " features");
-                System.out.print("feature " + feature + " types " + typeString + " ");
+
+                if (feature.types.size() == 1) {
+                    System.out.print("feature " + feature.toColorString() + " type " + typeString + " ");
+                } else if (feature.types.size() > 1) {
+                    System.out.print("feature " + feature.toColorString() + " types " + typeString + " ");
+                }
 
 //                if (feature.types == Type.get("text")) {
                 if (feature.types.contains(Type.get("text"))) {
@@ -608,7 +608,7 @@ public class Interpreter {
                         // System.out.print("can assign: ");
                         System.out.print("domain ");
                         for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i));
+                            System.out.print(feature.domain.get(i).toColorString());
                             if ((i + 1) < feature.domain.size()) {
                                 System.out.print(", ");
                             }
@@ -623,7 +623,7 @@ public class Interpreter {
                     } else {
                         System.out.print("contains ");
                         for (int i = 0; i < feature.listTypes.size(); i++) {
-                            System.out.print(feature.listTypes.get(i));
+                            System.out.print(feature.listTypes.get(i).toColorString());
                             if ((i + 1) < feature.listTypes.size()) {
                                 System.out.print(", ");
                             }
@@ -634,7 +634,7 @@ public class Interpreter {
                         // System.out.print(" domain ");
                         System.out.print(": ");
                         for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i));
+                            System.out.print(feature.domain.get(i).toColorString());
                             if ((i + 1) < feature.domain.size()) {
                                 System.out.print(", ");
                             }
@@ -667,7 +667,7 @@ public class Interpreter {
                     // Print list of types the feature can be assigned
                     System.out.print("can assign ");
                     for (int i = 0; i < feature.types.size(); i++) {
-                        System.out.print(feature.types.get(i));
+                        System.out.print(feature.types.get(i).toColorString());
                         if ((i + 1) < feature.types.size()) {
                             System.out.print(", ");
                         }
@@ -675,7 +675,7 @@ public class Interpreter {
                     if (feature.domain != null && feature.domain.size() > 0) {
                         System.out.print(": ");
                         for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i) + " ");
+                            System.out.print(feature.domain.get(i).toColorString() + " ");
                         }
                     }
                 }
@@ -686,7 +686,7 @@ public class Interpreter {
                 System.out.println(Color.ANSI_RED + "Error: Bad feature syntax." + Color.ANSI_RESET);
             }
 
-        } else if (isConceptContext()) {
+        } else if (Context.isConcept(context)) {
 
             // TODO:
 
@@ -709,8 +709,8 @@ public class Interpreter {
                 Concept concept = null;
                 if (Type.has(featureIdentifierToken)) {
                     type = Type.get(featureIdentifierToken);
-                    if (Concept.has(type)) {
-                        concept = Concept.get(type);
+                    if (Concept.exists(type)) {
+                        concept = Concept.request(type);
                     }
                 }
 
@@ -718,14 +718,14 @@ public class Interpreter {
                     Construct construct = Construct.create(type);
 
                     Reference constructReference = Reference.create(construct);
-                    System.out.println("reference " + type + " (id: " + constructReference.uid + ") -> construct " + construct.type + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")");
+                    System.out.println("reference " + type.toColorString() + " -> construct " + construct.toColorString());
 
 //                    System.out.println("(id: " + construct.uid + ") " + Application.ANSI_GREEN + construct.types + Application.ANSI_RESET + " (uuid: " + construct.uuid + ")");
 //                    System.out.println("construct " + Application.ANSI_GREEN + construct.type + Application.ANSI_RESET + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")");
 
                     // Update object
 //                    currentIdentifier = construct;
-                    currentIdentifier = constructReference;
+                    context.currentIdentifier = constructReference;
                 } else {
                     System.out.println(Color.ANSI_RED + "Error: No types or concept matches '" + featureIdentifierToken + "'" + Color.ANSI_RESET);
                 }
@@ -752,7 +752,7 @@ public class Interpreter {
     public void setTask(Context context) {
 
         // Determine interpreter's object. Concept or instance?
-        if (isConstructContext()) {
+        if (Context.isConstruct(context)) {
 
             String[] inputLineTokens = context.inputLine.split("[ ]+");
 
@@ -768,7 +768,7 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Construct currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+                Construct currentConstruct = Context.getConstruct(context);
                 HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentConstruct.object;
 
                 Construct currentFeatureConstruct = currentConstruct.states.get(featureIdentifier);
@@ -782,15 +782,15 @@ public class Interpreter {
 
                     Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
                     if (replacementConstruct != null) {
-                        ((Reference) currentIdentifier).object = replacementConstruct;
+                        ((Reference) context.currentIdentifier).object = replacementConstruct;
                         if (currentConstruct == replacementConstruct) {
                             System.out.print("[SAME CONSTRUCT] ");
                         } else {
                             System.out.print("[SWITCHED CONSTRUCT] ");
                         }
-                        currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+                        currentConstruct = (Construct) ((Reference) context.currentIdentifier).object;
 //                    System.out.println("REPLACEMENT: " + replacementConstruct);
-                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
+                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + context.currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
                     }
 
 //                currentConstruct.set(featureIdentifier, stateExpression);
@@ -813,7 +813,7 @@ public class Interpreter {
     public void addTask(Context context) {
 
         // Determine interpreter's object. Concept or instance?
-        if (isConstructContext()) {
+        if (Context.isConstruct(context)) {
 
             // Sanitize expression
             context.inputLine = context.inputLine.replaceAll("[ ]{2,}", " ");
@@ -841,7 +841,7 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Construct currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+                Construct currentConstruct = (Construct) ((Reference) context.currentIdentifier).object;
                 HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentConstruct.object;
 
                 // Check if feature is valid. If not, show error.
@@ -872,15 +872,15 @@ public class Interpreter {
 //                    System.out.println("reference -> " + replacementConstruct);
 
                     if (replacementConstruct != null) {
-                        ((Reference) currentIdentifier).object = replacementConstruct;
+                        ((Reference) context.currentIdentifier).object = replacementConstruct;
                         if (currentConstruct == replacementConstruct) {
                             System.out.print("[SAME CONSTRUCT] ");
                         } else {
                             System.out.print("[SWITCHED CONSTRUCT] ");
                         }
-                        currentConstruct = (Construct) ((Reference) currentIdentifier).object;
+                        currentConstruct = (Construct) ((Reference) context.currentIdentifier).object;
 //                    System.out.println("REPLACEMENT: " + replacementConstruct);
-                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
+                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + context.currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
                     }
 
                 } else {
@@ -922,6 +922,143 @@ public class Interpreter {
         }
     }
 
+    public void removeTask(Context context) {
+
+        // TODO:
+
+    }
+
+    public void whatTask(Context context) {
+        if (context.currentIdentifier != null) {
+            if (Context.isConcept(context)) {
+                Concept concept = Context.getConcept(context);
+                System.out.println(concept.type);
+            } else if (Context.isConstruct(context)) {
+                Construct construct = Context.getConstruct(context);
+                System.out.println(construct.type);
+            }
+        } else {
+            Error.get("Error: No identifier in context.");
+        }
+    }
+
+    public void whichTask(Context context) {
+        if (context.currentIdentifier != null) {
+            if (Context.isConcept(context)) {
+                Concept concept = Context.getConcept(context);
+                System.out.println(concept);
+            } else if (Context.isConstruct(context)) {
+                Construct construct = Context.getConstruct(context);
+                System.out.println(construct.type + " (id: " + context.currentIdentifier.uid + ") -> construct " + construct.type + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")");
+            }
+        }
+    }
+
+    // describes the local context by default (or referenced construct by UUID)
+    public void describeTask(Context context) {
+
+        String[] inputLineTokens = context.inputLine.split("[ ]+");
+
+        if (inputLineTokens.length == 1) {
+
+            List<Type> typeList = Type.get();
+            for (int i = 0; i < typeList.size(); i++) {
+                List<Reference> referenceList = Manager.get(Reference.class);
+                // System.out.println("(id: " + typeList.get(i).uid + ") " + Application.ANSI_BLUE + typeList.get(i).identifier + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeList.get(i).uuid + ")");
+                int typeReferenceCount = 0;
+                for (int j = 0; j < referenceList.size(); j++) {
+                    if (((Construct) (((Reference) referenceList.get(j)).object)).type == typeList.get(i)) {
+                        typeReferenceCount++;
+                    }
+                }
+                System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + typeReferenceCount + ")");
+            }
+
+        } else if (inputLineTokens.length >= 2) {
+
+            String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
+
+            if (Expression.isConstruct(typeToken)) {
+
+//                String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
+//                String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
+//                String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+//
+//                if (addressTypeToken.equals("id")) {
+//                    Construct construct = null;
+//                    long uid = Long.parseLong(addressToken.trim());
+//                    Identifier identifier = Manager.get(uid);
+//                    if (identifier == null) {
+//                        System.out.println(Color.ANSI_RED + "Error: No concept with UID " + uid + Color.ANSI_RESET);
+//                    } else if (identifier.getClass() == Construct.class) {
+//                        construct = (Construct) identifier;
+////                        } else if (identifier.getClass() == Concept.class) {
+////                            System.out.println("Error: The UID is for a concept.");
+////                            //                                Concept concept = (Concept) identifier;
+////                            //                                System.out.println("Found " + concept.types + " with UID " + uid);
+//                    }
+//
+//                    if (construct != null && construct.type == Type.get(typeIdentifierToken)) {
+//                        if (construct.type == Type.get("none")) {
+//
+//                            System.out.println("REFERENCE (id:X) -> " + construct);
+//
+//                        } else if (construct.type == Type.get("number")) {
+//
+//                        } else if (construct.type == Type.get("text")) {
+//
+////                            String feature = (String) construct.object;
+//                            System.out.println("REFERENCE (id:X) -> " + construct);
+//
+//                        } else if (construct.type == Type.get("list")) {
+//
+//                        } else {
+//
+//                            System.out.println(Color.ANSI_BLUE + construct.type.identifier + Color.ANSI_RESET);
+//
+//                            HashMap<String, Feature> features = (HashMap<String, Feature>) construct.object;
+//                            for (String featureIdentifier : features.keySet()) {
+//                                Feature feature = features.get(featureIdentifier);
+//                                String featureTypes = "";
+//                                for (int i = 0; i < feature.types.size(); i++) {
+//                                    featureTypes += feature.types.get(i);
+//                                    if ((i + 1) < feature.types.size()) {
+//                                        featureTypes += ", ";
+//                                    }
+//                                }
+//                                System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET);
+//                                // TODO: print current object types; print available feature types
+//                            }
+//
+//                        }
+//                    }
+//                } else if (addressToken.equals("uuid")) {
+//
+//                } else {
+//
+//
+//                }
+
+            } else if (Type.has(typeToken)) {
+//                // TODO: Print Concept
+//                System.out.println("VIEW CONCEPT");
+//
+//                System.out.println();
+
+//                List<Construct> constructList = Manager.getConstructList(Type.get(typeToken));
+                List<Reference> referenceList = Manager.get(Reference.class);
+                for (int i = 0; i < referenceList.size(); i++) {
+                    if (((Construct) (referenceList.get(i)).object).type == Type.get(typeToken)) {
+                        System.out.println(referenceList.get(i).toColorString());
+//                    System.out.println("(id: " + constructList.get(i).uid + ") " + Application.ANSI_GREEN + constructList.get(i).classType + Application.ANSI_RESET + " (uuid: " + constructList.get(i).uuid + ")");
+                    }
+                }
+            }
+        }
+    }
+
+    // Searches remote repository.
+    //
     // Usage:
     // list [<types-identifier>]
     //
@@ -929,7 +1066,7 @@ public class Interpreter {
     // list         Lists available types.
     // list port    Lists port constructs.
     // list path    Lists path constructs.
-    public void viewTask(Context context) {
+    public void searchTask(Context context) { // previously, viewTask
 
         String[] inputLineTokens = context.inputLine.split("[ ]+");
 
@@ -1004,21 +1141,17 @@ public class Interpreter {
 
                 } else {
 
-
                 }
 
             } else if (Type.has(typeToken)) {
+
                 // TODO: Print Concept
-                System.out.println("VIEW CONCEPT");
-
-
-
-
-                System.out.println();
+//                System.out.println("VIEW CONCEPT");
+//                System.out.println();
 
                 List<Construct> constructList = Manager.getConstructList(Type.get(typeToken));
                 for (int i = 0; i < constructList.size(); i++) {
-                    System.out.println(constructList.get(i));
+                    System.out.println(constructList.get(i).toColorString());
 //                    System.out.println("(id: " + constructList.get(i).uid + ") " + Application.ANSI_GREEN + constructList.get(i).classType + Application.ANSI_RESET + " (uuid: " + constructList.get(i).uuid + ")");
                 }
             }
@@ -1030,7 +1163,7 @@ public class Interpreter {
     public void printTask(Context context) {
 
         // Determine interpreter's object. Concept or instance?
-        if (isConstructContext()) {
+        if (Context.isConstruct(context)) {
 
             String[] inputLineTokens = context.inputLine.split("[ ]+");
 
@@ -1045,7 +1178,7 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Construct construct = ((Construct) ((Reference) currentIdentifier).object).states.get(featureToken);
+                Construct construct = Context.getConstruct(context).states.get(featureToken);
 
                 System.out.println(construct);
 
@@ -1121,7 +1254,7 @@ public class Interpreter {
         String[] inputLineTokens = context.inputLine.split("[ ]+");
 
         // Determine interpreter's object. Concept or instance?
-        if (isConceptContext()) {
+        if (Context.isConcept(context)) {
 
             // Defaults
             String featureTagToken = null;
@@ -1172,7 +1305,7 @@ public class Interpreter {
 //            }
 
 
-        } else if (isConstructContext()) {
+        } else if (Context.isConstruct(context)) {
 
             // TODO:
 

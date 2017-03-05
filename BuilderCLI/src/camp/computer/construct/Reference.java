@@ -69,4 +69,14 @@ public class Reference extends Identifier {
 //
 //    }
 
+    public String toColorString() {
+        if (this.object != null) {
+            if (this.object.getClass() == Construct.class) {
+                Construct construct = (Construct) this.object;
+                return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
+            }
+        }
+        return null;
+    }
+
 }

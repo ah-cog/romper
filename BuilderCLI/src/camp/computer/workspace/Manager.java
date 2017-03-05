@@ -219,7 +219,7 @@ public class Manager {
 //                System.out.println("WHAT SHOULD HAPPEN HERE?");
                 // (answer!) Look for persistent "empty list" object (i.e., the default list).
 
-                Concept concept = Concept.get(type);
+                Concept concept = Concept.request(type);
 
                 // Look for persistent "empty list" object (i.e., the default list).
                 List<Identifier> identiferList = Manager.get();
@@ -578,6 +578,16 @@ public class Manager {
         }
         return constructList;
     }
+
+//    public static List<Identifier> get(Class classType) {
+//        List<Identifier> elements = new ArrayList<>();
+//        for (Identifier element : Manager.elements.values()) {
+//            if (element.getClass() == classType) {
+//                elements.add(element);
+//            }
+//        }
+//        return elements;
+//    }
 
 //    public static Concept get(String constructUri) {
     public static Identifier get(String constructUri) {
