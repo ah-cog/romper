@@ -22,15 +22,15 @@ public class Reference extends Identifier {
         return reference;
     }
 
-    public static Reference getReference(Type type) {
-
-        Reference reference = new Reference();
-
-        // TODO: Load (most recent revision) of default concept or construct for the specified type.
-
-        return reference;
-
-    }
+//    public static Reference getReference(Type type) {
+//
+//        Reference reference = new Reference();
+//
+//        // TODO: Load (most recent revision) of default concept or construct for the specified type.
+//
+//        return reference;
+//
+//    }
 
     public static Reference create(Construct construct) {
 
@@ -46,28 +46,38 @@ public class Reference extends Identifier {
 
     }
 
-    public static Reference getReference(Type type, long id) {
+//    public static Reference getReference(Type type, long id) {
+//
+//        Reference reference = new Reference();
+//
+//        // TODO: Load the specified version of the concept or construct for the specified type.
+//
+//        return reference;
+//
+//    }
 
-        Reference reference = new Reference();
-
-        // TODO: Load the specified version of the concept or construct for the specified type.
-
-        return reference;
-
-    }
-
-    public static Reference getReference(Type type, long id, long revisionUid) {
-
-        Reference reference = new Reference();
-
-        // TODO: Load specified concept or construct from cache (or persistent store).
-
-        return reference;
-    }
+//    public static Reference getReference(Type type, long id, long revisionUid) {
+//
+//        Reference reference = new Reference();
+//
+//        // TODO: Load specified concept or construct from cache (or persistent store).
+//
+//        return reference;
+//    }
 
 //    public static Reference updateChild(Reference reference, ) {
 //
 //    }
+
+    public String toString() {
+        if (this.object != null) {
+            if (this.object.getClass() == Construct.class) {
+                Construct construct = (Construct) this.object;
+                return "reference " + construct.type.identifier + " (id: " + uid + ") -> construct " + construct.type.identifier + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
+            }
+        }
+        return null; // Reference points to "any"
+    }
 
     public String toColorString() {
         if (this.object != null) {
@@ -76,7 +86,7 @@ public class Reference extends Identifier {
                 return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
             }
         }
-        return null;
+        return null; // Reference points to "any"
     }
 
 }

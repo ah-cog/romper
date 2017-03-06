@@ -269,303 +269,87 @@ public class Manager {
         return null;
     }
 
-    public static Construct getPersistentListConstruct(List constructList) {
-
-        Type type = Type.get("list");
-
-        // Look for persistent "empty list" object (i.e., the default list).
-        List<Identifier> identiferList = Manager.get();
-        for (int i = 0; i < identiferList.size(); i++) {
-            if (identiferList.get(i).getClass() == Construct.class) {
-                Construct candidateConstruct = (Construct) identiferList.get(i);
-
-                if (candidateConstruct.type == type && candidateConstruct.objectType == List.class && candidateConstruct.object != null) {
-                    // LIST
-
-
-                    // Check (1) if constructs are based on the same specified concept version, and
-                    //       (2) same list of constructs.
-                    List candidateConstructList = (List) candidateConstruct.object;
-//                    List currentConstructList = (List) currentConstruct.object;
-                    List currentConstructList = constructList;
-
-                    // Compare identifer, types, domain, listTypes
-                    // TODO: Move comparison into Concept.hasConstruct(concept, construct);
-                    boolean isConstructMatch = true;
-                    if (candidateConstructList.size() != currentConstructList.size()) {
-                        isConstructMatch = false;
-                    } else {
-
-                        // Compare candidate list (from repository) with the requested list.
-                        for (int j = 0; j < currentConstructList.size(); j++) {
-                            if (!candidateConstructList.contains(currentConstructList.get(j))) {
-                                isConstructMatch = false;
-                            }
-                        }
-
-//                        // Compare candidate construct (from repository) with the current construct being updated.
-//                        for (String featureIdentifier : currentConstructFeatures.keySet()) {
-//                            if (featureIdentifier.equals(featureToReplace)) {
-//                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
-//                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-//                                        || candidateConstruct.states.get(featureIdentifier) != featureConstructReplacement) {
-////                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
-//                                    isConstructMatch = false;
-//                                }
-//                            } else {
-//                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
-//                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-//                                        || candidateConstruct.states.get(featureIdentifier) != currentConstruct.states.get(featureIdentifier)) {
-////                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
-//                                    isConstructMatch = false;
-//                                }
+//    public static Construct getPersistentListConstruct(List constructList) {
+//
+//        Type type = Type.get("list");
+//
+//        // Look for persistent "empty list" object (i.e., the default list).
+//        List<Identifier> identiferList = Manager.get();
+//        for (int i = 0; i < identiferList.size(); i++) {
+//            if (identiferList.get(i).getClass() == Construct.class) {
+//                Construct candidateConstruct = (Construct) identiferList.get(i);
+//
+//                if (candidateConstruct.type == type && candidateConstruct.objectType == List.class && candidateConstruct.object != null) {
+//                    // LIST
+//
+//
+//                    // Check (1) if constructs are based on the same specified concept version, and
+//                    //       (2) same list of constructs.
+//                    List candidateConstructList = (List) candidateConstruct.object;
+////                    List currentConstructList = (List) currentConstruct.object;
+//                    List currentConstructList = constructList;
+//
+//                    // Compare identifer, types, domain, listTypes
+//                    // TODO: Move comparison into Concept.hasConstruct(concept, construct);
+//                    boolean isConstructMatch = true;
+//                    if (candidateConstructList.size() != currentConstructList.size()) {
+//                        isConstructMatch = false;
+//                    } else {
+//
+//                        // Compare candidate list (from repository) with the requested list.
+//                        for (int j = 0; j < currentConstructList.size(); j++) {
+//                            if (!candidateConstructList.contains(currentConstructList.get(j))) {
+//                                isConstructMatch = false;
 //                            }
 //                        }
 //
-//                        // TODO: Additional checks...
-
-                    }
-
-                    if (isConstructMatch) {
-                        return candidateConstruct;
-                    }
-
-
-                    // TODO: Look for permutation of a list (matching list of constructs)?
-//                    return construct;
-
-                }
-            }
-        }
-
-        // Create new Construct if got to this point because an existing one was not found
-//        Construct newReplacementConstruct = Construct.REFACTOR_getRevise(currentConstruct, featureToReplace, featureConstructReplacement);
-        Construct newReplacementConstruct = Construct.REFACTOR_getList(constructList);
-        if (newReplacementConstruct != null) {
-            return newReplacementConstruct;
-        }
-
-        // TODO: Iterate through constructs searching for one that matches the default construct hierarchy for the specified type (based on the Concept used to create it).
-        return null;
-
-    }
-
-    /**
-     * Returns the persistent {@code Construct}, if exists, that would result from applying
-     * {@code expression} to the specified {@code construct}.
-     *
-     * If no such {@code Construct} exists, returns {@code null}.
-     */
-//    public static Construct getPersistentConstruct(Construct construct, String expression) {
-//    public static Construct getPersistentConstruct(Construct construct, Feature feature, Construct featureConstructReplacement) {
-    public static Construct getPersistentConstruct(Construct currentConstruct, String featureToReplace, Construct featureConstructReplacement) {
-
-        Type type = currentConstruct.type; // Construct type
-
-        // Look for persistent "empty list" object (i.e., the default list).
-        List<Identifier> identiferList = Manager.get();
-        for (int i = 0; i < identiferList.size(); i++) {
-            if (identiferList.get(i).getClass() == Construct.class) {
-                Construct candidateConstruct = (Construct) identiferList.get(i);
-
-                if (candidateConstruct.type == type && candidateConstruct.objectType == List.class && candidateConstruct.object != null) {
-                    // LIST
-
-
-                    // Check (1) if constructs are based on the same specified concept version, and
-                    //       (2) same list of constructs.
-                    List candidateConstructList = (List) candidateConstruct.object;
-                    List currentConstructList = (List) currentConstruct.object;
-
-                } else if (candidateConstruct.type == type && candidateConstruct.objectType == Map.class && candidateConstruct.object != null) {
-//                } else if (Construct.isComposite(construct)) {
-                    // HASHMAP
-
-                    // Check (1) if constructs are based on the same specified concept version, and
-                    //       (2) same set of features and assignments to constructs except the specified feature to change.
-                    HashMap<String, Feature> candidateConstructFeatures = (HashMap<String, Feature>) candidateConstruct.object;
-                    HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentConstruct.object;
-
-                    // Compare identifer, types, domain, listTypes
-                    // TODO: Move comparison into Concept.hasConstruct(concept, construct);
-                    boolean isConstructMatch = true;
-                    if (candidateConstructFeatures.size() != currentConstructFeatures.size()) {
-                        isConstructMatch = false;
-                    } else {
-
-                        // Compare candidate construct (from repository) with the current construct being updated.
-                        for (String featureIdentifier : currentConstructFeatures.keySet()) {
-                            if (featureIdentifier.equals(featureToReplace)) {
-                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
-                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-                                        || candidateConstruct.states.get(featureIdentifier) != featureConstructReplacement) {
-//                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
-                                    isConstructMatch = false;
-                                }
-                            } else {
-                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
-                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-                                        || candidateConstruct.states.get(featureIdentifier) != currentConstruct.states.get(featureIdentifier)) {
-//                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
-                                    isConstructMatch = false;
-                                }
-                            }
-                        }
-
-                        // TODO: Additional checks...
-
-                    }
-
-                    if (isConstructMatch) {
-                        return candidateConstruct;
-                    }
-
-
-                    // TODO: Look for permutation of a list (matching list of constructs)?
-//                    return construct;
-                }
-            }
-        }
-
-        // Create new Construct if got to this point because an existing one was not found
-        Construct newReplacementConstruct = Construct.REFACTOR_getRevise(currentConstruct, featureToReplace, featureConstructReplacement);
-        if (newReplacementConstruct != null) {
-            return newReplacementConstruct;
-        }
-
-        // TODO: Iterate through constructs searching for one that matches the default construct hierarchy for the specified type (based on the Concept used to create it).
-        return null;
-
-    }
-
-    /**
-     * If the State does not exist (in cache or persistent store), then returns null.
-     *
-     * Retrieves State from persistent store if it exists! Also caches it!
-     *
-     * <strong>Examples of {@code Expression}:</strong>
-     *
-     * none
-     *
-     * 'foo'
-     * text('foo')
-     * text(id:34)
-     *
-     * 66
-     * number(66)
-     * number(id:12)
-     *
-     * text(id:34), 'foo', 'bar'
-     * list(text(id:34), 'foo', 'bar')
-     * list(id:44)
-     *
-     * port(id:99)
-     */
-    public static Construct getPersistentConstruct(String expression) {
-
-        Type constructType = Type.get(expression);
-        if (constructType != null) {
-
-            if (constructType == Type.get("none")) {
-                // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
-                for (int i = 0; i < identiferList.size(); i++) {
-                    if (identiferList.get(i).getClass() == Construct.class) {
-                        Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("none") && construct.objectType == null && construct.object == null) {
-                            return construct;
-                        }
-                    }
-                }
-            } else if (constructType == Type.get("text")) {
-                // e.g.,
-                // [ ] 'foo'
-                // [ ] text('foo')
-                // [ ] text(id:234)
-
-                // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
-                for (int i = 0; i < identiferList.size(); i++) {
-                    if (identiferList.get(i).getClass() == Construct.class) {
-                        Construct construct = (Construct) identiferList.get(i);
-                        String textContent = "";
-                        if (expression.startsWith("'") && expression.endsWith("'")) {
-                            textContent = expression.substring(1, expression.length() - 1);
-                        }
-                        if (construct.type == Type.get("text") && construct.objectType == String.class && textContent.equals(construct.object)) {
-//                        if (construct.classType == Type.get("text") && construct.objectType == String.class && ((textContent == null && construct.object == null) || textContent.equals(construct.object))) {
-                            return construct;
-                        }
-                    }
-                }
-            } else if (constructType == Type.get("list")) {
-
-                // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
-                // TODO: Also support looking up by construct permutation contained in list?
-
-                // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
-                for (int i = 0; i < identiferList.size(); i++) {
-                    if (identiferList.get(i).getClass() == Construct.class) {
-                        Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("list") && construct.objectType == List.class && construct.object != null) {
-                            // TODO: Look for permutation of a list (matching list of constructs)?
-                            return construct;
-                        }
-                    }
-                }
-
-            } else {
-
-                if (Expression.isConstruct(expression)) {
-
-                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
-
-                    long uid = Long.parseLong(addressToken.trim());
-
-                    Identifier identifier = Manager.get(uid);
-//                    if (identifier != null) {
-//                        if (identifier.getClass() == Construct.class) {
-//                            State state = State.getState(stateType);
-//                            state.object = identifier;
-//                            return state;
-//                        }
+////                        // Compare candidate construct (from repository) with the current construct being updated.
+////                        for (String featureIdentifier : currentConstructFeatures.keySet()) {
+////                            if (featureIdentifier.equals(featureToReplace)) {
+////                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
+////                                        || !candidateConstruct.states.containsKey(featureIdentifier)
+////                                        || candidateConstruct.states.get(featureIdentifier) != featureConstructReplacement) {
+//////                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
+////                                    isConstructMatch = false;
+////                                }
+////                            } else {
+////                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
+////                                        || !candidateConstruct.states.containsKey(featureIdentifier)
+////                                        || candidateConstruct.states.get(featureIdentifier) != currentConstruct.states.get(featureIdentifier)) {
+//////                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+////                                    isConstructMatch = false;
+////                                }
+////                            }
+////                        }
+////
+////                        // TODO: Additional checks...
+//
 //                    }
-
-                    if (identifier != null) {
-                        return (Construct) identifier;
-                    }
-
-
-//                    // Look for existing (persistent) state for the given expression
-//                    if (identifier != null) {
-//                        List<Identifier> identiferList = Manager.get();
-//                        for (int i = 0; i < identiferList.size(); i++) {
-//                            if (identiferList.get(i).getClass() == Construct.class) {
-//                                Construct construct = (Construct) identiferList.get(i);
-////                            String textContent = expression.substring(1, expression.length() - 1);
-//                                // TODO: Also check Type?
-//                                if (construct.objectType == Map.class && construct.object != null) {
-////                                        && construct.object == identifier) {
-////                                        && construct.object == identifier) {
-//                                    for (Construct featureConstruct : construct.states.values()) {
-//                                        if (features.containsValue(identifier)) { // TODO: iterate through features to see if contains feature...
-//                                            return construct;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
+//
+//                    if (isConstructMatch) {
+//                        return candidateConstruct;
 //                    }
+//
+//
+//                    // TODO: Look for permutation of a list (matching list of constructs)?
+////                    return construct;
+//
+//                }
+//            }
+//        }
+//
+//        // Create new Construct if got to this point because an existing one was not found
+////        Construct newReplacementConstruct = Construct.REFACTOR_getRevise(currentConstruct, featureToReplace, featureConstructReplacement);
+//        Construct newReplacementConstruct = Construct.REFACTOR_getList(constructList);
+//        if (newReplacementConstruct != null) {
+//            return newReplacementConstruct;
+//        }
+//
+//        // TODO: Iterate through constructs searching for one that matches the default construct hierarchy for the specified type (based on the Concept used to create it).
+//        return null;
+//
+//    }
 
-                }
-            }
-        }
-
-        return null;
-    }
 
     public static List<Construct> getConstructList(Type type) {
         List<Construct> constructList = new ArrayList<>();

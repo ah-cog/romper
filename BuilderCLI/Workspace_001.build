@@ -1,277 +1,85 @@
 # Builder Script File Format 0.0.1-alpha
 
-add project test-project
-# clone project uuid(<uuid>)
-edit project test-project
+# --------------------------------------------------------------------------------------------------
+# Scheme
+# --------------------------------------------------------------------------------------------------
 
-#
-# Device: Clay
-#
+define port
+has mode text : 'digital', 'analog', 'pwm' # TODO: Add other modes
+has direction text : 'input', 'output', 'bidirectional'
+has voltage text : 'ttl', 'cmos'
+# TODO: add configurations
 
-add device clay-device
-edit device clay-device
+define device
+has port list
 
-start add-builder-port # (<device>)
-edit device # TODO: factor out!
-add port
-edit port
-add configuration mode:none;direction:null;voltage:null
-add configuration mode:digital;direction:input,output,bidirectional;voltage:ttl,cmos
-add configuration mode:analog;direction:input,output;voltage:ttl,cmos
-add configuration mode:pwm;direction:input,output;voltage:ttl,cmos
-add configuration mode:resistive_touch;direction:input;voltage:null
-add configuration mode:power;direction:output;voltage:ttl,cmos
-add configuration mode:power;direction:input;voltage:common
-add configuration mode:i2c(scl);direction:bidirectional;voltage:cmos
-add configuration mode:i2c(sda);direction:bidirectional;voltage:cmos
-add configuration mode:spi(sclk);direction:output;voltage:ttl,cmos
-add configuration mode:spi(mosi);direction:output;voltage:ttl,cmos
-add configuration mode:spi(miso);direction:input;voltage:ttl,cmos
-add configuration mode:spi(ss);direction:output;voltage:ttl,cmos
-add configuration mode:uart(rx);direction:input;voltage:ttl,cmos
-add configuration mode:uart(tx);direction:output;voltage:ttl,cmos
-stop # add-builder-port
-# TODO: Detect if device already exists with given structure!
+define path
+has port list
+# let ...
 
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
-do add-builder-port
+define script
+has code text
 
-#
-# Device: IR Rangefinder
-#
+define task
+has script
 
-edit project # TODO: factor out!
-add device # NOTE: "add project" always adds the device to the current project.
+define operation # procedure, plan, strategy, operation, activity, game
+has task list # sequence
+has task list # sequence
+# let task : task
+# limit task sequence
+# limit task unique
+# prepare task sequence
+# prepare task unique
+# attribute task sequence
+# attribute task unique
+# trait task sequence
+# trait task unique
+# property task sequence
+# property task unique
+# for task sequence
+# for task unique
+# be task sequence
+# be task unique
+# is task sequence
+# is task unique
+# force task sequence
+# force task unique
+# limit task sequence
+# limit task unique
 
-edit device
-add port # NOTE: "add port" adds a port to the current device (if editing).
-edit port # NOTE: "edit port" edits the last-added port
-add configuration mode:power;direction:input;voltage:ttl # NOTE: Adds configuration to the current concept!
+define project
+has device list
+has path list
+has operation list
 
-edit device # TODO: factor out!
-add port
-edit port
-add configuration mode:power;direction:output;voltage:common
+# TODO: user
+# TODO: item
+# TODO: inventory
+# TODO: portfolio
+# TODO: store
+# TODO: idea
+# TODO: documentation
 
-edit device # TODO: factor out!
-add port
-edit port
-add configuration mode:analog;direction:output;voltage:ttl
+# --------------------------------------------------------------------------------------------------
+# Model
+# --------------------------------------------------------------------------------------------------
 
-#
-# Use Case: Connect IR rangefinder to Clay. Create paths, auto-configure,
-#
+# TODO: define Clay
+# TODO: define sensors
 
-# Paths
-edit project # TODO: factor out!
-add path
-edit path
-set source-port:port(uid:5)
-set target-port:port(uid:19)
+#port '1'
+#port '2'
+#port '3'
 
-edit project # TODO: factor out!
-add path
-edit path
-set source-port:port(uid:6)
-set target-port:port(uid:20)
-# set my-val-a:number(34)
-# set my-val-b:number(34.0)
+#port : '1'
+#port : '2'
+#port : '3'
 
-edit project # TODO: factor out!
-add path
-edit path
-set source-port:port(uid:7)
-set target-port:port(uid:21)
+port : '1'
+#label port '1'
+#handle port '1'
+#tag port '1'
+#call port '1'
 
-edit device(uid:2)
-edit port(uid:5)
-set configuration mode:digital;direction:output;voltage:ttl
-
-# Auto-assemble Paths (Sets configuration automatically.)
-solve path(uid:22)
-solve path(uid:23)
-solve path(uid:24)
-
-# solve path(port(uid:4),port(uid:18))
-# solve path(port(uid:5),port(uid:19))
-# solve path(port(uid:6),port(uid:20))
-
-# solve path(device(uid:1),device(uid:16)) # assemble path(device(uid:1),device(uid:16))
-
-# solve project(uid(0))
-
-# TODO: Test case script for searching for a project and deploying it in a workspace.
-
-start add-task # (input)
-edit device(uid:1) # HACK # TODO: factor out!
-# edit device uid(input) # HACK
-add task
-edit task
-stop
-
-edit project
-do add-task
-
-# Add Script to Tasks
-edit task(uid:26) # edit uid(25)
-set script:myTaskScript(data);
-
-
-
-
-# Lookup Syntax
-# ----------------------------------------------------------------------------------------------------
-
-# [Obsolete] edit port uid(25)
-# edit port(uid:25)         # _global_ lookup by UID
-# edit port(uuid:<uuid>)    # _global_ lookup by UUID
-# edit port(1)              # _relative_ lookup list item by index
-# edit my-concept-identifier     # _global?_ lookup by identifier
-# edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
-#? edit port(my-identifier)              # _relative_ lookup list item by list identifier and element identifier?
-#? edit port                # lookup by property label
-# TODO: extend lookup to include versions... (for certain commands)
-
-# edit :project(uid:33):device(3):port(4)
-# edit .:project(uid:33):device(3):port(4)
-# edit :.project(uid:33):device(3):port(4)
-# edit ..project(uid:33):device(3):port(4)
-
-# add ..project(uid:33):device(3):port(4)
-# add ..project(uid:33):device(3).port(4)
-
- # always jumps to "top-level" project scope, since only one project can be active at a time
-
-# builder .
-# device .
-# port .
-# configuration .
-
-# TODO: CLI to make directory structure that can be deployed to Clay! Files can be edited with CLI to concept directory; script files are generated and their code can be edited with vim or whatever. The folder contains a git repo automatically and is versioned automatically by the CLI!
-# TODO: INSIGHT? MAKE BUILDING STRUCTURE IN SPACE POSSIBLE THROUGH LINEAR SEQUENCES OF CONSTRUCTIVE, UNDOABLE COMMANDS. THEN THEY CAN BE LAID OUT AND MANIPULATED IN TIME.
-# TODO: "builder ." command to create new project folder here (reflect to infer name of workspace (and add login credentials to connect to your repo; auto do this in builder shell)
-
-# TODO: BLOG/NOTE: THIS IS TRUE (to answer PETER THEIL's dumb question: the software development industry is not the computing (or computer design) industry and they have incentive to keep software and, by extension, software development done in the same way. It is in the interest of preserving their company and industry. So to disrupt the industry, we MUST not care about that and our business model MUST not depend on it staying the same. Instead, it MUST depend on the instrutry changing in a specific way. Our way is X.
-
-# add/rem[ove] ---    +/-    --- is there an /un.+/ word?
-# edit/unedit
-# set/unset
-# do/undo
-
-# TODO: add concept "project"
-# TODO: add concept "host"
-# TODO: add concept "device"
-# TODO: add concept "port"
-# TODO: add concept "configuration"
-# TODO: add concept "path"
-# TODO: add concept "schedule"
-# TODO: add concept "task"
-
-# TODO: edit concept project # loads latest revision
-# TODO: add variable mode
-# TODO: add variable direction
-# TODO: add variable voltage
-# ...
-# (create/edit construct)
-# TODO: add configuration mode:none;direction:null;voltage:null
-# ...
-
-# add path ( device uid(1) port uid(4); device uid(16) port uid(18) )
-# add path { source-port:uid(4); target-port:uid(18) }
-
-# TODO: use port uid:33 as "source-port"
-
-# TODO: add concept "device"
-# TODO: add device <concept-identifier>
-# TODO: edit device
-# TODO: add variable "variable-name"
-# TODO: set variable-name 34
-
-# create device "clay"
-# ...
-# save
-
-# update device "clay"
-# ...
-# save
-
-# describe <concept>
-# ...
-# save <concept> # described concept isn't usable (it's in "scratch" until saved)
-
-# /workspace/project/host
-# /workspace/project/device/port
-# /workspace/project/path/port
-# /workspace/project/task
-
-
-# PORT SNAPSHOT/CONFIG:
-# mode:none;direction:null;voltage:null
-# mode:digital;direction:input,output,bidirectional;voltage:ttl,cmos
-# mode:analog;direction:input,output;voltage:ttl,cmos
-# mode:pwm;direction:input,output;voltage:ttl,cmos
-# mode:resistive_touch;direction:input;voltage:null
-# mode:power;direction:output;voltage:ttl,cmos
-# mode:power;direction:input;voltage:common
-# mode:i2c(scl);direction:bidirectional;voltage:cmos
-# mode:i2c(sda);direction:bidirectional;voltage:cmos
-# mode:spi(sclk);direction:output;voltage:ttl,cmos
-# mode:spi(mosi);direction:output;voltage:ttl,cmos
-# mode:spi(miso);direction:input;voltage:ttl,cmos
-# mode:spi(ss);direction:output;voltage:ttl,cmos
-# mode:uart(rx);direction:input;voltage:ttl,cmos
-# mode:uart(tx);direction:output;voltage:ttl,cmos
-
-# TODO: Store concept structure hierarchy to prevent redundancy!
-# TODO: Store "concept instances" that identify a device/concept for a given structure configuration within the hierarchy (there can be multiple per config, each with revisions!)
-
-# 1 PATH SNAPSHOT/CONFIG --- (1 PORT : 1 PORT) DEVICE/BUS:
-#
-# mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common
-
-
-# 3 PATH DEVICE SNAPSHOT/CONFIG --- (3 PORT : 3 PORT) DEVICE/BUS:
-#
-# [ mode:power;direction:output;voltage:ttl | mode:power;direction:input;voltage:ttl ] &
-# [ mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common ] &
-# [ mode:analog;direction:input;voltage:ttl | mode:analog;direction:output;voltage:ttl ]
-
-
-# PROJECT SNAPSHOT/CONFIG --- SET OF 4 DEVICES, EACH 3 PATHS (PATH SETS)
-#
-# Projects need to store the information that is needed to reconstruct what isn't stored
-# explicitly, at minimum. This minimum includes (a) the devices used in the project, and (b) the
-# tasks that control those devices.
-#
-# Additionally, an abstract representation of (a) the paths connecting devices and (b) the ports
-# on hosts to which paths are connected. There can be many such abstract representations that vary
-# based on, for example, whether each device is connected to a single host, or they are connected
-# one-to-one to different hosts.
-#
-# {
-#    [ mode:power;direction:output;voltage:ttl | mode:power;direction:input;voltage:ttl ] &
-#    [ mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common ] &
-#    [ mode:analog;direction:input;voltage:ttl | mode:analog;direction:output;voltage:ttl ]
-# +
-#    [ mode:power;direction:output;voltage:ttl | mode:power;direction:input;voltage:ttl ] &
-#    [ mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common ] &
-#    [ mode:analog;direction:input;voltage:ttl | mode:analog;direction:output;voltage:ttl ]
-# +
-#    [ mode:power;direction:output;voltage:ttl | mode:power;direction:input;voltage:ttl ] &
-#    [ mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common ] &
-#    [ mode:analog;direction:input;voltage:ttl | mode:analog;direction:output;voltage:ttl ]
-# +
-#    [ mode:power;direction:output;voltage:ttl | mode:power;direction:input;voltage:ttl ] &
-#    [ mode:power;direction:input;voltage:common | mode:power;direction:output;voltage:common ] &
-#    [ mode:analog;direction:input;voltage:ttl | mode:analog;direction:output;voltage:ttl ]
-# }
+port('1')

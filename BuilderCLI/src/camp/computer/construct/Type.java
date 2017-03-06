@@ -75,7 +75,7 @@ public class Type extends Identifier {
 
     @Override
     public String toString() {
-        return identifier;
+        return identifier + " (id: " + uid + ")";
     }
 
     public String toColorString() {

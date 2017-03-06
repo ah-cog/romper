@@ -157,11 +157,10 @@ public class Interpreter {
                 whatTask(context);
             } else if (context.inputLine.equals("which")) {
                 whichTask(context);
-            } else if (context.inputLine.startsWith("describe") || context.inputLine.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
-                // TODO: full command "list"
-                describeTask(context);
             } else if (context.inputLine.startsWith("locate")) { // previously: ws, show, ls
                 searchTask(context);
+            } else if (context.inputLine.startsWith("describe") || context.inputLine.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
+                describeTask(context);
             } else if (context.inputLine.startsWith("next")) {
                 // TODO: Allow if previous command was "search" and more items exist (or say no more exist)
             } else if (context.inputLine.startsWith("previous")) {
@@ -313,8 +312,7 @@ public class Interpreter {
                             }
                             listTypes.add(Type.get(featureIdentifier)); // If identifier is a construct types, then constraint list to that types by default
                         } else {
-//                            listTypes.get(Type.get("any")); // If identifier is non-construct types then default list types is "any"
-                            listTypes = null;
+                            listTypes = null; // If identifier is non-construct types then default list types is "any"
                         }
                     } else {
                         // TODO: Refactor. There's some weird redundancy here with 'has' and 'Type.get'.
@@ -364,7 +362,7 @@ public class Interpreter {
                 // Determine elements of object list
                 for (int i = 0; i < constraintTokens.length; i++) {
                     String constraintToken = constraintTokens[i].trim();
-                    if (!constraintToken.startsWith("'") || !constraintToken.endsWith("'")) {
+                    if (!constraintToken.startsWith("'") || !constraintToken.endsWith("'")) { // TODO: Check for validity of type/construct/concept
                         hasConstructContent = true;
                         isTextContent = false;
                     } else if (constraintToken.startsWith("'") && constraintToken.endsWith("'")) {
@@ -548,7 +546,7 @@ public class Interpreter {
                     for (int i = 0; i < constraintTokens.length; i++) {
                         String constraintToken = constraintTokens[i];
                         if (constraintToken != null) {
-                            Construct state = Construct.get(constraintToken.trim());
+                            Construct state = Construct.request(constraintToken.trim());
                             featureDomain.add(state);
                         }
                     }
@@ -778,9 +776,9 @@ public class Interpreter {
                     System.out.println(Color.ANSI_RED + "Error: Cannot assign non-list to a list." + Color.ANSI_RESET);
                 } else {
 
-                    Construct replacementFeatureConstruct = Construct.get(stateExpression);
+                    Construct replacementFeatureConstruct = Construct.request(stateExpression);
 
-                    Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+                    Construct replacementConstruct = Construct.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
                     if (replacementConstruct != null) {
                         ((Reference) context.currentIdentifier).object = replacementConstruct;
                         if (currentConstruct == replacementConstruct) {
@@ -855,7 +853,7 @@ public class Interpreter {
                 if ((currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.get("list")))
                         || currentFeatureConstruct.type == Type.get("list")) {
 
-                    Construct additionalFeatureConstruct = Construct.get(stateExpression); // replacementConstruct
+                    Construct additionalFeatureConstruct = Construct.request(stateExpression); // replacementConstruct
 
                     ArrayList requestedConstructList = new ArrayList();
                     if (currentFeatureConstruct.type == Type.get("list")) {
@@ -864,11 +862,11 @@ public class Interpreter {
                     requestedConstructList.add(additionalFeatureConstruct);
 
                     // TODO: Search for list!
-                    Construct replacementFeatureConstruct = Manager.getPersistentListConstruct(requestedConstructList);
+                    Construct replacementFeatureConstruct = Construct.getPersistentListConstruct(requestedConstructList);
                     System.out.println(replacementFeatureConstruct);
 
                     // TODO: Search for Construct with new list...
-                    Construct replacementConstruct = Manager.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+                    Construct replacementConstruct = Construct.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
 //                    System.out.println("reference -> " + replacementConstruct);
 
                     if (replacementConstruct != null) {
