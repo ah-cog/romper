@@ -153,19 +153,41 @@ public class Interpreter {
             // [type-identifier]                                   creates (or selects) a concept of specified type, creating the type if non-existent
             // type-identifier                                     creates a construct of the specified type
             //
+            // [port].mode list : 'input', 'output'
+            // [port].mode : list : 'input', 'output'
+            // [port].mode : list : 'input', 'output'
+            // port
+            // port.mode 'input'
+            // !port.mode 'input'
+            // port.mode ('input')                                 adds 'input' to the list (changing to list if necessary)
+            // port.mode !('input')                                removes 'input' from the list (only valid if already a list)
+            // port.mode ('input', 'output')                       adds 'input' and 'output' to the list (changing to list if necessary)
+            // port.mode !('input', 'output')                      removes 'input' and 'output' from the list (only valid if already a list)
+            //
             // LISTING CONSTRUCTS:
             // <>                                                  returns list of current links
             // []                                                  returns list of current concepts
             // .                                                   returns list of current constructs
             // ?                                                   shows current construct _link_ if it exists
             // !                                                   deletes current construct _link_ if exists?
-            //// :                                                   returns list of current construct or concept features
+            // :                                                   returns list of current construct or concept features
             //
             // <port>.id.34
             //
             // [port]
             // [port]?                                             checks for existence of port type and returns it if so
             // ![port]                                             deletes the port type (blocks use of concepts for creating new constructs, but doesn't disallow access to existing constructs)
+            // [port].id.34                                        syntax for concept lookup/selection
+            // [port].id.34?                                       syntax for concept lookup/selection
+            // ![port].id.34                                       syntax for concept lookup/selection
+            // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815
+            // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815?
+            // ![port].uuid.4a78b550-8d20-4f11-8209-655c90039815
+            // [port].id
+            // [port].uuid
+            // [port].uri                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
+            // [port].api                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
+            //
             // [port](id:34)                                       syntax for concept lookup
             // [port(id:34)]                                       syntax for concept lookup
             // [port].34                                           syntax for concept lookup
