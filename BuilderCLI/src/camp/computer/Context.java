@@ -28,7 +28,7 @@ public class Context {
 
     public static Construct getConstruct(Context context) {
         if (Context.isConstruct(context)) {
-            return (Construct) context.currentIdentifier;
+            return (Construct) ((Reference) context.currentIdentifier).object;
         }
         return null;
     }

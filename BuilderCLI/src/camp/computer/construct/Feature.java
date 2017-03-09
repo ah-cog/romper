@@ -23,7 +23,7 @@ public class Feature extends Identifier {
 
     // Content Type (e.g., none, any, text, list, etc.)
 //    public List<Type> types = new ArrayList<>(); // if size == 0, then unconstrained!
-    public List<Type> types = new ArrayList<>(); // if size == 0, then unconstrained! if null, then 'none' (impossible).
+    public List<Type> types = null; // new ArrayList<>(); // if size == 0, then 'none' type! if null, then 'any'.
 
     // Content Domain (contains Identifier Types and Identifier Content)
     // NOTE: This only ever contains "text object" or references to specific constructs

@@ -1,7 +1,5 @@
 package camp.computer.construct;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import camp.computer.util.console.Color;
@@ -9,37 +7,40 @@ import camp.computer.workspace.Manager;
 
 public class Type extends Identifier {
 
-    // TODO: Store Type identifiers in Manager_v1
-    // TODO: Consider using static Type interface to wrap interface to Manager_v1 for Type-specific operations
-    private static HashMap<String, Type> identifiers = new HashMap<>();
-
     public String identifier = null; // types identifier of construct
-
-    // <TODO?>
-    // public List<Domain> domain;
-    // </TODO?>
 
     private Type(String identifier) {
         this.identifier = identifier;
     }
 
     public static Type add(String identifier) {
-        if (Type.identifiers.containsKey(identifier)) {
-            return Type.identifiers.get(identifier);
-        } else {
-            Type type = new Type(identifier);
-            Type.identifiers.put(identifier, type);
-            long uid = Manager.add(type);
-            return type;
+        // Check if <em>type</em> already exists. If so, return it.
+        List<Type> typeList = Manager.get(Type.class);
+        for (int i = 0; i < typeList.size(); i++) {
+            if (typeList.get(i).identifier.equals(identifier)) {
+                return typeList.get(i);
+            }
         }
+        // If <em>type</em> doesn't exist, create and return it.
+        Type type = new Type(identifier);
+        long uid = Manager.add(type);
+        return type;
     }
 
-    public static boolean has(String identifier) {
-        return Type.identifiers.containsKey(identifier);
+    public static boolean exists(String identifier) {
+        List<Type> typeList = Manager.get(Type.class);
+        for (int i = 0; i < typeList.size(); i++) {
+            if (typeList.get(i).identifier.equals(identifier)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<Type> get() {
-        return new ArrayList<>(Type.identifiers.values());
+//        return new ArrayList<>(Type.identifiers.values());
+        List<Type> typeList = Manager.get(Type.class);
+        return typeList;
     }
 
     // Type identifiers:
@@ -54,31 +55,37 @@ public class Type extends Identifier {
     // device(id:<uid>)
     // device(uuid:<uuid>)
     public static Type get(String expression) {
-        if (Type.identifiers.containsKey(expression)) {
-            return Type.identifiers.get(expression);
+        if (Type.exists(expression)) {
+            List<Type> typeList = Manager.get(Type.class);
+            for (int i = 0; i < typeList.size(); i++) {
+                if (typeList.get(i).identifier.equals(expression)) {
+                    return typeList.get(i);
+                }
+            }
         } else if (expression.startsWith("'") && expression.endsWith("'")) { // TODO: Update with regex match
             return Type.get("text");
         } else if (expression.contains(",")) { // TODO: Update with regex match
             return Type.get("list");
         } else if (expression.contains("(") && expression.contains(")")) { // TODO: update with regex match
             String typeTag = expression.substring(0, expression.indexOf("("));
-            if (Type.identifiers.containsKey(typeTag)) {
-                return Type.identifiers.get(typeTag);
+            List<Type> typeList = Manager.get(Type.class);
+            for (int i = 0; i < typeList.size(); i++) {
+                if (typeList.get(i).identifier.equals(typeTag)) {
+                    return typeList.get(i);
+                }
             }
-//            if (Type.has(typeTag)) {
-//                // TODO: Check if specified construct exists
-//                return Type.get(typeTag);
-//            }
         }
         return null;
     }
 
     @Override
     public String toString() {
-        return identifier + " (id: " + uid + ")";
+//        return identifier + " (id: " + uid + ")";
+        return identifier;
     }
 
     public String toColorString() {
-        return Color.ANSI_BLUE + identifier + Color.ANSI_RESET + " (id: " + this.uid + ")";
+//        return Color.ANSI_BLUE + identifier + Color.ANSI_RESET + " (id: " + this.uid + ")";
+        return Color.ANSI_BLUE + identifier + Color.ANSI_RESET;
     }
 }

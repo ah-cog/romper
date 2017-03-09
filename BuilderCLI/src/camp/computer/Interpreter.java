@@ -137,6 +137,118 @@ public class Interpreter {
             // language. In other words, the grammar is designed so using it can feel like thinking
             // a stream of consciousness.
 
+            // IMPLEMENT SYNTAX:
+            //
+            // COMMANDS:
+            // help
+            // list
+            // find
+            // archive
+            //
+            // INSTANTIATING/LINKING TO PRIMITIVE CONSTRUCTS:
+            // none                                                returns primitive construct 'none'
+            // 234                                                 returns primitive number type pointing to 234 construct
+            // 'foo'                                               returns primitive construct pointing to 'foo'
+            // ()                                                  creates construct -> empty list //// allows use of 'list' command for CLI
+            // [type-identifier]                                   creates (or selects) a concept of specified type, creating the type if non-existent
+            // type-identifier                                     creates a construct of the specified type
+            //
+            // LISTING CONSTRUCTS:
+            // <>                                                  returns list of current links
+            // []                                                  returns list of current concepts
+            // .                                                   returns list of current constructs
+            // ?                                                   shows current construct _link_ if it exists
+            // !                                                   deletes current construct _link_ if exists?
+            //// :                                                   returns list of current construct or concept features
+            //
+            // <port>.id.34
+            //
+            // [port]
+            // [port]?                                             checks for existence of port type and returns it if so
+            // ![port]                                             deletes the port type (blocks use of concepts for creating new constructs, but doesn't disallow access to existing constructs)
+            // [port](id:34)                                       syntax for concept lookup
+            // [port(id:34)]                                       syntax for concept lookup
+            // [port].34                                           syntax for concept lookup
+            // [port].4a78b550-8d20-4f11-8209-655c90039815
+            // [port.34]                                           syntax for concept lookup
+            // [port].34?
+            // [port].34?
+            // ![port].34
+            // [port].id.34                                        syntax for concept lookup/selection
+            // [port].id                                           syntax for describing id
+            // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815
+            // [port].uri                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
+            // [port].api                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
+            // port(id:34)                                         syntax for construct lookup
+            // <port>                                              creates a link to a port
+            //
+            // port.34.mode digital, analog : port.34.voltage cmos, ttl :: port.66.mode digital, analog : port.66.voltage cmos, ttl
+            // port.34.mode digital,analog .voltage cmos,ttl : port.66.mode digital .voltage cmos,ttl
+            // port.34.mode digital,analog .voltage cmos,ttl : port.66.mode digital .voltage cmos,ttl
+            // port.34.mode ('digital', 'analog') .voltage ('cmos', 'ttl') : port.66.mode 'digital' .voltage 'cmos'
+            // port.34 .mode ('digital', 'analog') .voltage ('cmos', 'ttl') : port.66 .mode 'digital' .voltage 'cmos'
+            // port.34 .mode ('digital', 'analog'), .voltage ('cmos', 'ttl') : port.66 .mode 'digital', .voltage 'cmos', 'ttl'
+            // .mode ('digital', 'analog'), .voltage ('cmos', 'ttl') : .mode 'digital', .voltage ('cmos', 'ttl')
+            // .mode 'digital', 'analog', .voltage 'cmos', 'ttl' : .mode 'digital', .voltage 'cmos', 'ttl'
+            // .mode !'digital', 'analog', .voltage !'cmos', 'ttl' : .mode !'digital', .voltage 'cmos', !'ttl'
+            // port.34 : port.66 # returns list of valid domain range states that are valid for the type
+            //
+            // CONSIDER USING FORMAT:
+            // port
+            // port.id.34
+            // port.index.1
+            // port.1
+            // port.uuid.4a78b550-8d20-4f11-8209-655c90039815
+            // .mode # creates mode feature and assigns it to none (i.e., replaces "has")
+            // .mode none # assigns mode to none only works if mode feature exists (i.e., above command must have been executed)
+            // port<mode> 'feature-data' # looks up a feature called "mode" and assigns a construct to it
+            // path<source-port> port.44 # looks up a feature called "mode" and ADDS a construct to list
+            // port<mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
+            // port<mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
+            // port<mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
+            // (mode) 'feature-data' # looks up a feature called "mode" and assigns a construct to it
+            // (source-port) port.44 # looks up a feature called "mode" and assigns a construct to it
+            // !(mode) # deletes the feature if it exists from current construct
+            // :mode 'feature-data' # looks up a feature called "mode" and assigns a construct to it
+            // :source-port port.44 # looks up a feature called "mode" and assigns a construct to it
+            // !:mode # deletes the feature if it exists from current construct
+            // .mode 'feature-data' # looks up a feature called "mode" and assigns a construct to it
+            // .source-port port.44 # looks up a feature called "mode" and assigns a construct to it
+            // !.mode # deletes the feature if it exists from current construct
+            // <> # list of links!
+            // [
+            // link
+            // (mode)? # checks for existence of mode feature
+            // (mode-list) 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
+            // <mode> 'feature-data' # looks up a feature called "mode" and assigns a construct to it
+            // <mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
+            // <mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
+            // <mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
+            // <> # returns list of current construct's features with values
+            // port 34
+            // port 4a78b550-8d20-4f11-8209-655c90039815
+            // port @tag
+            // list [port] # lists port concepts
+            // list port # lists port constructs
+            // list # creates a list construct
+            // number [port] # prints count of port concepts
+            // number port # prints count of port constructs
+            // // comment
+            // [port] # to create port
+            // list-feature << construct-assignment # to add element to port list construct
+            // port # to reference the port in the workspace context scope
+            // [port.id.34] # to create port with specified construct
+            // port.id.34 # to reference port with specified id
+            // describe # to show current construct or concept in context
+            // describe port.id.34 # to describe specific construct
+            // describe [port.id.44] # to describe specific concept
+            // - Use CLI by creating data structures and assembling models with them.
+            // TODO: replace uid with a hex string of form "0x343f"
+            // TODO: replace uid with a hex string of form "x343f"
+            // TODO: replace uid with a hex string of form "x343"
+            // TODO: replace uid with a hex string of form "n343"
+            // TODO: replace uid with a hex string of form "index.343"
+
             if (context.inputLine.startsWith("import file")) {
                 importFileTask(context);
             } else if (context.inputLine.startsWith("define") || context.inputLine.startsWith("def")) { // "new", "describe"
@@ -157,7 +269,9 @@ public class Interpreter {
                 whatTask(context);
             } else if (context.inputLine.equals("which")) {
                 whichTask(context);
-            } else if (context.inputLine.startsWith("locate")) { // previously: ws, show, ls
+            } else if (context.inputLine.startsWith("list")) { // previously: ws, show, ls, locate
+                describeTask(context);
+            } else if (context.inputLine.startsWith("find")) {
                 searchTask(context);
             } else if (context.inputLine.startsWith("describe") || context.inputLine.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
                 describeTask(context);
@@ -172,7 +286,7 @@ public class Interpreter {
             } else {
                 // TODO: Validate string as valid construct instance identifier.
 
-                if (Type.has(context.inputLine)) {
+                if (Type.exists(context.inputLine)) {
 
                     addressTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address concept or construct <X>."
 
@@ -182,7 +296,7 @@ public class Interpreter {
                     String addressTypeToken = context.inputLine.substring(context.inputLine.indexOf("(") + 1, context.inputLine.indexOf(":")).trim(); // text between '(' and ':'
                     String addressToken = context.inputLine.substring(context.inputLine.indexOf(":") + 1, context.inputLine.indexOf(")")).trim(); // text between ':' and ')'
 
-                    if (Type.has(typeIdentifierToken)) {
+                    if (Type.exists(typeIdentifierToken)) {
                         if (addressTypeToken.equals("id")) {
                             long uid = Long.parseLong(addressToken);
                             Identifier identifier = Manager.get(uid);
@@ -233,7 +347,7 @@ public class Interpreter {
 
             String typeToken = inputLineTokens[1];
 
-            if (!Type.has(typeToken)) {
+            if (!Type.exists(typeToken)) {
                 Type.add(typeToken);
             }
 
@@ -306,7 +420,7 @@ public class Interpreter {
 //                    } else
                     if (featureTypeToken.equals("list")) {
                         featureTypes.add(Type.get(featureTypeToken));
-                        if (Type.has(featureIdentifier)) {
+                        if (Type.exists(featureIdentifier)) {
                             if (listTypes == null) {
                                 listTypes = new ArrayList<>();
                             }
@@ -316,12 +430,12 @@ public class Interpreter {
                         }
                     } else {
                         // TODO: Refactor. There's some weird redundancy here with 'has' and 'Type.get'.
-                        if (Type.has(featureTypeToken)) {
+                        if (Type.exists(featureTypeToken)) {
                             featureTypes.add(Type.get(featureTypeToken));
                         }
                     }
                 } else {
-                    if (Type.has(featureIdentifier)) {
+                    if (Type.exists(featureIdentifier)) {
 //                    if (camp.computer.construct.Concept.has(featureTagToken)) {
 //                            // TODO: Replace with ConstructType for reserved construct types
 //            System.out.println("(id: " + concept.uid + ") " + Application.ANSI_BLUE + typeToken + Application.ANSI_RESET + " (uuid: " + concept.uuid + ")");
@@ -340,16 +454,20 @@ public class Interpreter {
             // TODO: Replace with counters for each of these possibilities!
             boolean hasContentConstraint = false;
             boolean isSingletonList = false;
-            boolean isTextContent = true;
+            boolean isTextContent = false;
             boolean hasTextContent = false;
-            boolean isConstructContent = true;
+            boolean isConstructContent = false;
             boolean hasConstructContent = false;
             boolean hasDomainList = false;
             boolean hasInvalidConstruct = false;
 
             List<Construct> featureDomain = new ArrayList<>();
             if (inputLineSegments.length >= 2) {
+
+                // Initialize parser
                 hasContentConstraint = true;
+                isTextContent = true;
+                isConstructContent = true;
 
                 String[] constraintTokens = inputLineSegments[1].split("[ ]*,[ ]*");
 
@@ -409,7 +527,7 @@ public class Interpreter {
                             // Add custom types to list types
                             for (int i = 0; i < constraintTokens.length; i++) {
                                 // TODO: Check if types is valid!
-                                if (Type.has(constraintTokens[i])) {
+                                if (Type.exists(constraintTokens[i])) {
                                     featureTypes.add(Type.get(constraintTokens[i]));
                                     // TODO: Check for non-existent Types (from tokens)
                                 }
@@ -450,7 +568,7 @@ public class Interpreter {
                             // e.g., has ports-and-paths list : port, path
                             if (isSingletonList) {
                                 // e.g., has ports list : port
-                                if (!Type.has(constraintTokens[0])) {
+                                if (!Type.exists(constraintTokens[0])) {
                                     // Error: Invalid list object types.
                                     hasError = true;
                                 } else {
@@ -488,7 +606,7 @@ public class Interpreter {
                             // Add custom types to list types
                             for (int i = 0; i < constraintTokens.length; i++) {
                                 // TODO: Check if types is valid!
-                                if (Type.has(constraintTokens[i])) {
+                                if (Type.exists(constraintTokens[i])) {
                                     listTypes.add(Type.get(constraintTokens[i]));
                                     // TODO: Check for non-existent Types (from tokens)
                                 }
@@ -515,7 +633,7 @@ public class Interpreter {
                         // e.g., has source port : port(uid:3), port(uid:4), port(uid:5)
                         // TODO: Make sure that the constraint list contains feature object of the correct types (as in the above example)
                         for (int i = 0; i < constraintTokens.length; i++) {
-                            String constraintToken = constraintTokens[i].trim();
+                            String constraintToken = constraintTokens[i];
                             for (int j = 0; j < featureTypes.size(); j++) {
                                 if (!constraintToken.equals(featureTypes.get(j).identifier)) { // NOTE: featureTagToken is the custom types identifier.
                                     hasError = true;
@@ -561,14 +679,17 @@ public class Interpreter {
                 // Store feature. Allocates memory for and stores feature.
                 Feature feature = new Feature(featureIdentifier);
                 if (featureTypes != null) {
+                    if (feature.types == null) {
+                        feature.types = new ArrayList<>();
+                    }
                     feature.types.addAll(featureTypes);
-                }
-                if (feature.types.contains(Type.get("list"))) {
-                    if (listTypes != null) {
-                        if (feature.listTypes == null) {
-                            feature.listTypes = new ArrayList<>();
+                    if (feature.types.contains(Type.get("list"))) {
+                        if (listTypes != null) {
+                            if (feature.listTypes == null) {
+                                feature.listTypes = new ArrayList<>();
+                            }
+                            feature.listTypes.addAll(listTypes);
                         }
-                        feature.listTypes.addAll(listTypes);
                     }
                 }
                 if (hasDomainList) {
@@ -585,59 +706,66 @@ public class Interpreter {
 
                 // Print response
                 String typeString = "";
-                for (int i = 0; i < feature.types.size(); i++) {
-                    typeString += "" + feature.types.get(i).toColorString();
-                    if ((i + 1) < feature.types.size()) {
-                        typeString += ", ";
+                if (feature.types != null) {
+                    for (int i = 0; i < feature.types.size(); i++) {
+                        typeString += "" + feature.types.get(i).toColorString();
+                        if ((i + 1) < feature.types.size()) {
+                            typeString += ", ";
+                        }
                     }
+                } else {
+                    typeString = "any";
                 }
 
-                if (feature.types.size() == 1) {
+                if (feature.types == null) {
+                    System.out.print("feature " + feature.toColorString() + " type " + typeString + " ");
+                } else if (feature.types.size() == 1) {
                     System.out.print("feature " + feature.toColorString() + " type " + typeString + " ");
                 } else if (feature.types.size() > 1) {
                     System.out.print("feature " + feature.toColorString() + " types " + typeString + " ");
                 }
 
+                if (feature.types != null) {
 //                if (feature.types == Type.get("text")) {
-                if (feature.types.contains(Type.get("text"))) {
-                    if (feature.domain != null && feature.domain.size() == 0) {
-                        // System.out.print("can assign text");
-                    } else if (feature.domain != null && feature.domain.size() > 0) {
-                        // System.out.print("can assign: ");
-                        System.out.print("domain ");
-                        for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i).toColorString());
-                            if ((i + 1) < feature.domain.size()) {
-                                System.out.print(", ");
+                    if (feature.types.contains(Type.get("text"))) {
+                        if (feature.domain != null && feature.domain.size() == 0) {
+                            // System.out.print("can assign text");
+                        } else if (feature.domain != null && feature.domain.size() > 0) {
+                            // System.out.print("can assign: ");
+                            System.out.print("domain ");
+                            for (int i = 0; i < feature.domain.size(); i++) {
+                                System.out.print(feature.domain.get(i).toColorString());
+                                if ((i + 1) < feature.domain.size()) {
+                                    System.out.print(", ");
+                                }
                             }
                         }
-                    }
 //                } else if (feature.types == Type.get("list")) {
-                } else if (feature.types.contains(Type.get("list"))) {
-                    // Print list of types the list can contain
-                    // System.out.print("can contain ");
-                    if (feature.listTypes == null) {
-                        // System.out.print("any construct");
-                    } else {
-                        System.out.print("contains ");
-                        for (int i = 0; i < feature.listTypes.size(); i++) {
-                            System.out.print(feature.listTypes.get(i).toColorString());
-                            if ((i + 1) < feature.listTypes.size()) {
-                                System.out.print(", ");
+                    } else if (feature.types.contains(Type.get("list"))) {
+                        // Print list of types the list can contain
+                        // System.out.print("can contain ");
+                        if (feature.listTypes == null) {
+                            // System.out.print("any construct");
+                        } else {
+                            System.out.print("contains ");
+                            for (int i = 0; i < feature.listTypes.size(); i++) {
+                                System.out.print(feature.listTypes.get(i).toColorString());
+                                if ((i + 1) < feature.listTypes.size()) {
+                                    System.out.print(", ");
+                                }
                             }
                         }
-                    }
-                    // Print the list of object that the list can contain
-                    if (feature.domain != null && feature.domain.size() > 0) {
-                        // System.out.print(" domain ");
-                        System.out.print(": ");
-                        for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i).toColorString());
-                            if ((i + 1) < feature.domain.size()) {
-                                System.out.print(", ");
+                        // Print the list of object that the list can contain
+                        if (feature.domain != null && feature.domain.size() > 0) {
+                            // System.out.print(" domain ");
+                            System.out.print(": ");
+                            for (int i = 0; i < feature.domain.size(); i++) {
+                                System.out.print(feature.domain.get(i).toColorString());
+                                if ((i + 1) < feature.domain.size()) {
+                                    System.out.print(", ");
+                                }
                             }
                         }
-                    }
 //                    if (feature.listTypes.contains(Type.get("text"))) {
 ////                    } else if (feature.listType == Type.get("construct")) {
 ////                    } else if (feature.listTypes.contains(Type.get("construct"))) {
@@ -661,19 +789,20 @@ public class Interpreter {
 //                    }
 ////                } else if (feature.types == Type.get("construct")) {
 ////                } else if (feature.types.contains(Type.get("construct"))) { // TODO: Don't use general "construct"
-                } else {
-                    // Print list of types the feature can be assigned
-                    System.out.print("can assign ");
-                    for (int i = 0; i < feature.types.size(); i++) {
-                        System.out.print(feature.types.get(i).toColorString());
-                        if ((i + 1) < feature.types.size()) {
-                            System.out.print(", ");
+                    } else {
+                        // Print list of types the feature can be assigned
+                        System.out.print("can assign ");
+                        for (int i = 0; i < feature.types.size(); i++) {
+                            System.out.print(feature.types.get(i).toColorString());
+                            if ((i + 1) < feature.types.size()) {
+                                System.out.print(", ");
+                            }
                         }
-                    }
-                    if (feature.domain != null && feature.domain.size() > 0) {
-                        System.out.print(": ");
-                        for (int i = 0; i < feature.domain.size(); i++) {
-                            System.out.print(feature.domain.get(i).toColorString() + " ");
+                        if (feature.domain != null && feature.domain.size() > 0) {
+                            System.out.print(": ");
+                            for (int i = 0; i < feature.domain.size(); i++) {
+                                System.out.print(feature.domain.get(i).toColorString() + " ");
+                            }
                         }
                     }
                 }
@@ -705,7 +834,7 @@ public class Interpreter {
 
                 Type type = null;
                 Concept concept = null;
-                if (Type.has(featureIdentifierToken)) {
+                if (Type.exists(featureIdentifierToken)) {
                     type = Type.get(featureIdentifierToken);
                     if (Concept.exists(type)) {
                         concept = Concept.request(type);
@@ -771,37 +900,60 @@ public class Interpreter {
 
                 Construct currentFeatureConstruct = currentConstruct.states.get(featureIdentifier);
 
-                if ((currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.get("list")))
-                        || currentFeatureConstruct.type == Type.get("list")) {
+                if (currentConstructFeatures.get(featureIdentifier).types != null
+                        && (currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.get("list")))) {
+//                        || currentFeatureConstruct.type == Type.get("list")) {
                     System.out.println(Color.ANSI_RED + "Error: Cannot assign non-list to a list." + Color.ANSI_RESET);
                 } else {
 
                     Construct replacementFeatureConstruct = Construct.request(stateExpression);
 
-                    Construct replacementConstruct = Construct.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+                    // Determine if the replacement construct's type can be assigned to the feature
+                    // Note: Any feature can be assigned 'none' and any type can be assigned if the feature supports any time (i.e., types is null).
+                    if (replacementFeatureConstruct != Construct.request("none")
+                            && Construct.getFeature(currentConstruct, featureIdentifier).types != null
+                            && !Construct.getFeature(currentConstruct, featureIdentifier).types.contains(replacementFeatureConstruct.type)) {
+                        // TODO: Check types!
+                        System.out.println(Error.get("Feature " + featureIdentifier + " doesn't support type " + replacementFeatureConstruct.type));
+                        return;
+                    }
+
+                    // Determine if replacement construct is in the feature's domain
+                    if (replacementFeatureConstruct != Construct.request("none")
+                            && Construct.getFeature(currentConstruct, featureIdentifier).domain != null
+                            && Construct.getFeature(currentConstruct, featureIdentifier).domain.contains(replacementFeatureConstruct)) {
+                        // TODO: Check domain!
+                        System.out.println(Error.get("Feature " + featureIdentifier + " domain doesn't contain " + replacementFeatureConstruct));
+                        return;
+                    }
+
+                    boolean isSameConstruct = true;
+                    Construct replacementConstruct = Construct.request(currentConstruct, featureIdentifier, replacementFeatureConstruct);
                     if (replacementConstruct != null) {
                         ((Reference) context.currentIdentifier).object = replacementConstruct;
                         if (currentConstruct == replacementConstruct) {
-                            System.out.print("[SAME CONSTRUCT] ");
+                            isSameConstruct = true;
                         } else {
-                            System.out.print("[SWITCHED CONSTRUCT] ");
+                            isSameConstruct = false;
                         }
                         currentConstruct = (Construct) ((Reference) context.currentIdentifier).object;
-//                    System.out.println("REPLACEMENT: " + replacementConstruct);
-                        System.out.println("reference " + currentConstruct.type.toColorString() + " (id: " + context.currentIdentifier.uid + ") -> construct " + currentConstruct.type.toColorString() + " (id: " + currentConstruct.uid + ")" + " (uuid: " + currentConstruct.uuid + ")");
                     }
 
-//                currentConstruct.set(featureIdentifier, stateExpression);
+                    // Print the feature construct
                     Construct featureConstruct = currentConstruct.states.get(featureIdentifier);
-
-//                System.out.println(currentConstruct);
                     System.out.println(featureConstruct.toColorString());
+
+                    // Print the in-context construct (with the new feature construct)
+                    if (replacementConstruct != null) {
+                        System.out.print(Color.ANSI_CYAN + (isSameConstruct ? "[SAME CONSTRUCT] " : "[SWITCHED CONSTRUCT] ") + Color.ANSI_RESET);
+                        System.out.println(((Reference) context.currentIdentifier).toColorString());
+                    }
                 }
 
             }
 
         } else {
-            System.out.println(Color.ANSI_RED + "Error: Cannot set feature on concept." + Color.ANSI_RESET);
+            System.out.println(Error.get("Cannot set feature on concept."));
         }
 
     }
@@ -862,11 +1014,11 @@ public class Interpreter {
                     requestedConstructList.add(additionalFeatureConstruct);
 
                     // TODO: Search for list!
-                    Construct replacementFeatureConstruct = Construct.getPersistentListConstruct(requestedConstructList);
+                    Construct replacementFeatureConstruct = Construct.request(requestedConstructList);
                     System.out.println(replacementFeatureConstruct);
 
                     // TODO: Search for Construct with new list...
-                    Construct replacementConstruct = Construct.getPersistentConstruct(currentConstruct, featureIdentifier, replacementFeatureConstruct);
+                    Construct replacementConstruct = Construct.request(currentConstruct, featureIdentifier, replacementFeatureConstruct);
 //                    System.out.println("reference -> " + replacementConstruct);
 
                     if (replacementConstruct != null) {
@@ -1037,7 +1189,7 @@ public class Interpreter {
 //
 //                }
 
-            } else if (Type.has(typeToken)) {
+            } else if (Type.exists(typeToken)) {
 //                // TODO: Print Concept
 //                System.out.println("VIEW CONCEPT");
 //
@@ -1141,7 +1293,7 @@ public class Interpreter {
 
                 }
 
-            } else if (Type.has(typeToken)) {
+            } else if (Type.exists(typeToken)) {
 
                 // TODO: Print Concept
 //                System.out.println("VIEW CONCEPT");

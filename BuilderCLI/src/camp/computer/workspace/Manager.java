@@ -339,7 +339,7 @@ public class Manager {
 //        }
 //
 //        // Create new Construct if got to this point because an existing one was not found
-////        Construct newReplacementConstruct = Construct.REFACTOR_getRevise(currentConstruct, featureToReplace, featureConstructReplacement);
+////        Construct newReplacementConstruct = Construct.create(currentConstruct, featureToReplace, featureConstructReplacement);
 //        Construct newReplacementConstruct = Construct.REFACTOR_getList(constructList);
 //        if (newReplacementConstruct != null) {
 //            return newReplacementConstruct;
