@@ -908,9 +908,11 @@ public class Construct extends Identifier {
     public String toColorString() {
         if (type == Type.get("text")) {
             String content = (String) this.object;
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
+            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")";
+            // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
         } else {
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
+            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")";
+            // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
         }
     }
 }

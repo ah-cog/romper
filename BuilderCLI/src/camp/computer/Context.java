@@ -1,35 +1,30 @@
 package camp.computer;
 
+import java.util.HashMap;
+
 import camp.computer.construct.Concept;
 import camp.computer.construct.Construct;
+import camp.computer.construct.Expression;
 import camp.computer.construct.Identifier;
 import camp.computer.construct.Reference;
 
 public class Context {
 
-    public String inputLine = null;
+    public HashMap<String, Reference> references = new HashMap<>();
 
-    public Identifier currentIdentifier = null;
+    public String expression = null;
 
-    public static boolean isConcept(Context context) {
-        return (context.currentIdentifier != null && context.currentIdentifier.getClass() == Concept.class);
-    }
+    public Identifier identifier = null;
 
-    public static boolean isConstruct(Context context) {
-        return (context.currentIdentifier != null && context.currentIdentifier.getClass() == Reference.class && ((Reference) context.currentIdentifier).object.getClass() == Construct.class);
-    }
+    public static Expression setExpression(Context context, String expressionText) {
 
-    public static Concept getConcept(Context context) {
-        if (Context.isConcept(context)) {
-            return (Concept) context.currentIdentifier;
-        }
-        return null;
-    }
+        Expression expression = Expression.create(expressionText, context);
+//        System.out.println("NEW EXPRESSION: " + expression.expression);
 
-    public static Construct getConstruct(Context context) {
-        if (Context.isConstruct(context)) {
-            return (Construct) ((Reference) context.currentIdentifier).object;
-        }
-        return null;
+        // Store expression
+        context.expression = expression.expression;
+
+        return expression;
+
     }
 }

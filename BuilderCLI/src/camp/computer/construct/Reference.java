@@ -86,7 +86,8 @@ public class Reference extends Identifier {
 //                return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
 //                return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
 //                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
-                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + " -> uuid: " + construct.uuid + ")";
+//                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + " -> uuid: " + construct.uuid + ")";
+                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + ")";
             }
         }
         return null; // Reference points to "any"

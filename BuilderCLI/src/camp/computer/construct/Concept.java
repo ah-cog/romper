@@ -60,7 +60,13 @@ public class Concept extends Identifier {
 
     @Override
     public String toString() {
-        return Color.ANSI_BLUE + Color.ANSI_BOLD_ON + type + Color.ANSI_RESET + " (id:" + uid + ")";
+        return type + " (id: " + uid + " -> uuid:" + uuid + ")";
+        // return type + " (id:" + uid + ")";
+    }
+
+    public String toColorString() {
+        return Color.ANSI_BLUE + Color.ANSI_BOLD_ON + type + Color.ANSI_RESET + " (id: " + uid + ")";
+        // return Color.ANSI_BLUE + Color.ANSI_BOLD_ON + type + Color.ANSI_RESET + " (id:" + uid + " -> uuid: " + uuid + ")";
     }
 
 }

@@ -25,25 +25,35 @@ has code text
 define task
 has script
 
-define logic # procedure, plan, strategy, operation, activity, game
+define operation # procedure, plan, strategy, operation, activity, game
 has task list # sequence
+has task list # sequence
+# let task : task
+# limit task sequence
+# limit task unique
+# prepare task sequence
+# prepare task unique
+# attribute task sequence
+# attribute task unique
+# trait task sequence
+# trait task unique
+# property task sequence
+# property task unique
+# for task sequence
+# for task unique
+# be task sequence
+# be task unique
+# is task sequence
+# is task unique
+# force task sequence
+# force task unique
+# limit task sequence
+# limit task unique
 
 define project
 has device list
 has path list
-has logic list
-
-# define port            # Creates port concept in public context.
-# has mode text
-# has direction text
-# has voltage text
-# port my-port           # Creates reference to port construct in user's private context, labeled with variable my-port.
-#
-# port.name.my-port
-# port.id.34
-# port (id:34)
-#
-# port @mokogobo         # Creates reference to port and stores reference in user mokogobo's private context.
+has operation list
 
 # TODO: user
 # TODO: item
@@ -60,30 +70,19 @@ has logic list
 # TODO: define Clay
 # TODO: define sensors
 
-#<port>
-#<>
-#(port).id.34
-#@ my-port (port)
-#[[port(id:34)|my-port]]
-
-port port-1
-port port-2
-port port-3
-
-device ir-rangefinder-ttl
-#add port-1
-#add port-2
-#add port-3
+#port '1'
+#port '2'
+#port '3'
 
 #port : '1'
 #port : '2'
 #port : '3'
 
-#port : '1'
+port : '1'
 #name port '1'
 #label port '1'
 #handle port '1'
 #tag port '1'
 #call port '1'
 
-#port('1')
+port('1')
