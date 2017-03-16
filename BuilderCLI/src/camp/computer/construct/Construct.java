@@ -285,9 +285,13 @@ public class Construct extends Identifier {
 
                 if (Expression.isConstruct(expression)) {
 
-                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+//                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
+//                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
+//                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+                    String[] tokens = expression.split("\\.");
+                    String typeIdentifierToken = tokens[0];
+                    String addressTypeToken = tokens[1];
+                    String addressToken = tokens[2];
 
                     long uid = Long.parseLong(addressToken.trim());
 
@@ -909,7 +913,7 @@ public class Construct extends Identifier {
     public String toString() {
         if (type == Type.get("text")) {
             String content = (String) this.object;
-            return type + " '" + content + "' (id: " + uid + ")";
+            return "'" + content + "' " + type + ".id." + uid + "";
         } else if (type == Type.get("list")) {
             String content = "";
             List list = (List) this.object;
@@ -919,9 +923,9 @@ public class Construct extends Identifier {
                     content += ", ";
                 }
             }
-            return type + " (id: " + uid + ") : " + content;
+            return type + ".id." + uid + " : " + content;
         } else {
-            return type + " (id: " + uid + ")";
+            return type + ".id." + uid;
         }
     }
 
@@ -929,9 +933,9 @@ public class Construct extends Identifier {
         if (type == Type.get("text")) {
             String content = (String) this.object;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")";
+            return  "'" + content + "' " + Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
         } else {
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")";
+            return Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
         }
     }

@@ -68,7 +68,8 @@ public class Type extends Identifier {
             return Type.get("list");
 //        } else if (expression.contains("(") && expression.contains(")")) { // TODO: update with regex match
         } else if (Expression.isConstruct(expression)) {
-            String typeTag = expression.substring(0, expression.indexOf("(")).trim();
+//            String typeTag = expression.substring(0, expression.indexOf("(")).trim();
+            String typeTag = expression.split("\\.")[0];
             List<Type> typeList = Manager.get(Type.class);
             for (int i = 0; i < typeList.size(); i++) {
                 if (typeList.get(i).identifier.equals(typeTag)) {

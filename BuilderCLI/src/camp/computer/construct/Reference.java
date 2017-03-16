@@ -77,7 +77,7 @@ public class Reference extends Identifier {
         if (this.object != null) {
             if (this.object.getClass() == Construct.class) {
                 Construct construct = (Construct) this.object;
-                return "reference " + construct.type.identifier + " (id: " + uid + ") -> construct " + construct.type.identifier + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
+                return "reference " + construct.type.identifier + ".id." + uid + " -> construct " + construct.type.identifier + ".id." + construct.uid;
             }
         }
         return null; // Reference points to "any"
@@ -87,11 +87,7 @@ public class Reference extends Identifier {
         if (this.object != null) {
             if (this.object.getClass() == Construct.class) {
                 Construct construct = (Construct) this.object;
-//                return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
-//                return "reference " + construct.type.toColorString() + " (id: " + uid + ") -> construct " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
-//                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")";
-//                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + " -> uuid: " + construct.uuid + ")";
-                return construct.type.toColorString() + " (id: " + uid + ") -> " + construct.type.toColorString() + " (id: " + construct.uid + ")";
+                return construct.type.toColorString() + ".id." + uid + " -> " + construct.type.toColorString() + ".id." + construct.uid;
             }
         }
         return null; // Reference points to "any"

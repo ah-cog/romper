@@ -29,7 +29,7 @@ public class Expression {
         // Replace label parameter tokens with address tokens (not first token)
         String[] tokens = expression.split(" ");
         for (int i = 0; i < tokens.length; i++) {
-            if (i == 0) {
+            if (i == 0 || Type.exists(tokens[0])) {
                 continue;
             }
             if (context.references.containsKey(tokens[i])) {
@@ -87,14 +87,15 @@ public class Expression {
     }
 
     /**
-     * Matches expressions identifying constructs such as "port(id: 34)" and reasonable
+     * Matches expressions identifying constructs such as "port.id.34" and reasonable
      * equivalent expressions.
      *
      * @param expression
      * @return
      */
     public static boolean isConstruct(String expression) {
-        return expression.matches("([a-z]+)[ ]*\\([ ]*(id|uid|uuid)[ ]*:[ ]*[0-9]+[ ]*\\)");
+//        return expression.matches("([a-z]+)[ ]*\\([ ]*(id|uid|uuid)[ ]*:[ ]*[0-9]+[ ]*\\)");
+        return expression.matches("[A-Za-z]+\\.(id|uuid)\\.[0-9]+");
     }
 
 //    public static boolean isText(String featureContent) {

@@ -191,9 +191,10 @@ public class Interpreter {
 
                 } else if (Expression.isConstruct(context.expression)) {
 
-                    String typeIdentifierToken = context.expression.substring(0, context.expression.indexOf("(")).trim(); // text before '('
-                    String addressTypeToken = context.expression.substring(context.expression.indexOf("(") + 1, context.expression.indexOf(":")).trim(); // text between '(' and ':'
-                    String addressToken = context.expression.substring(context.expression.indexOf(":") + 1, context.expression.indexOf(")")).trim(); // text between ':' and ')'
+                    String[] tokens = context.expression.split("\\.");
+                    String typeIdentifierToken = tokens[0];
+                    String addressTypeToken = tokens[1];
+                    String addressToken = tokens[2];
 
                     if (Type.exists(typeIdentifierToken)) {
                         if (addressTypeToken.equals("id")) {
@@ -204,15 +205,16 @@ public class Interpreter {
                             } else if (identifier.getClass() == Reference.class) {
                                 Reference reference = (Reference) identifier;
                                 Construct construct = (Construct) reference.object;
-//                                System.out.println("[FOUND] reference " + reference.type + " construct (UID: " + uid + ")");
-                                System.out.println("[FOUND] reference " + construct.type+ " (id: " + reference.uid + ") -> construct " + construct.type + " (id: " + construct.uid + ")" + " (uuid: " + construct.uuid + ")");
+//                                System.out.println("[FOUND] " + construct.type + ".id." + reference.uid + " -> " + construct.type + ".id." + construct.uid);
+                                System.out.println("(link) " + reference.toColorString());
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
                                 context.identifier = reference;
                             } else if (identifier.getClass() == Construct.class) {
                                 Construct construct = (Construct) identifier;
-                                System.out.println("Found " + construct.type + " construct (UID: " + uid + ")");
+//                                System.out.println("[FOUND] " + construct.toColorString());
+                                System.out.println("(construct) " + construct.toColorString());
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
@@ -1062,9 +1064,15 @@ public class Interpreter {
 
                 if (Expression.isConstruct(typeToken)) {
 
-                    String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
-                    String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
-                    String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+//                    String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
+//                    String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
+//                    String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+
+//                    String[] tokens = context.expression.split("\\.");
+                    String[] tokens = typeToken.split("\\.");
+                    String typeIdentifierToken = tokens[0];
+                    String addressTypeToken = tokens[1];
+                    String addressToken = tokens[2];
 
                     if (addressTypeToken.equals("id")) {
                         Construct construct = null;
@@ -1096,7 +1104,7 @@ public class Interpreter {
 
                             } else if (construct.type == Type.get("text")) {
 
-//                            System.out.println("REFERENCE (id:X) -> " + construct);
+//                            Systeout.println("REFERENCE (id:X) -> " + construct);
                                 System.out.println(Color.ANSI_BLUE + construct.type.identifier + Color.ANSI_RESET + " primitive construct representing a sequence of characters");
 
                             } else if (construct.type == Type.get("list")) {
@@ -1105,7 +1113,8 @@ public class Interpreter {
 
                             } else {
 
-                                System.out.println(Color.ANSI_BLUE + construct.type.identifier + Color.ANSI_RESET);
+//                                System.out.println(Color.ANSI_BLUE + construct.type.identifier + Color.ANSI_RESET);
+                                System.out.println(construct.toColorString());
 
                                 HashMap<String, Feature> features = (HashMap<String, Feature>) construct.object;
                                 HashMap<String, Construct> states = (HashMap<String, Construct>) construct.states;
@@ -1118,7 +1127,7 @@ public class Interpreter {
                                             featureTypes += ", ";
                                         }
                                     }
-                                    System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier));
+                                    System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier).toColorString());
                                     // TODO: print current object types; print available feature types
                                 }
 
