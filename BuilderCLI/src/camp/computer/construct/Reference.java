@@ -10,6 +10,10 @@ public class Reference extends Identifier {
     public Class classType = null; // Concept.class or Construct.class
     public Object object = null; // Concept or Construct
 
+    // TODO?: identifier string?
+    // TODO: type list (restricts types that can be referenced)
+    // TODO: domain list (restricts constructs that can be referenced)
+
     private Reference() {
     }
 

@@ -20,6 +20,8 @@ public class Construct extends Identifier {
     // <CONCEPT>
     public Type type = null;
 
+    public Concept concept = null; // The {@code Construct} used to create this Construct.
+
 //    public HashMap<String, Feature> features = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
     // TODO: (Replace ^ with this, based on TODO block above:) Bytes storing actual object and object types
 
@@ -47,6 +49,7 @@ public class Construct extends Identifier {
     private Construct(Concept concept) {
 
         this.type = concept.type;
+        this.concept = concept;
 
         // Allocate default object based on specified classType
         if (type == Type.get("none")) {
@@ -111,6 +114,21 @@ public class Construct extends Identifier {
         return null;
     }
 
+    public static Construct create(Concept concept) {
+        if (concept != null) {
+//            Construct construct = Manager.getPersistentConstruct(type);
+            Construct construct = Manager.getPersistentConstruct(concept);
+            if (construct == null) {
+                // TODO: Check if default construct for classType already exists!
+                construct = new Construct(concept);
+                long uid = Manager.add(construct);
+                return construct;
+            }
+            return construct;
+        }
+        return null;
+    }
+
 //    // TODO: public static Construct create(Double number)
 //    public static Construct create(String text) {
 //        Construct construct = null;
@@ -146,8 +164,10 @@ public class Construct extends Identifier {
      */
     public static Construct create(Construct baseConstruct, String targetFeature, Construct replacementConstruct) {
 
-        Concept concept = Concept.request(baseConstruct.type);
-        Construct newContruct = new Construct(concept);
+//        Concept concept = Concept.request(baseConstruct.type);
+//        Concept concept = Concept.request(baseConstruct.concept);
+//        Construct newContruct = new Construct(concept);
+        Construct newContruct = new Construct(baseConstruct.concept);
 
         // Copy states from source Construct.
         for (String featureIdentifier : baseConstruct.states.keySet()) {
@@ -908,8 +928,8 @@ public class Construct extends Identifier {
     public String toColorString() {
         if (type == Type.get("text")) {
             String content = (String) this.object;
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")";
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
+            return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")";
         } else {
             return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")";
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
