@@ -1,0 +1,3 @@
+set redis-uri '<insert-aws-redis-uri-here>'
+
+set default-context mokogobo

@@ -12,7 +12,7 @@ public class Repository {
     // Refactor Concept into generic one and allow making custom types
     // Stream in object for revisions, etc. into same OLD_construct. It's a container for object that changes per-revision.
 
-    public static Construct_v1 clone(UUID uuid) { // get/clone/branch
+    public static Construct_v1 clone(UUID uuid) { // request/clone/branch
         // TODO:
         return null;
     }

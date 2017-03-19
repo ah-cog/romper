@@ -13,7 +13,7 @@ public class Type extends Identifier {
         this.identifier = identifier;
     }
 
-    public static Type add(String identifier) {
+    public static Type create(String identifier) {
         // Check if <em>type</em> already exists. If so, return it.
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
@@ -27,6 +27,11 @@ public class Type extends Identifier {
         return type;
     }
 
+    public static List<Type> list() {
+        List<Type> typeList = Manager.get(Type.class);
+        return typeList;
+    }
+
     public static boolean exists(String identifier) {
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
@@ -35,12 +40,6 @@ public class Type extends Identifier {
             }
         }
         return false;
-    }
-
-    public static List<Type> get() {
-//        return new ArrayList<>(Type.identifiers.values());
-        List<Type> typeList = Manager.get(Type.class);
-        return typeList;
     }
 
     // Type identifiers:
@@ -54,7 +53,7 @@ public class Type extends Identifier {
     // port(uuid:<uuid>)
     // device(id:<uid>)
     // device(uuid:<uuid>)
-    public static Type get(String expression) {
+    public static Type request(String expression) {
         if (Type.exists(expression)) {
             List<Type> typeList = Manager.get(Type.class);
             for (int i = 0; i < typeList.size(); i++) {
@@ -63,16 +62,14 @@ public class Type extends Identifier {
                 }
             }
         } else if (expression.startsWith("'") && expression.endsWith("'")) { // TODO: Update with regex match
-            return Type.get("text");
+            return Type.request("text");
         } else if (expression.contains(",")) { // TODO: Update with regex match
-            return Type.get("list");
-//        } else if (expression.contains("(") && expression.contains(")")) { // TODO: update with regex match
+            return Type.request("list");
         } else if (Expression.isConstruct(expression)) {
-//            String typeTag = expression.substring(0, expression.indexOf("(")).trim();
-            String typeTag = expression.split("\\.")[0];
+            String typeIdentifier = expression.split("\\.")[0];
             List<Type> typeList = Manager.get(Type.class);
             for (int i = 0; i < typeList.size(); i++) {
-                if (typeList.get(i).identifier.equals(typeTag)) {
+                if (typeList.get(i).identifier.equals(typeIdentifier)) {
                     return typeList.get(i);
                 }
             }

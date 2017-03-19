@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import camp.computer.construct.Concept;
 import camp.computer.construct.Construct;
-import camp.computer.construct.Expression;
 import camp.computer.construct.Feature;
 import camp.computer.construct.Identifier;
 import camp.computer.construct.Type;
@@ -41,7 +40,7 @@ public class Manager {
         return constructList;
     }
 
-//    public static Concept get(long uid) {
+//    public static Concept request(long uid) {
     public static Identifier get(long uid) {
         return elements.get(uid);
     }
@@ -50,38 +49,38 @@ public class Manager {
 //    // If the State does not exist (in cache or persistent store), then returns null.
 //    public static State getPersistentState(String expression) {
 //
-//        Type stateType = Type.get(expression);
+//        Type stateType = Type.request(expression);
 //        if (stateType != null) {
 //
-//            if (stateType == Type.get("none")) {
+//            if (stateType == Type.request("none")) {
 //                // Look for existing (persistent) state for the given expression
-//                List<Identifier> identiferList = Manager.get();
+//                List<Identifier> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
-//                    if (identiferList.get(i).getClass() == State.class) {
-//                        State state = (State) identiferList.get(i);
-//                        if (state.classType == Type.get("none") && state.objectType == null && state.object == null) {
+//                    if (identiferList.request(i).getClass() == State.class) {
+//                        State state = (State) identiferList.request(i);
+//                        if (state.classType == Type.request("none") && state.objectType == null && state.object == null) {
 //                            return state;
 //                        }
 //                    }
 //                }
-//            } else if (stateType == Type.get("text")) {
+//            } else if (stateType == Type.request("text")) {
 //                // e.g.,
 //                // [ ] 'foo'
 //                // [ ] text('foo')
 //                // [ ] text(id:234)
 //
 //                // Look for existing (persistent) state for the given expression
-//                List<Identifier> identiferList = Manager.get();
+//                List<Identifier> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
-//                    if (identiferList.get(i).getClass() == State.class) {
-//                        State state = (State) identiferList.get(i);
+//                    if (identiferList.request(i).getClass() == State.class) {
+//                        State state = (State) identiferList.request(i);
 //                        String textContent = expression.substring(1, expression.length() - 1);
-//                        if (state.classType == Type.get("text") && state.objectType == String.class && textContent.equals(state.object)) {
+//                        if (state.classType == Type.request("text") && state.objectType == String.class && textContent.equals(state.object)) {
 //                            return state;
 //                        }
 //                    }
 //                }
-//            } else if (stateType == Type.get("list")) {
+//            } else if (stateType == Type.request("list")) {
 //
 //                // TODO: Look for permutation of a list?
 //
@@ -95,7 +94,7 @@ public class Manager {
 //
 //                    long uid = Long.parseLong(addressToken.trim());
 //
-//                    Identifier identifier = Manager.get(uid);
+//                    Identifier identifier = Manager.request(uid);
 ////                    if (identifier != null) {
 ////                        if (identifier.getClass() == Construct.class) {
 ////                            State state = State.getState(stateType);
@@ -107,10 +106,10 @@ public class Manager {
 //
 //                    // Look for existing (persistent) state for the given expression
 //                    if (identifier != null) {
-//                        List<Identifier> identiferList = Manager.get();
+//                        List<Identifier> identiferList = Manager.request();
 //                        for (int i = 0; i < identiferList.size(); i++) {
-//                            if (identiferList.get(i).getClass() == State.class) {
-//                                State state = (State) identiferList.get(i);
+//                            if (identiferList.request(i).getClass() == State.class) {
+//                                State state = (State) identiferList.request(i);
 ////                            String textContent = expression.substring(1, expression.length() - 1);
 //                                // TODO: Also check Type?
 //                                if (state.objectType == Construct.class && state.object != null
@@ -132,18 +131,18 @@ public class Manager {
 
         if (type != null) {
 
-            if (type == Type.get("none")) {
+            if (type == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
                 List<Identifier> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("none") && construct.objectType == null && construct.object == null) {
+                        if (construct.type == Type.request("none") && construct.objectType == null && construct.object == null) {
                             return construct;
                         }
                     }
                 }
-            } else if (type == Type.get("text")) {
+            } else if (type == Type.request("text")) {
                 // e.g.,
                 // [ ] 'foo'
                 // [ ] text('foo')
@@ -155,13 +154,13 @@ public class Manager {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
                         String textContentDefault = "";
-                        if (construct.type == Type.get("text") && construct.objectType == String.class && textContentDefault.equals(construct.object)) {
-//                        if (construct.classType == Type.get("text") && construct.objectType == String.class && ((textContent == null && construct.object == null) || textContent.equals(construct.object))) {
+                        if (construct.type == Type.request("text") && construct.objectType == String.class && textContentDefault.equals(construct.object)) {
+//                        if (construct.classType == Type.request("text") && construct.objectType == String.class && ((textContent == null && construct.object == null) || textContent.equals(construct.object))) {
                             return construct;
                         }
                     }
                 }
-            } else if (type == Type.get("list")) {
+            } else if (type == Type.request("list")) {
 
                 // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
                 // TODO: Also support looking up by construct permutation contained in list?
@@ -171,7 +170,7 @@ public class Manager {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("list") && construct.objectType == List.class && construct.object != null && ((List) construct.object).size() == 0) {
+                        if (construct.type == Type.request("list") && construct.objectType == List.class && construct.object != null && ((List) construct.object).size() == 0) {
                             // TODO: Look for permutation of a list (matching list of constructs)?
                             return construct;
                         }
@@ -236,18 +235,18 @@ public class Manager {
 
         if (type != null) {
 
-            if (type == Type.get("none")) {
+            if (type == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
                 List<Identifier> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("none") && construct.objectType == null && construct.object == null) {
+                        if (construct.type == Type.request("none") && construct.objectType == null && construct.object == null) {
                             return construct;
                         }
                     }
                 }
-            } else if (type == Type.get("text")) {
+            } else if (type == Type.request("text")) {
                 // e.g.,
                 // [ ] 'foo'
                 // [ ] text('foo')
@@ -259,13 +258,13 @@ public class Manager {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
                         String textContentDefault = "";
-                        if (construct.type == Type.get("text") && construct.objectType == String.class && textContentDefault.equals(construct.object)) {
-//                        if (construct.classType == Type.get("text") && construct.objectType == String.class && ((textContent == null && construct.object == null) || textContent.equals(construct.object))) {
+                        if (construct.type == Type.request("text") && construct.objectType == String.class && textContentDefault.equals(construct.object)) {
+//                        if (construct.classType == Type.request("text") && construct.objectType == String.class && ((textContent == null && construct.object == null) || textContent.equals(construct.object))) {
                             return construct;
                         }
                     }
                 }
-            } else if (type == Type.get("list")) {
+            } else if (type == Type.request("list")) {
 
                 // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
                 // TODO: Also support looking up by construct permutation contained in list?
@@ -275,7 +274,7 @@ public class Manager {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Construct.class) {
                         Construct construct = (Construct) identiferList.get(i);
-                        if (construct.type == Type.get("list") && construct.objectType == List.class && construct.object != null && ((List) construct.object).size() == 0) {
+                        if (construct.type == Type.request("list") && construct.objectType == List.class && construct.object != null && ((List) construct.object).size() == 0) {
                             // TODO: Look for permutation of a list (matching list of constructs)?
                             return construct;
                         }
@@ -338,13 +337,13 @@ public class Manager {
 
 //    public static Construct getPersistentListConstruct(List constructList) {
 //
-//        Type type = Type.get("list");
+//        Type type = Type.request("list");
 //
 //        // Look for persistent "empty list" object (i.e., the default list).
-//        List<Identifier> identiferList = Manager.get();
+//        List<Identifier> identiferList = Manager.request();
 //        for (int i = 0; i < identiferList.size(); i++) {
-//            if (identiferList.get(i).getClass() == Construct.class) {
-//                Construct candidateConstruct = (Construct) identiferList.get(i);
+//            if (identiferList.request(i).getClass() == Construct.class) {
+//                Construct candidateConstruct = (Construct) identiferList.request(i);
 //
 //                if (candidateConstruct.type == type && candidateConstruct.objectType == List.class && candidateConstruct.object != null) {
 //                    // LIST
@@ -365,7 +364,7 @@ public class Manager {
 //
 //                        // Compare candidate list (from repository) with the requested list.
 //                        for (int j = 0; j < currentConstructList.size(); j++) {
-//                            if (!candidateConstructList.contains(currentConstructList.get(j))) {
+//                            if (!candidateConstructList.contains(currentConstructList.request(j))) {
 //                                isConstructMatch = false;
 //                            }
 //                        }
@@ -375,15 +374,15 @@ public class Manager {
 ////                            if (featureIdentifier.equals(featureToReplace)) {
 ////                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
 ////                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-////                                        || candidateConstruct.states.get(featureIdentifier) != featureConstructReplacement) {
+////                                        || candidateConstruct.states.request(featureIdentifier) != featureConstructReplacement) {
 //////                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
 ////                                    isConstructMatch = false;
 ////                                }
 ////                            } else {
 ////                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
 ////                                        || !candidateConstruct.states.containsKey(featureIdentifier)
-////                                        || candidateConstruct.states.get(featureIdentifier) != currentConstruct.states.get(featureIdentifier)) {
-//////                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+////                                        || candidateConstruct.states.request(featureIdentifier) != currentConstruct.states.request(featureIdentifier)) {
+//////                                        || !candidateConstructFeatures.containsValue(concept.features.request(featureIdentifier))) {
 ////                                    isConstructMatch = false;
 ////                                }
 ////                            }
@@ -430,7 +429,7 @@ public class Manager {
         return constructList;
     }
 
-//    public static List<Identifier> get(Class classType) {
+//    public static List<Identifier> request(Class classType) {
 //        List<Identifier> elements = new ArrayList<>();
 //        for (Identifier element : Manager.elements.values()) {
 //            if (element.getClass() == classType) {
@@ -440,7 +439,7 @@ public class Manager {
 //        return elements;
 //    }
 
-//    public static Concept get(String constructUri) {
+//    public static Concept request(String constructUri) {
     public static Identifier get(String constructUri) {
 
         // Parse:

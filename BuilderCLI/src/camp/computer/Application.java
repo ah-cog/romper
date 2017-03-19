@@ -1,6 +1,10 @@
 package camp.computer;
 
+import camp.computer.util.file.LogFile;
+
 public class Application {
+
+    public static LogFile log = new LogFile();
 
     public static void main(String[] args) {
 

@@ -25,13 +25,13 @@ has code text
 type task
 has script
 
-type process
+type computer # process
 has task list # sequence
 
 type project
 has device list
 has path list
-has process list
+has computer list
 
 # TODO: user
 # TODO: item

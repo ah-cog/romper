@@ -3,14 +3,17 @@ package camp.computer.construct;
 import java.util.HashMap;
 import java.util.List;
 
+import camp.computer.Application;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
 public class Concept extends Identifier {
 
+    // TODO: replace "type" with "identifier" and combine Type and Concept
     public Type type = null;
 
     public HashMap<String, Feature> features = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
+    // TODO: Set to null for "none" type
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Concept
 
@@ -54,7 +57,7 @@ public class Concept extends Identifier {
 //            if (featureIdentifier.equals(targetFeature)) {
 //                newConcept.states.put(targetFeature, replacementConstruct);
 //            } else {
-//                newConcept.states.put(featureIdentifier, baseConstruct.states.get(featureIdentifier));
+//                newConcept.states.put(featureIdentifier, baseConstruct.states.request(featureIdentifier));
 //            }
 //        }
         if (replacementFeature == null) {
@@ -140,15 +143,15 @@ public class Concept extends Identifier {
 //                            if (featureIdentifier.equals(targetFeature)) {
 //                                if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 ////                                    || !candidateConcept.states.containsKey(featureIdentifier)
-////                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+////                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 ////                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
 //                                    isConstructMatch = false;
 //                                }
 //                            } else {
                                 if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != baseConcept.states.get(featureIdentifier)) {
-//                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+//                                    || candidateConcept.states.request(featureIdentifier) != baseConcept.states.request(featureIdentifier)) {
+//                                        || !candidateConstructFeatures.containsValue(concept.features.request(featureIdentifier))) {
                                     isConstructMatch = false;
                                 }
 //                            }
@@ -157,7 +160,7 @@ public class Concept extends Identifier {
                         // Second, ensure that the target feature exists in the candidate concept.
                         if (!candidateConceptFeatures.containsKey(targetFeature)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+//                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 //                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
                             isConstructMatch = false;
                         }
@@ -178,7 +181,7 @@ public class Concept extends Identifier {
                             if (featureIdentifier.equals(targetFeature)) {
                                 if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+//                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 //                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
                                     isConstructMatch = false;
                                 }
@@ -190,8 +193,8 @@ public class Concept extends Identifier {
                             } else {
                                 if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
     //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-    //                                    || candidateConcept.states.get(featureIdentifier) != baseConcept.states.get(featureIdentifier)) {
-    //                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+    //                                    || candidateConcept.states.request(featureIdentifier) != baseConcept.states.request(featureIdentifier)) {
+    //                                        || !candidateConstructFeatures.containsValue(concept.features.request(featureIdentifier))) {
                                     isConstructMatch = false;
                                 }
 
@@ -205,7 +208,7 @@ public class Concept extends Identifier {
                         // Second, ensure that the target feature exists in the candidate concept.
                         if (!candidateConceptFeatures.containsKey(targetFeature)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+//                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 //                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
                             isConstructMatch = false;
                         }
@@ -225,15 +228,15 @@ public class Concept extends Identifier {
                             if (featureIdentifier.equals(targetFeature)) {
                                 if (candidateConceptFeatures.containsKey(featureIdentifier)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+//                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 //                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
                                     isConstructMatch = false;
                                 }
                             } else {
                                 if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 //                                    || !candidateConcept.states.containsKey(featureIdentifier)
-//                                    || candidateConcept.states.get(featureIdentifier) != baseConcept.states.get(featureIdentifier)) {
-//                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+//                                    || candidateConcept.states.request(featureIdentifier) != baseConcept.states.request(featureIdentifier)) {
+//                                        || !candidateConstructFeatures.containsValue(concept.features.request(featureIdentifier))) {
                                     isConstructMatch = false;
                                 }
                             }
@@ -253,15 +256,15 @@ public class Concept extends Identifier {
 //                        if (featureIdentifier.equals(targetFeature)) {
 //                            if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 ////                                    || !candidateConcept.states.containsKey(featureIdentifier)
-////                                    || candidateConcept.states.get(featureIdentifier) != featureConstructReplacement) {
+////                                    || candidateConcept.states.request(featureIdentifier) != featureConstructReplacement) {
 ////                                        || !candidateConstructFeatures.containsValue(featureConstructReplacement)) {
 //                                isConstructMatch = false;
 //                            }
 //                        } else {
 //                            if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
 ////                                    || !candidateConcept.states.containsKey(featureIdentifier)
-////                                    || candidateConcept.states.get(featureIdentifier) != baseConcept.states.get(featureIdentifier)) {
-////                                        || !candidateConstructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+////                                    || candidateConcept.states.request(featureIdentifier) != baseConcept.states.request(featureIdentifier)) {
+////                                        || !candidateConstructFeatures.containsValue(concept.features.request(featureIdentifier))) {
 //                                isConstructMatch = false;
 //                            }
 //                        }
@@ -284,10 +287,14 @@ public class Concept extends Identifier {
         // Create new Construct if got to this point because an existing one was not found
         Concept replacementConcept = Concept.create(baseConcept, targetFeature, replacementFeature);
         if (replacementConcept != null) {
-            System.out.print(Color.ANSI_GREEN);
-            System.out.print("\tno concept match > ");
-            System.out.println("created concept " + replacementConcept);
-            System.out.print(Color.ANSI_RESET);
+
+            Application.log.log("\tno concept match > ");
+            Application.log.log("created concept " + replacementConcept);
+
+//            System.out.print(Color.ANSI_GREEN);
+//            System.out.print("\tno concept match > ");
+//            System.out.println("created concept " + replacementConcept);
+//            System.out.print(Color.ANSI_RESET);
             return replacementConcept;
         }
 

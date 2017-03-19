@@ -3,6 +3,7 @@ package camp.computer.construct;
 import java.util.ArrayList;
 import java.util.List;
 
+import camp.computer.Application;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
@@ -150,10 +151,13 @@ public class Feature extends Identifier {
         Feature feature = Feature.create(identifier, types, domain, listTypes);
         long uid = Manager.add(feature);
 
-        System.out.print(Color.ANSI_GREEN);
-        System.out.print("\tno feature match > ");
-        System.out.println("created feature " + feature.toColorString());
-        System.out.print(Color.ANSI_RESET);
+        Application.log.log("\tno feature match > ");
+        Application.log.log("created feature " + feature.toColorString());
+
+//        System.out.print(Color.ANSI_GREEN);
+//        System.out.print("\tno feature match > ");
+//        System.out.println("created feature " + feature.toColorString());
+//        System.out.print(Color.ANSI_RESET);
 
         return feature;
     }
