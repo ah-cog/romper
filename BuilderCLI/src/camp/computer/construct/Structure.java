@@ -8,7 +8,7 @@ import java.util.Map;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-public class Structure extends Identifier {
+public class Structure extends Address {
 
     // In Redis, primitive types has types and content; non-primitive has no content.
     // TODO: Use "features" object as a HashMap for non-primitive to reference features;
@@ -76,13 +76,13 @@ public class Structure extends Identifier {
                 Type type2 = Type.request("none");
                 Structure structure = Structure.create(type2);
                 states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
-//                states.put(feature.identifier, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
+//                states.put(feature.address, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
 //                if (feature.types != null) { // if (feature.types.size() == 1) {
 //                    // Get default feature structure state
-//                    // states.put(feature.identifier, Structure.request(feature.types.request(0).identifier)); // Initialize with only available types if there's only one available
-//                    states.put(feature.identifier, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
+//                    // states.put(feature.address, Structure.request(feature.types.request(0).address)); // Initialize with only available types if there's only one available
+//                    states.put(feature.address, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
 //                } else {
-//                    states.put(feature.identifier, null); // Default to "any" types by setting null
+//                    states.put(feature.address, null); // Default to "any" types by setting null
 //                }
             }
         }
@@ -216,7 +216,7 @@ public class Structure extends Identifier {
 
             if (constructTypeId == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -243,7 +243,7 @@ public class Structure extends Identifier {
                 // [ ] text(id:234)
 
                 // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -277,7 +277,7 @@ public class Structure extends Identifier {
                 // TODO: Also support looking up by construct permutation contained in list?
 
                 // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -302,33 +302,33 @@ public class Structure extends Identifier {
 
                     long uid = Long.parseLong(addressToken.trim());
 
-                    Identifier identifier = Manager.get(uid);
-//                    if (identifier != null) {
-//                        if (identifier.getClass() == Structure.class) {
+                    Address address = Manager.get(uid);
+//                    if (address != null) {
+//                        if (address.getClass() == Structure.class) {
 //                            State state = State.getState(stateType);
-//                            state.object = identifier;
+//                            state.object = address;
 //                            return state;
 //                        }
 //                    }
 
-                    if (identifier != null) {
-                        return (Structure) identifier;
+                    if (address != null) {
+                        return (Structure) address;
                     }
 
 
 //                    // Look for existing (persistent) state for the given expression
-//                    if (identifier != null) {
-//                        List<Identifier> identiferList = Manager.request();
+//                    if (address != null) {
+//                        List<Address> identiferList = Manager.request();
 //                        for (int i = 0; i < identiferList.size(); i++) {
 //                            if (identiferList.request(i).getClass() == Structure.class) {
 //                                Structure structure = (Structure) identiferList.request(i);
 ////                            String textContent = expression.substring(1, expression.length() - 1);
 //                                // TODO: Also check TypeId?
 //                                if (structure.objectType == Map.class && structure.object != null) {
-////                                        && structure.object == identifier) {
-////                                        && structure.object == identifier) {
+////                                        && structure.object == address) {
+////                                        && structure.object == address) {
 //                                    for (Structure featureConstruct : structure.states.values()) {
-//                                        if (features.containsValue(identifier)) { // TODO: iterate through features to see if contains feature...
+//                                        if (features.containsValue(address)) { // TODO: iterate through features to see if contains feature...
 //                                            return structure;
 //                                        }
 //                                    }
@@ -356,10 +356,10 @@ public class Structure extends Identifier {
 //                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
 //
 //                    long uid = Long.parseLong(addressToken.trim());
-//                    Identifier identifier = Manager.request(uid);
-//                    if (identifier != null) {
+//                    Address address = Manager.request(uid);
+//                    if (address != null) {
 //                        structure = Structure.request(constructTypeId);
-//                        structure.object = identifier;
+//                        structure.object = address;
 //                        return structure;
 //                    } else {
 //                        System.out.println(Error.request("Error: " + expression + " does not exist."));
@@ -385,7 +385,7 @@ public class Structure extends Identifier {
         Type type = Type.request("list");
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Identifier> identiferList = Manager.get();
+        List<Address> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
@@ -479,7 +479,7 @@ public class Structure extends Identifier {
         Type type2 = currentStructure.type2; // Structure type
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Identifier> identiferList = Manager.get();
+        List<Address> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
@@ -716,15 +716,15 @@ public class Structure extends Identifier {
 //                // TODO: Check types of list contents and restrict to the types (or any if "any")
 //                // TODO: If specific text tokens are allowed AS WELL AS text construct, text construct subsumes the tokens and the tokens are not included in the domain
 //
-////                if (contents.request(identifier).listType == Type.request("text")) {
+////                if (contents.request(address).listType == Type.request("text")) {
 //                if (contents.request(tag).listTypes.contains(Type.request("text"))) {
 //                    if (Content.isText((String) object)) {
 //                        contentList.request(object);
 //                    } else {
 //                        System.out.println("Error: Cannot request non-text to list (only can contain text).");
 //                    }
-////                } else if (contents.request(identifier).listType == Type.request("construct")) {
-////                } else if (contents.request(identifier).listTypes.contains(Type.request("construct"))) {
+////                } else if (contents.request(address).listType == Type.request("construct")) {
+////                } else if (contents.request(address).listTypes.contains(Type.request("construct"))) {
 //                } else {
 //                    // TODO: Determine if the construct object is allowed into the list based on the specific types!
 //                    contentList.request(object);
@@ -749,11 +749,11 @@ public class Structure extends Identifier {
 //        return null;
 //    }
 
-    // TODO: request <list-feature-identifier> : <object>
+    // TODO: request <list-feature-address> : <object>
 
 //    /**
 //     * Adds a {@code State} to a <em>list</em> {@code Structure}, which is a {@code Structure} with
-//     * a {@code TypeId} uniquely identified by its {@code identifier} equal to {@code "list"}.
+//     * a {@code TypeId} uniquely identified by its {@code address} equal to {@code "list"}.
 //     *
 //     * {@code expression} is a <em>state expression</em>.
 //     *
@@ -892,15 +892,15 @@ public class Structure extends Identifier {
 //                // TODO: Check types of list contents and restrict to the types (or any if "any")
 //                // TODO: If specific text tokens are allowed AS WELL AS text construct, text construct subsumes the tokens and the tokens are not included in the domain
 //
-////                if (contents.request(identifier).listType == Type.request("text")) {
+////                if (contents.request(address).listType == Type.request("text")) {
 //                if (contents.request(tag).listTypes.contains(Type.request("text"))) {
 //                    if (Content.isText((String) object)) {
 //                        contentList.request(object);
 //                    } else {
 //                        System.out.println("Error: Cannot request non-text to list (only can contain text).");
 //                    }
-////                } else if (contents.request(identifier).listType == Type.request("construct")) {
-////                } else if (contents.request(identifier).listTypes.contains(Type.request("construct"))) {
+////                } else if (contents.request(address).listType == Type.request("construct")) {
+////                } else if (contents.request(address).listTypes.contains(Type.request("construct"))) {
 //                } else {
 //                    // TODO: Determine if the construct object is allowed into the list based on the specific types!
 //                    contentList.request(object);

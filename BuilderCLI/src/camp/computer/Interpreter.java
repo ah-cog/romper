@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import camp.computer.construct.Address;
 import camp.computer.construct.Structure;
 import camp.computer.construct.Type;
 import camp.computer.network.Repository;
@@ -21,7 +22,6 @@ import camp.computer.OLD_construct.TaskConstruct;
 import camp.computer.construct.Error;
 import camp.computer.construct.Expression;
 import camp.computer.construct.Feature;
-import camp.computer.construct.Identifier;
 import camp.computer.construct.Reference;
 import camp.computer.data.format.configuration.Configuration;
 import camp.computer.data.format.configuration.Variable;
@@ -179,7 +179,7 @@ public class Interpreter {
             } else if (context.expression.equals("exit")) {
                 exitTask(context);
             } else {
-                // TODO: Validate string as valid construct instance identifier.
+                // TODO: Validate string as valid construct instance address.
 
                 if (context.references != null && context.references.containsKey(context.expression.split("[ ]+")[0])) { // REFACTOR
                     // e.g., "foo" -> port.id.9
@@ -189,8 +189,8 @@ public class Interpreter {
                     Structure structure = (Structure) reference.object;
 
                     // Update object
-//                    context.identifier = structure;
-                    context.identifier = reference;
+//                    context.address = structure;
+                    context.address = reference;
 
 //                    System.out.println("Found " + structure.type + " structure (UID: " + structure.uid + ")");
 
@@ -210,30 +210,30 @@ public class Interpreter {
                     if (Type.exists(typeIdentifierToken)) {
                         if (addressTypeToken.equals("id")) {
                             long uid = Long.parseLong(addressToken);
-                            Identifier identifier = Manager.get(uid);
-                            if (identifier == null) {
+                            Address address = Manager.get(uid);
+                            if (address == null) {
                                 System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
-                            } else if (identifier.getClass() == Reference.class) {
-                                Reference reference = (Reference) identifier;
+                            } else if (address.getClass() == Reference.class) {
+                                Reference reference = (Reference) address;
                                 Structure structure = (Structure) reference.object;
 //                                System.out.println("[FOUND] " + structure.type + ".id." + reference.uid + " -> " + structure.type + ".id." + structure.uid);
                                 System.out.println("(link) " + reference.toColorString());
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
-                                context.identifier = reference;
-                            } else if (identifier.getClass() == Structure.class) {
-                                Structure structure = (Structure) identifier;
+                                context.address = reference;
+                            } else if (address.getClass() == Structure.class) {
+                                Structure structure = (Structure) address;
 //                                System.out.println("[FOUND] " + structure.toColorString());
                                 System.out.println("(structure) " + structure.toColorString());
 
                                 // Update object
 //                                currentContextType = ContextType.CONSTRUCT;
-                                context.identifier = structure;
+                                context.address = structure;
 
-                            } else if (identifier.getClass() == Type.class) {
+                            } else if (address.getClass() == Type.class) {
                                 System.out.println(Color.ANSI_RED + "Error: The UID is for a type." + Color.ANSI_RESET);
-//                                Type type = (Type) identifier;
+//                                Type type = (Type) address;
 //                                System.out.println("Found " + type.types + " with UID " + uid);
                             }
                         } else if (context.expression.contains("uuid:")) {
@@ -253,7 +253,7 @@ public class Interpreter {
 
         if (inputLineTokens.length == 1) {
 
-            System.out.println("Usage: type <identifier>");
+            System.out.println("Usage: type <address>");
 
         } else if (inputLineTokens.length == 2) {
 
@@ -289,7 +289,7 @@ public class Interpreter {
             System.out.println(type.toColorString());
 
             // Update object
-            context.identifier = type;
+            context.address = type;
 
             // TODO: Factor this into a function in Context (to automate tracking of most-recent type)
             context.conceptReferences.put(typeToken, type);
@@ -304,7 +304,7 @@ public class Interpreter {
         String[] inputLineSegments = context.expression.split("[ ]*:[ ]*");
 
         // Determine interpreter's object. Type or instance?
-        if (Identifier.isConcept(context.identifier)) {
+        if (Address.isType(context.address)) {
 
             // Defaults
             String featureIdentifier = null;
@@ -313,17 +313,17 @@ public class Interpreter {
 
             boolean hasError = false;
 
-            // Determine identifier and types
+            // Determine address and types
             if (inputLineSegments.length >= 1) {
 
                 String[] inputLineTokens = inputLineSegments[0].split("[ ]+");
 
-                // Determine identifier
+                // Determine address
                 featureIdentifier = inputLineTokens[1];
 
 //                // <REFACTOR>
 //                // Check if the feature already exists in the current object
-//                if (Identifier.getConcept(context.identifier).features.containsKey(featureIdentifier)) {
+//                if (Address.getType(context.address).features.containsKey(featureIdentifier)) {
 //                    System.out.println(Color.ANSI_RED + "Warning: Context already contains feature '" + featureIdentifier + "'. A new construct revision will be generated." + Color.ANSI_RESET);
 //                }
 //                // </REFACTOR>
@@ -345,9 +345,9 @@ public class Interpreter {
                             if (listTypes == null) {
                                 listTypes = new ArrayList<>();
                             }
-                            listTypes.add(Type.request(featureIdentifier)); // If identifier is a construct types, then constraint list to that types by default
+                            listTypes.add(Type.request(featureIdentifier)); // If address is a construct types, then constraint list to that types by default
                         } else {
-                            listTypes = null; // If identifier is non-construct types then default list types is "any"
+                            listTypes = null; // If address is non-construct types then default list types is "any"
                         }
                     } else {
                         // TODO: Refactor. There's some weird redundancy here with 'has' and 'Type.request'.
@@ -544,7 +544,7 @@ public class Interpreter {
 //                            for (int i = 0; i < constraintTokens.length; i++) {
 //                                String constraintToken = constraintTokens[i].trim();
 //                                // TODO: Verify this... it might be a bug...
-//                                if (!constraintToken.equals(featureTagToken)) { // NOTE: featureTagToken is the custom types identifier.
+//                                if (!constraintToken.equals(featureTagToken)) { // NOTE: featureTagToken is the custom types address.
 //                                    hasError = true;
 //                                }
 //                            }
@@ -556,7 +556,7 @@ public class Interpreter {
                         for (int i = 0; i < constraintTokens.length; i++) {
                             String constraintToken = constraintTokens[i];
                             for (int j = 0; j < featureTypes.size(); j++) {
-                                if (!constraintToken.equals(featureTypes.get(j).identifier)) { // NOTE: featureTagToken is the custom types identifier.
+                                if (!constraintToken.equals(featureTypes.get(j).identifier)) { // NOTE: featureTagToken is the custom types address.
                                     hasError = true;
                                 }
                             }
@@ -628,10 +628,10 @@ public class Interpreter {
                 */
                 // TODO: Create new version of type here if feature is changed?
 
-                Type baseType = Identifier.getConcept(context.identifier);
-//                Type baseType = Identifier.getConcept(context.conceptReferences.request(featureIdentifier));
+                Type baseType = Address.getType(context.address);
+//                Type baseType = Address.getType(context.conceptReferences.request(featureIdentifier));
                 Type replacementType = Type.request(baseType, featureIdentifier, feature);
-                context.identifier = replacementType;
+                context.address = replacementType;
 
                 // TODO: Factor this into a function in Context (to automate tracking of most-recent type)
                 context.conceptReferences.put(replacementType.identifier, replacementType);
@@ -645,7 +645,7 @@ public class Interpreter {
 //                System.out.println("\tbaseType.id: " + baseType.uid);
 //                System.out.println("\treplacementType.id: " + replacementType.uid);
 
-//                Identifier.getConcept(context.identifier).features.put(featureIdentifier, feature);
+//                Address.getType(context.address).features.put(featureIdentifier, feature);
 //                long uid = Manager.add(feature);
 //                // TODO: initialize "text" with default empty string construct reference (and other types accordingly)
 
@@ -722,8 +722,8 @@ public class Interpreter {
 ////                    } else if (feature.listType == Type.request("any")) {
 //                    } else if (feature.listTypes.contains(Type.request("any"))) {
 //                        System.out.print("can contain " + Type.request("any") + "");
-////                    } else if (TypeId.has(feature.listType.identifier)) {
-//                    } else { // if (TypeId.has(feature.listType.identifier)) {
+////                    } else if (TypeId.has(feature.listType.address)) {
+//                    } else { // if (TypeId.has(feature.listType.address)) {
 //                        for (int i = 0; i < feature.listTypes.size(); i++) {
 //                            System.out.print("can contain " + feature.listTypes.request(i) + ": ");
 //                        }
@@ -758,7 +758,7 @@ public class Interpreter {
                 System.out.println(Color.ANSI_RED + "Error: Bad feature syntax." + Color.ANSI_RESET);
             }
 
-        } else if (Identifier.isConcept(context.identifier)) {
+        } else if (Address.isType(context.address)) {
 
             // TODO:
 
@@ -776,7 +776,7 @@ public class Interpreter {
         // Defaults
         String featureIdentifierToken = null;
 
-        // Determine identifier
+        // Determine address
         if (inputLineTokens.length >= 2) {
             featureIdentifierToken = inputLineTokens[1];
 
@@ -821,8 +821,8 @@ public class Interpreter {
 //                    }
 
                     // Update object
-//                    identifier = structure;
-                    context.identifier = constructReference;
+//                    address = structure;
+                    context.address = constructReference;
                 } else {
                     System.out.println(Color.ANSI_RED + "Error: No types or type matches '" + featureIdentifierToken + "'" + Color.ANSI_RESET);
                 }
@@ -849,23 +849,23 @@ public class Interpreter {
     public void setTask(Context context) {
 
         // Determine interpreter's object. Type or instance?
-        if (Identifier.isConstruct(context.identifier)) {
+        if (Address.isStructure(context.address)) {
 
             String[] inputLineTokens = context.expression.split("[ ]+");
 
             // Defaults
             String featureIdentifier = null;
 
-            // Determine identifier
+            // Determine address
             if (inputLineTokens.length >= 3) {
 
-                // Extract feature identifier and feature state
+                // Extract feature address and feature state
                 featureIdentifier = inputLineTokens[1];
                 String stateExpression = inputLineTokens[2];
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure currentStructure = Identifier.getConstruct(context.identifier);
+                Structure currentStructure = Address.getStructure(context.address);
                 HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentStructure.object;
 
                 Structure currentFeatureStructure = currentStructure.states.get(featureIdentifier);
@@ -900,13 +900,13 @@ public class Interpreter {
                     boolean isSameConstruct = true;
                     Structure replacementStructure = Structure.request(currentStructure, featureIdentifier, replacementFeatureStructure);
                     if (replacementStructure != null) {
-                        ((Reference) context.identifier).object = replacementStructure;
+                        ((Reference) context.address).object = replacementStructure;
                         if (currentStructure == replacementStructure) {
                             isSameConstruct = true;
                         } else {
                             isSameConstruct = false;
                         }
-                        currentStructure = (Structure) ((Reference) context.identifier).object;
+                        currentStructure = (Structure) ((Reference) context.address).object;
                     }
 
                     // Print the feature construct
@@ -916,7 +916,7 @@ public class Interpreter {
                     // Print the in-context construct (with the new feature construct)
                     if (replacementStructure != null) {
                         System.out.print(Color.ANSI_CYAN + (isSameConstruct ? "[SAME CONSTRUCT] " : "[SWITCHED CONSTRUCT] ") + Color.ANSI_RESET);
-                        System.out.println(((Reference) context.identifier).toColorString());
+                        System.out.println(((Reference) context.address).toColorString());
                     }
                 }
 
@@ -933,7 +933,7 @@ public class Interpreter {
     public void addTask(Context context) {
 
         // Determine interpreter's object. Type or instance?
-        if (Identifier.isConstruct(context.identifier)) {
+        if (Address.isStructure(context.address)) {
 
             // Defaults
             String featureIdentifier = null;
@@ -956,7 +956,7 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure currentStructure = (Structure) ((Reference) context.identifier).object;
+                Structure currentStructure = (Structure) ((Reference) context.address).object;
                 HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentStructure.object;
 
                 // Check if feature is valid. If not, show error.
@@ -993,15 +993,15 @@ public class Interpreter {
 //                    System.out.println("reference -> " + replacementStructure);
 
                     if (replacementStructure != null) {
-                        ((Reference) context.identifier).object = replacementStructure;
+                        ((Reference) context.address).object = replacementStructure;
                         if (currentStructure == replacementStructure) {
                             System.out.print("[SAME CONSTRUCT] ");
                         } else {
                             System.out.print("[SWITCHED CONSTRUCT] ");
                         }
-                        currentStructure = (Structure) ((Reference) context.identifier).object;
+                        currentStructure = (Structure) ((Reference) context.address).object;
 //                    System.out.println("REPLACEMENT: " + replacementStructure);
-                        System.out.println("reference " + currentStructure.type2.toColorString() + " (id: " + context.identifier.uid + ") -> construct " + currentStructure.type2.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
+                        System.out.println("reference " + currentStructure.type2.toColorString() + " (id: " + context.address.uid + ") -> construct " + currentStructure.type2.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
                     }
 
                 } else {
@@ -1013,16 +1013,16 @@ public class Interpreter {
 
 
 
-//                Structure currentStructure = (Structure) ((Reference) identifier).object;
+//                Structure currentStructure = (Structure) ((Reference) address).object;
 ////                Structure currentFeatureStructure = currentStructure.states.request(featureIdentifier);
 //
 ////                Structure replacementFeatureConstruct = Structure.request(stateExpression);
 ////                Structure replacementConstruct = Manager.getPersistentConstruct(currentStructure, featureIdentifier, replacementFeatureConstruct);
 //
-////                ((Structure) identifier).insert(featureIdentifier, featureContentToken);
+////                ((Structure) address).insert(featureIdentifier, featureContentToken);
 //
 //                System.out.print(featureIdentifier + " : ");
-////                List list = (List) ((Structure) identifier).states.request(featureIdentifier).object;
+////                List list = (List) ((Structure) address).states.request(featureIdentifier).object;
 //
 //
 //                Structure additionalFeatureConstruct = Structure.request(stateExpression); // replacementConstruct
@@ -1058,14 +1058,14 @@ public class Interpreter {
             List<Type> typeIdList = Type.list();
             for (int i = 0; i < typeIdList.size(); i++) {
                 List<Reference> referenceList = Manager.get(Reference.class);
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).identifier + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
 //                int typeReferenceCount = 0;
 //                for (int j = 0; j < referenceList.size(); j++) {
 //                    if (((Structure) (((Reference) referenceList.request(j)).object)).type == typeIdList.request(i)) {
 //                        typeReferenceCount++;
 //                    }
 //                }
-//                System.out.println(Color.ANSI_BLUE + typeIdList.request(i).identifier + Color.ANSI_RESET + " (count: " + typeReferenceCount + ")");
+//                System.out.println(Color.ANSI_BLUE + typeIdList.request(i).address + Color.ANSI_RESET + " (count: " + typeReferenceCount + ")");
                 System.out.println(Color.ANSI_BLUE + typeIdList.get(i).identifier + Color.ANSI_RESET);
             }
 
@@ -1085,20 +1085,20 @@ public class Interpreter {
                     if (addressTypeToken.equals("id")) {
                         Structure structure = null;
                         long uid = Long.parseLong(addressToken.trim());
-                        Identifier identifier = Manager.get(uid);
-                        if (identifier == null) {
+                        Address address = Manager.get(uid);
+                        if (address == null) {
                             System.out.println(Error.get("No type with UID " + uid));
                             return;
                         }
 
-                        if (identifier.getClass() == Reference.class) {
-                            Reference reference = (Reference) identifier;
+                        if (address.getClass() == Reference.class) {
+                            Reference reference = (Reference) address;
                             structure = (Structure) reference.object;
-                        } else if (identifier.getClass() == Structure.class) {
-                            structure = (Structure) identifier;
-//                        } else if (identifier.getClass() == Type.class) {
+                        } else if (address.getClass() == Structure.class) {
+                            structure = (Structure) address;
+//                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) identifier;
+//                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                         }
 
@@ -1115,7 +1115,7 @@ public class Interpreter {
                                 System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
                             } else {
 
-//                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET);
+//                                System.out.println(Color.ANSI_BLUE + structure.type.address + Color.ANSI_RESET);
                                 System.out.println(structure.toColorString());
 
                                 HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
@@ -1220,7 +1220,7 @@ public class Interpreter {
             List<Type> typeIdList = Type.list();
             for (int i = 0; i < typeIdList.size(); i++) {
                 List<Reference> referenceList = Manager.get(Reference.class);
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).identifier + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
                 int typeReferenceCount = 0;
                 for (int j = 0; j < referenceList.size(); j++) {
                     Type typeDefault = Type.request(typeIdList.get(i).identifier);
@@ -1244,14 +1244,14 @@ public class Interpreter {
 //                if (addressTypeToken.equals("id")) {
 //                    Structure construct = null;
 //                    long uid = Long.parseLong(addressToken.trim());
-//                    Identifier identifier = Manager.request(uid);
-//                    if (identifier == null) {
+//                    Address address = Manager.request(uid);
+//                    if (address == null) {
 //                        System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
-//                    } else if (identifier.getClass() == Structure.class) {
-//                        construct = (Structure) identifier;
-////                        } else if (identifier.getClass() == Type.class) {
+//                    } else if (address.getClass() == Structure.class) {
+//                        construct = (Structure) address;
+////                        } else if (address.getClass() == Type.class) {
 ////                            System.out.println("Error: The UID is for a type.");
-////                            //                                Type type = (Type) identifier;
+////                            //                                Type type = (Type) address;
 ////                            //                                System.out.println("Found " + type.types + " with UID " + uid);
 //                    }
 //
@@ -1271,7 +1271,7 @@ public class Interpreter {
 //
 //                        } else {
 //
-//                            System.out.println(Color.ANSI_BLUE + construct.type.identifier + Color.ANSI_RESET);
+//                            System.out.println(Color.ANSI_BLUE + construct.type.address + Color.ANSI_RESET);
 //
 //                            HashMap<String, Feature> features = (HashMap<String, Feature>) construct.object;
 //                            for (String featureIdentifier : features.keySet()) {
@@ -1283,7 +1283,7 @@ public class Interpreter {
 //                                        featureTypes += ", ";
 //                                    }
 //                                }
-//                                System.out.println(Color.ANSI_GREEN + features.request(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET);
+//                                System.out.println(Color.ANSI_GREEN + features.request(featureIdentifier).address + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET);
 //                                // TODO: print current object types; print available feature types
 //                            }
 //
@@ -1362,7 +1362,7 @@ public class Interpreter {
     // Searches remote repository.
     //
     // Usage:
-    // list [<types-identifier>]
+    // list [<types-address>]
     //
     // Examples:
     // list         Lists available types.
@@ -1377,7 +1377,7 @@ public class Interpreter {
             List<Type> typeList = Type.list();
             for (int i = 0; i < typeList.size(); i++) {
                 List<Structure> structureList = Manager.getStructureList(typeList.get(i));
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).identifier + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
                 System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
             }
 
@@ -1394,20 +1394,20 @@ public class Interpreter {
                 if (addressTypeToken.equals("id")) {
                     Structure structure = null;
                     long uid = Long.parseLong(addressToken.trim());
-                    Identifier identifier = Manager.get(uid);
-                    if (identifier == null) {
+                    Address address = Manager.get(uid);
+                    if (address == null) {
                         System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
                         return;
                     }
 
-                    if (identifier.getClass() == Reference.class) {
-                        Reference reference = (Reference) identifier;
+                    if (address.getClass() == Reference.class) {
+                        Reference reference = (Reference) address;
                         structure = (Structure) reference.object;
-                    } else if (identifier.getClass() == Structure.class) {
-                        structure = (Structure) identifier;
-//                        } else if (identifier.getClass() == Type.class) {
+                    } else if (address.getClass() == Structure.class) {
+                        structure = (Structure) address;
+//                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) identifier;
+//                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                     }
 
@@ -1477,7 +1477,7 @@ public class Interpreter {
             List<Type> typeList = Type.list();
             for (int i = 0; i < typeList.size(); i++) {
                 List<Structure> structureList = Manager.getStructureList(typeList.get(i));
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).identifier + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
                 System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
             }
 
@@ -1494,20 +1494,20 @@ public class Interpreter {
                 if (addressTypeToken.equals("id")) {
                     Structure structure = null;
                     long uid = Long.parseLong(addressToken.trim());
-                    Identifier identifier = Manager.get(uid);
-                    if (identifier == null) {
+                    Address address = Manager.get(uid);
+                    if (address == null) {
                         System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
                         return;
                     }
 
-                    if (identifier.getClass() == Reference.class) {
-                        Reference reference = (Reference) identifier;
+                    if (address.getClass() == Reference.class) {
+                        Reference reference = (Reference) address;
                         structure = (Structure) reference.object;
-                    } else if (identifier.getClass() == Structure.class) {
-                        structure = (Structure) identifier;
-//                        } else if (identifier.getClass() == Type.class) {
+                    } else if (address.getClass() == Structure.class) {
+                        structure = (Structure) address;
+//                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) identifier;
+//                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                     }
 
@@ -1597,8 +1597,8 @@ public class Interpreter {
 //            List<TypeId> typeList = Type.request();
 //            for (int i = 0; i < typeList.size(); i++) {
 //                List<Structure> constructList = Manager.getStructureList(typeList.request(i));
-//                // System.out.println("(id: " + typeList.request(i).uid + ") " + Application.ANSI_BLUE + typeList.request(i).identifier + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeList.request(i).uuid + ")");
-//                System.out.println(Color.ANSI_BLUE + typeList.request(i).identifier + Color.ANSI_RESET + " (count: " + constructList.size() + ")");
+//                // System.out.println("(id: " + typeList.request(i).uid + ") " + Application.ANSI_BLUE + typeList.request(i).address + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeList.request(i).uuid + ")");
+//                System.out.println(Color.ANSI_BLUE + typeList.request(i).address + Color.ANSI_RESET + " (count: " + constructList.size() + ")");
 //            }
 
         } else if (inputLineTokens.length >= 2) {
@@ -1614,20 +1614,20 @@ public class Interpreter {
                 if (addressTypeToken.equals("id")) {
                     Structure structure = null;
                     long uid = Long.parseLong(addressToken.trim());
-                    Identifier identifier = Manager.get(uid);
-                    if (identifier == null) {
+                    Address address = Manager.get(uid);
+                    if (address == null) {
                         System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
                         return;
                     }
 
-                    if (identifier.getClass() == Reference.class) {
-                        Reference reference = (Reference) identifier;
+                    if (address.getClass() == Reference.class) {
+                        Reference reference = (Reference) address;
                         structure = (Structure) reference.object;
-                    } else if (identifier.getClass() == Structure.class) {
-                        structure = (Structure) identifier;
-//                        } else if (identifier.getClass() == Type.class) {
+                    } else if (address.getClass() == Structure.class) {
+                        structure = (Structure) address;
+//                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) identifier;
+//                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                     }
 
@@ -1713,27 +1713,27 @@ public class Interpreter {
         }
     }
 
-    // print <feature-identifier>
+    // print <feature-address>
     // e.g., print mode
     public void printTask(Context context) {
 
         // Determine interpreter's object. Type or instance?
-        if (Identifier.isConstruct(context.identifier)) {
+        if (Address.isStructure(context.address)) {
 
             String[] inputLineTokens = context.expression.split("[ ]+");
 
             // Defaults
             String featureToken = null;
 
-            // Determine identifier
+            // Determine address
             if (inputLineTokens.length >= 2) {
 
-                // Determine identifier
+                // Determine address
                 featureToken = inputLineTokens[1];
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure structure = Identifier.getConstruct(context.identifier).states.get(featureToken);
+                Structure structure = Address.getStructure(context.address).states.get(featureToken);
 
                 System.out.println(structure);
 
@@ -1813,12 +1813,12 @@ public class Interpreter {
         String[] inputLineTokens = context.expression.split("[ ]+");
 
         // Determine interpreter's object. Type or instance?
-        if (Identifier.isConcept(context.identifier)) {
+        if (Address.isType(context.address)) {
 
             // Defaults
             String featureTagToken = null;
 
-            // Determine identifier
+            // Determine address
             if (inputLineTokens.length >= 2) {
                 featureTagToken = inputLineTokens[1];
             }
@@ -1877,14 +1877,14 @@ public class Interpreter {
 //                currentConcept.features.put(featureTagToken, feature);
 //
 //                // Print response
-//                System.out.println("added feature '" + feature.identifier + "' of types '" + feature.types + "' (" + currentConcept.features.size() + ")");
+//                System.out.println("added feature '" + feature.address + "' of types '" + feature.types + "' (" + currentConcept.features.size() + ")");
 //            } else {
 //                // Print response
 //                System.out.println("error: bad feature syntax");
 //            }
 
 
-        } else if (Identifier.isConstruct(context.identifier)) {
+        } else if (Address.isStructure(context.address)) {
 
             // TODO:
 
@@ -2011,7 +2011,7 @@ public class Interpreter {
             String address = inputLineTokens[1];
 //            if (address.startsWith("\"") && address.endsWith("\"")) {
 
-//            String identifier = address.substring(1, address.length() - 1);
+//            String address = address.substring(1, address.length() - 1);
             String title = String.valueOf(address);
 
             workspace.operationConstruct = new OperationConstruct();
@@ -2171,7 +2171,7 @@ public class Interpreter {
 //            if (constructTypeToken.equals("project")) {
 //
 //                ProjectConstruct projectConstruct = new ProjectConstruct();
-//                projectConstruct.identifier = constructTitleString;
+//                projectConstruct.address = constructTitleString;
 //                workspace.projectConstructs.request(projectConstruct);
 //                workspace.lastProjectConstruct = projectConstruct; // Marketplace reference to last-created project
 //
@@ -2181,7 +2181,7 @@ public class Interpreter {
 ////                if (workspace.projectConstruct != null) {
 ////
 ////                    DeviceConstruct deviceConstruct = new DeviceConstruct();
-////                    deviceConstruct.identifier = constructTitleString;
+////                    deviceConstruct.address = constructTitleString;
 ////                    workspace.projectConstruct.deviceConstructs.request(deviceConstruct);
 ////                    workspace.lastDeviceConstruct = deviceConstruct; // Marketplace reference to last-created port
 ////
@@ -2197,7 +2197,7 @@ public class Interpreter {
 //                    projectConstruct.deviceConstructs.request(deviceConstruct);
 //                    workspace.lastDeviceConstruct = deviceConstruct; // Marketplace reference to last-created device
 //
-//                    deviceConstruct.identifier = constructTitleString;
+//                    deviceConstruct.address = constructTitleString;
 //
 //                    System.out.println("✔ request device " + deviceConstruct.uid + " to project " + projectConstruct.uid);
 //                }
@@ -2210,7 +2210,7 @@ public class Interpreter {
 //                    DeviceConstruct deviceConstruct = (DeviceConstruct) workspace.OLD_construct;
 //
 //                    PortConstruct portConstruct = new PortConstruct();
-//                    portConstruct.identifier = constructTitleString;
+//                    portConstruct.address = constructTitleString;
 //                    deviceConstruct.portConstructs.request(portConstruct);
 //                    workspace.lastPortConstruct = portConstruct; // Marketplace reference to last-created port
 //
@@ -2228,7 +2228,7 @@ public class Interpreter {
 //                    DeviceConstruct deviceConstruct = (DeviceConstruct) workspace.OLD_construct;
 //
 //                    TaskConstruct taskConstruct = new TaskConstruct();
-//                    taskConstruct.identifier = constructTitleString;
+//                    taskConstruct.address = constructTitleString;
 //                    deviceConstruct.controllerConstruct.taskConstructs.request(taskConstruct);
 //
 //                    // Marketplace reference to last-created device
@@ -2275,7 +2275,7 @@ public class Interpreter {
     }
 
     // Format:
-    // request <OLD_construct-types-identifier> <OLD_construct-instance-identifier>
+    // request <OLD_construct-types-address> <OLD_construct-instance-address>
     //
     // Examples:
     // - request project
@@ -2390,7 +2390,7 @@ public class Interpreter {
 //                if (workspace.projectConstruct != null) {
 //
 //                    DeviceConstruct deviceConstruct = new DeviceConstruct();
-//                    deviceConstruct.identifier = constructTitleString;
+//                    deviceConstruct.address = constructTitleString;
 //                    workspace.projectConstruct.deviceConstructs.request(deviceConstruct);
 //                    workspace.lastDeviceConstruct = deviceConstruct; // Marketplace reference to last-created port
 //
@@ -2694,13 +2694,13 @@ public class Interpreter {
 
         } else {
 
-            // No port was found with the specified identifier (UID, UUID, identifier, index)
+            // No port was found with the specified address (UID, UUID, address, index)
 
         }
     }
 
     /**
-     * Removes the {@code Type} with the specified identifier from the {@code Manager_v1}.
+     * Removes the {@code Type} with the specified address from the {@code Manager_v1}.
      *
      * @param context
      */
@@ -2765,7 +2765,7 @@ public class Interpreter {
 //
 //        } else {
 //
-//            // No port was found with the specified identifier (UID, UUID, identifier, index)
+//            // No port was found with the specified address (UID, UUID, address, index)
 //
 //        }
 //
@@ -2791,7 +2791,7 @@ public class Interpreter {
 //
 //        } else {
 //
-//            // No port was found with the specified identifier (UID, UUID, identifier, index)
+//            // No port was found with the specified address (UID, UUID, address, index)
 //
 //        }
 //
@@ -2816,7 +2816,7 @@ public class Interpreter {
 //
 //        } else {
 //
-//            // No port was found with the specified identifier (UID, UUID, identifier, index)
+//            // No port was found with the specified address (UID, UUID, address, index)
 //
 //        }
 //    }
@@ -2847,9 +2847,9 @@ public class Interpreter {
 //
 //            String inputProjectTitle = inputLineTokens[3];
 //
-//            workspace.projectConstruct.identifier = inputProjectTitle;
+//            workspace.projectConstruct.address = inputProjectTitle;
 //
-//            System.out.println("project identifier changed to " + inputProjectTitle);
+//            System.out.println("project address changed to " + inputProjectTitle);
 //        }
 //
 //    }
@@ -2916,7 +2916,7 @@ public class Interpreter {
 //        PortConfigurationConstraint.Voltage voltage = null;
 //
 //        // Separate configurations string into tokens separated by ";" substring, each an expression representing an
-//        // attribute state assignment. Separate each attribute assignment by ":", into the attribute identifier and
+//        // attribute state assignment. Separate each attribute assignment by ":", into the attribute address and
 //        // by ":" substring value.
 //        String[] configurationOptionList = configurationOptionString.split(";");
 //        for (int i = 0; i < configurationOptionList.length; i++) {
@@ -3065,7 +3065,7 @@ public class Interpreter {
         // solve uid(34)
         // solve path <path-address>
 
-        // request path <identifier>
+        // request path <address>
         // edit path
         // set source-port[OLD_construct-types] uid:34
         // set target-port[OLD_construct-types] uid:34
@@ -3077,7 +3077,7 @@ public class Interpreter {
 
         String[] inputLineTokens = context.expression.split("[ ]+");
 
-        // TODO: Parse address token (for index, UID, UUID; identifier/key/identifier)
+        // TODO: Parse address token (for index, UID, UUID; address/key/address)
 
         PathConstruct pathConstruct = (PathConstruct) Manager_v1.get(inputLineTokens[1]);
 

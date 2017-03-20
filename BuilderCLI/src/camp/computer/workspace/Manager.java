@@ -6,41 +6,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import camp.computer.construct.Address;
 import camp.computer.construct.Type;
 import camp.computer.construct.Structure;
 import camp.computer.construct.Feature;
-import camp.computer.construct.Identifier;
 
 public class Manager {
 
     public static long elementCounter = 0L;
 
 //    private static HashMap<Long, Type> elements = new HashMap<>();
-    private static HashMap<Long, Identifier> elements = new HashMap<>();
+    private static HashMap<Long, Address> elements = new HashMap<>();
 
-    public static long add(Identifier identifier) {
+    public static long add(Address address) {
         long uid = Manager.elementCounter++;
-        identifier.uid = uid;
-        Manager.elements.put(uid, identifier);
+        address.uid = uid;
+        Manager.elements.put(uid, address);
         return uid;
     }
 
-    public static List<Identifier> get() {
+    public static List<Address> get() {
         return new ArrayList<>(elements.values());
     }
 
-    public static <T extends Identifier> List<T> get(Class classType) {
+    public static <T extends Address> List<T> get(Class classType) {
         List<T> constructList = new ArrayList<>();
-        for (Identifier identifier : elements.values()) {
-            if (identifier.getClass() == classType) {
-                constructList.add((T) identifier);
+        for (Address address : elements.values()) {
+            if (address.getClass() == classType) {
+                constructList.add((T) address);
             }
         }
         return constructList;
     }
 
 //    public static Type request(long uid) {
-    public static Identifier get(long uid) {
+    public static Address get(long uid) {
         return elements.get(uid);
     }
 
@@ -53,7 +53,7 @@ public class Manager {
 //
 //            if (stateType == TypeId.request("none")) {
 //                // Look for existing (persistent) state for the given expression
-//                List<Identifier> identiferList = Manager.request();
+//                List<Address> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.request(i).getClass() == State.class) {
 //                        State state = (State) identiferList.request(i);
@@ -69,7 +69,7 @@ public class Manager {
 //                // [ ] text(id:234)
 //
 //                // Look for existing (persistent) state for the given expression
-//                List<Identifier> identiferList = Manager.request();
+//                List<Address> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.request(i).getClass() == State.class) {
 //                        State state = (State) identiferList.request(i);
@@ -85,7 +85,7 @@ public class Manager {
 //
 //            } else {
 //
-//                if (Expression.isConstruct(expression)) {
+//                if (Expression.isStructure(expression)) {
 //
 //                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
 //                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
@@ -93,26 +93,26 @@ public class Manager {
 //
 //                    long uid = Long.parseLong(addressToken.trim());
 //
-//                    Identifier identifier = Manager.request(uid);
-////                    if (identifier != null) {
-////                        if (identifier.getClass() == Structure.class) {
+//                    Address address = Manager.request(uid);
+////                    if (address != null) {
+////                        if (address.getClass() == Structure.class) {
 ////                            State state = State.getState(stateType);
-////                            state.object = identifier;
+////                            state.object = address;
 ////                            return state;
 ////                        }
 ////                    }
 //
 //
 //                    // Look for existing (persistent) state for the given expression
-//                    if (identifier != null) {
-//                        List<Identifier> identiferList = Manager.request();
+//                    if (address != null) {
+//                        List<Address> identiferList = Manager.request();
 //                        for (int i = 0; i < identiferList.size(); i++) {
 //                            if (identiferList.request(i).getClass() == State.class) {
 //                                State state = (State) identiferList.request(i);
 ////                            String textContent = expression.substring(1, expression.length() - 1);
 //                                // TODO: Also check TypeId?
 //                                if (state.objectType == Structure.class && state.object != null
-//                                        && state.object == identifier) {
+//                                        && state.object == address) {
 //                                    return state;
 //                                }
 //                            }
@@ -132,7 +132,7 @@ public class Manager {
 //
 //            if (type == TypeId.request("none")) {
 //                // Look for existing (persistent) state for the given expression
-//                List<Identifier> identiferList = Manager.get();
+//                List<Address> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -148,7 +148,7 @@ public class Manager {
 //                // [ ] text(id:234)
 //
 //                // Search for persistent "empty text" object (i.e., the default text).
-//                List<Identifier> identiferList = Manager.get();
+//                List<Address> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -165,7 +165,7 @@ public class Manager {
 //                // TODO: Also support looking up by construct permutation contained in list?
 //
 //                // Look for persistent "empty list" object (i.e., the default list).
-//                List<Identifier> identiferList = Manager.get();
+//                List<Address> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -178,10 +178,10 @@ public class Manager {
 //
 //            } else {
 //
-//                Type type = Type.request(type.identifier);
+//                Type type = Type.request(type.address);
 //
 //                // Look for persistent "empty list" object (i.e., the default list).
-//                List<Identifier> identiferList = Manager.get();
+//                List<Address> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -236,7 +236,7 @@ public class Manager {
 
             if (type == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -252,7 +252,7 @@ public class Manager {
                 // [ ] text(id:234)
 
                 // Search for persistent "empty text" object (i.e., the default text).
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -269,7 +269,7 @@ public class Manager {
                 // TODO: Also support looking up by construct permutation contained in list?
 
                 // Look for persistent "empty list" object (i.e., the default list).
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -285,7 +285,7 @@ public class Manager {
 //                Type type = Type.request(type);
 
                 // Look for persistent "empty list" object (i.e., the default list).
-                List<Identifier> identiferList = Manager.get();
+                List<Address> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -339,7 +339,7 @@ public class Manager {
 //        TypeId type = TypeId.request("list");
 //
 //        // Look for persistent "empty list" object (i.e., the default list).
-//        List<Identifier> identiferList = Manager.request();
+//        List<Address> identiferList = Manager.request();
 //        for (int i = 0; i < identiferList.size(); i++) {
 //            if (identiferList.request(i).getClass() == Structure.class) {
 //                Structure candidateConstruct = (Structure) identiferList.request(i);
@@ -419,22 +419,22 @@ public class Manager {
     // TODO: Move to Structure.list(Type)
     public static List<Structure> getStructureList(Type type) {
 
-//        Type type2 = Type.request(type.identifier);
+//        Type type2 = Type.request(type.address);
 
         List<Structure> structureList = new ArrayList<>();
-        for (Identifier identifier : elements.values()) {
-            if (identifier.getClass() == Structure.class) {
-                if (((Structure) identifier).type2 == type) {
-                    structureList.add((Structure) identifier);
+        for (Address address : elements.values()) {
+            if (address.getClass() == Structure.class) {
+                if (((Structure) address).type2 == type) {
+                    structureList.add((Structure) address);
                 }
             }
         }
         return structureList;
     }
 
-//    public static List<Identifier> request(Class classType) {
-//        List<Identifier> elements = new ArrayList<>();
-//        for (Identifier element : Manager.elements.values()) {
+//    public static List<Address> request(Class classType) {
+//        List<Address> elements = new ArrayList<>();
+//        for (Address element : Manager.elements.values()) {
 //            if (element.getClass() == classType) {
 //                elements.add(element);
 //            }
@@ -443,7 +443,7 @@ public class Manager {
 //    }
 
 //    public static Type request(String constructUri) {
-    public static Identifier get(String constructUri) {
+    public static Address get(String constructUri) {
 
         // Parse:
         // 3
@@ -454,10 +454,10 @@ public class Manager {
         // edit port(uid:25)         # _global_ lookup by UID
         // edit port(uuid:<uuid>)    # _global_ lookup by UUID
         // edit port(1)              # _relative_ lookup list item by index
-        // edit my-OLD_construct-identifier     # _global?_ lookup by identifier
+        // edit my-OLD_construct-address     # _global?_ lookup by address
         // edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
         //
-        // edit port(my-identifier)              # _relative_ lookup list item by list identifier and element identifier?
+        // edit port(my-address)              # _relative_ lookup list item by list address and element address?
         // edit port                # lookup by property label
 
 //        if (address.startsWith("port")) {
@@ -510,22 +510,22 @@ public class Manager {
 
         } else {
 
-//            String identifier = constructUri.substring(1, constructUri.length() - 1);
+//            String address = constructUri.substring(1, constructUri.length() - 1);
             String title = String.valueOf(constructUri);
 
-            List<Identifier> identifiers = new ArrayList<>(elements.values());
+            List<Address> addresses = new ArrayList<>(elements.values());
 
 //            for (long uid : elements.keySet()) {
 //                Type OLD_construct = elements.clone(uid);
-//                if (OLD_construct.identifier != null && OLD_construct.identifier.equals(identifier)) {
+//                if (OLD_construct.address != null && OLD_construct.address.equals(address)) {
 //                    return OLD_construct;
 //                }
 //            }
 
-            for (int i = 0; i < identifiers.size(); i++) {
-                Identifier identifier = identifiers.get(i);
-                if (identifier.tag != null && identifier.tag.equals(title)) {
-                    return identifier;
+            for (int i = 0; i < addresses.size(); i++) {
+                Address address = addresses.get(i);
+                if (address.tag != null && address.tag.equals(title)) {
+                    return address;
                 }
             }
 
@@ -535,7 +535,7 @@ public class Manager {
 
     }
 
-    public static Identifier remove(long uid) {
+    public static Address remove(long uid) {
 
         if (elements.containsKey(uid)) {
             return elements.remove(uid);

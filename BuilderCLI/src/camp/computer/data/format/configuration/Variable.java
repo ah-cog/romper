@@ -1,12 +1,12 @@
 package camp.computer.data.format.configuration;
 
 /**
- * An {@code VariableValueSet} stores a list of identifier values for a specified identifier identified by its unique label.
+ * An {@code VariableValueSet} stores a list of address values for a specified address identified by its unique label.
  */
 public class Variable {
 
     /**
-     * {@code identifier} is a {@code String} that uniquely identifies the {@code Variable} in the
+     * {@code address} is a {@code String} that uniquely identifies the {@code Variable} in the
      * containing {@code VariableMap}. <em>in the
      * namespace</em>.
      */
@@ -35,7 +35,7 @@ public class Variable {
 
     }
 
-    //    public Variable(String identifier, ValueSet<T> values) {
+    //    public Variable(String address, ValueSet<T> values) {
     public Variable(String title, String value) {
 
         this.title = title;

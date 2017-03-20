@@ -10,13 +10,13 @@ public abstract class Construct_v1 {
 
     public static final String DEFAULT_CONSTRUCT_TYPE = "construct";
 
-    public UUID uuid = UUID.randomUUID(); // universal identifier (unique among all in central repo)
+    public UUID uuid = UUID.randomUUID(); // universal address (unique among all in central repo)
 
     public long uid = Manager_v1.elementCounter++; // manager/cache UID
 
-    public String type = DEFAULT_CONSTRUCT_TYPE; // types identifier of OLD_construct
+    public String type = DEFAULT_CONSTRUCT_TYPE; // types address of OLD_construct
 
-    public String title = null; // label/identifier(s)
+    public String title = null; // label/address(s)
 
     // string => String
     // list => ArrayList<?>
@@ -45,7 +45,7 @@ public abstract class Construct_v1 {
     public ScriptConstruct scriptConstruct = null;
     */
 
-    // TODO: types (generic types identifier so can use single OLD_construct)
+    // TODO: types (generic types address so can use single OLD_construct)
     // TODO: HashMap<?> features (can be Type or other values)
     // Type (Prototype) -> Container (must specify types or is anonymous) -> Container Revision
 

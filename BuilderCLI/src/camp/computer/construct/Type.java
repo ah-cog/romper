@@ -8,10 +8,10 @@ import camp.computer.Application;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-public class Type extends Identifier {
+public class Type extends Address {
 
-    // TODO: Remove identifier and features and replace with "Structure structure" and allocate it according to the "identifier" string passed into the constructor or request(...)
-    // TODO: (cont'd) type "identifier" allocates <em>text</em> Structure (so even identifier text will be unique in memory).
+    // TODO: Remove address and features and replace with "Structure structure" and allocate it according to the "address" string passed into the constructor or request(...)
+    // TODO: (cont'd) type "address" allocates <em>text</em> Structure (so even address text will be unique in memory).
 
     public String identifier = null;
 
@@ -20,7 +20,7 @@ public class Type extends Identifier {
      * <em>number</em>, <em>list</em> (i.e., the primitive types).
      *
      * {@code features} is also {@code null} for <em>every</em> default type (the first one that
-     * serves as an identifier).
+     * serves as an address).
      */
     public HashMap<String, Feature> features = null; // TODO: Remove? Remove setupConfiguration?
     // TODO: Set to null for "none" type
@@ -29,7 +29,7 @@ public class Type extends Identifier {
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
 
     /**
-     * Constructor to create the <em>default type</em> identified by {@code identifier}.
+     * Constructor to create the <em>default type</em> identified by {@code address}.
      *
      * @param identifier
      */
@@ -79,7 +79,7 @@ public class Type extends Identifier {
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(identifier)
                     && typeList.get(i).features == null) {
-//            if (typeList.get(i).type == Type.request(identifier)) {
+//            if (typeList.get(i).type == Type.request(address)) {
                 return typeList.get(i);
             }
         }
@@ -121,24 +121,24 @@ public class Type extends Identifier {
     }
 
     /**
-     * Returns the <em>default type</em> for the specified {@code identifier} if it exists.
+     * Returns the <em>default type</em> for the specified {@code address} if it exists.
      *
      * e.g.,
-     * Type.request("none") => Type with "none" identifier, null features, null configurations
+     * Type.request("none") => Type with "none" address, null features, null configurations
      *
      * @param identifier
      * @return
      */
     public static Type request(String expression) {
 
-        // TODO: Handle case where one or more Concepts exist with identifier, but none with non-null features and/or configurations.
+        // TODO: Handle case where one or more Concepts exist with address, but none with non-null features and/or configurations.
 
-        // Search for <em>identifier</em> (default type or type identifier).
+        // Search for <em>address</em> (default type or type address).
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(expression)
                     && typeList.get(i).features == null) {
-                // Return the <em>default</em> {@code Type} for the identifier.
+                // Return the <em>default</em> {@code Type} for the address.
                 return typeList.get(i);
             }
         }
@@ -159,14 +159,14 @@ public class Type extends Identifier {
             }
         }
 
-//        return create(identifier);
+//        return create(address);
         return create(expression);
     }
 
     /**
      * Requests the {@code Type} identical to {@code baseType} with the exception of the
-     * {@code Feature} with identifier {@code targetFeature}. The {@code Feature} corresponding to
-     * identifier {@code targetFeature} must be identical to {@code feature}.
+     * {@code Feature} with address {@code targetFeature}. The {@code Feature} corresponding to
+     * address {@code targetFeature} must be identical to {@code feature}.
      *
      * Used to add, remove, or change the target.
      *
@@ -185,7 +185,7 @@ public class Type extends Identifier {
         // TODO: Check if {@code type} exists with the specified featureIdentifier set to Feature, with all else equal
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Identifier> identiferList = Manager.get();
+        List<Address> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Type.class) {
                 Type candidateType = (Type) identiferList.get(i);
@@ -385,7 +385,7 @@ public class Type extends Identifier {
 
     /**
      * Returns {@code true} if at least one {@code Type} exists for the specified
-     * {@code identifier}.
+     * {@code address}.
      *
      * @return True
      */

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import camp.computer.construct.Address;
 import camp.computer.construct.Type;
 import camp.computer.construct.Expression;
-import camp.computer.construct.Identifier;
 import camp.computer.construct.Reference;
 
 public class Context {
@@ -23,12 +23,11 @@ public class Context {
      */
     public HashMap<String, Reference> references = new HashMap<>();
 
-//    public HashMap<TypeId, Type> conceptReferences = new HashMap<>(); // current concepts to use
     public HashMap<String, Type> conceptReferences = new HashMap<>(); // current concepts to use
 
     public String expression = null;
 
-    public Identifier identifier = null;
+    public Address address = null;
 
     public static Expression setExpression(Context context, String expressionText) {
 

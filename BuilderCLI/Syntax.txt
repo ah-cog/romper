@@ -16,8 +16,8 @@
 // 234                                                 returns primitive number typeId pointing to 234 structure
 // 'foo'                                               returns primitive structure pointing to 'foo'
 // ()                                                  creates structure -> empty list //// allows use of 'list' command for CLI
-// [typeId-identifier]                                   creates (or selects) a type of specified typeId, creating the typeId if non-existent
-// typeId-identifier                                     creates a structure of the specified typeId
+// [typeId-address]                                   creates (or selects) a type of specified typeId, creating the typeId if non-existent
+// typeId-address                                     creates a structure of the specified typeId
 //
 // [port].mode list : 'input', 'output'
 // [port].mode : list : 'input', 'output'

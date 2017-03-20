@@ -8,26 +8,26 @@ import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
 /**
- * An {@code VariableValueSet} stores a list of identifier values for a specified identifier identified by its unique label.
+ * An {@code VariableValueSet} stores a list of address values for a specified address identified by its unique label.
  */
-public class Feature extends Identifier {
+public class Feature extends Address {
 
-    // identifier/key: string
+    // address/key: string
     // types: string, list, construct-name
     // domain: list of accepted tokens; (or) for lists, stores list of values that can be stored in the list
 
     /**
-     * {@code identifier} is a {@code String} that uniquely identifies the {@code Variable} in the
+     * {@code address} is a {@code String} that uniquely identifies the {@code Variable} in the
      * containing {@code VariableMap}. <em>in the namespace</em>.
      */
     public String identifier = null; // e.g., mode; direction; voltage
-    // TODO: Make identifier separate from feature in database so it's identified uniquely by it's types list and domain list?
+    // TODO: Make address separate from feature in database so it's identified uniquely by it's types list and domain list?
 
     // Content TypeId (e.g., none, any, text, list, etc.)
 //    public List<TypeId> types = new ArrayList<>(); // if size == 0, then unconstrained!
     public List<Type> types = null; // new ArrayList<>(); // if size == 0, then 'none' type! if null, then 'any'.
 
-    // Content Domain (contains Identifier Types and Identifier Content)
+    // Content Domain (contains Address Types and Address Content)
     // NOTE: This only ever contains "text object" or references to specific constructs
     public List<Structure> domain; // if size == 0, then 'none'! if null, then 'any'!
     // TODO: Create a separate feature domain for each types in featureType
@@ -79,7 +79,7 @@ public class Feature extends Identifier {
 
     public static Feature request(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 
-        List<Identifier> identiferList = Manager.get();
+        List<Address> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Feature.class) {
                 Feature candidateFeature = (Feature) identiferList.get(i);
@@ -89,7 +89,7 @@ public class Feature extends Identifier {
                 boolean hasMatchingDomain = true;
                 boolean hasMatchingListTypes = true;
 
-                // Compare identifier
+                // Compare address
                 if (!candidateFeature.identifier.equals(identifier)) {
                     hasMatchingIdentifier = false;
                 }
