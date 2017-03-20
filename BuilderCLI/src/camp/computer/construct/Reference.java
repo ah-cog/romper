@@ -7,8 +7,8 @@ public class Reference extends Identifier {
     // TODO: OWNER/USER (has a timeline of these?)
 
     // This is the reference ROOT construct
-    public Class classType = null; // Concept.class or Construct.class
-    public Object object = null; // Concept or Construct
+    public Class classType = null; // Type.class or Structure.class
+    public Object object = null; // Type or Structure
 
     // TODO?: identifier string?
     // TODO: type list (restricts types that can be referenced)
@@ -26,23 +26,23 @@ public class Reference extends Identifier {
         return reference;
     }
 
-//    public static Reference getReference(Type type) {
+//    public static Reference getReference(TypeId type) {
 //
 //        Reference reference = new Reference();
 //
-//        // TODO: Load (most recent revision) of default concept or construct for the specified type.
+//        // TODO: Load (most recent revision) of default type or construct for the specified type.
 //
 //        return reference;
 //
 //    }
 
-    public static Reference create(Construct construct) {
+    public static Reference create(Structure structure) {
 
         Reference reference = new Reference();
 
-        // TODO: Load (most recent revision) of default concept or construct for the specified type.
-        reference.classType = Construct.class;
-        reference.object = construct;
+        // TODO: Load (most recent revision) of default type or structure for the specified type.
+        reference.classType = Structure.class;
+        reference.object = structure;
 
         long uid = Manager.add(reference);
 
@@ -50,21 +50,21 @@ public class Reference extends Identifier {
 
     }
 
-//    public static Reference getReference(Type type, long id) {
+//    public static Reference getReference(TypeId type, long id) {
 //
 //        Reference reference = new Reference();
 //
-//        // TODO: Load the specified version of the concept or construct for the specified type.
+//        // TODO: Load the specified version of the type or construct for the specified type.
 //
 //        return reference;
 //
 //    }
 
-//    public static Reference getReference(Type type, long id, long revisionUid) {
+//    public static Reference getReference(TypeId type, long id, long revisionUid) {
 //
 //        Reference reference = new Reference();
 //
-//        // TODO: Load specified concept or construct from cache (or persistent store).
+//        // TODO: Load specified type or construct from cache (or persistent store).
 //
 //        return reference;
 //    }
@@ -75,9 +75,9 @@ public class Reference extends Identifier {
 
     public String toString() {
         if (this.object != null) {
-            if (this.object.getClass() == Construct.class) {
-                Construct construct = (Construct) this.object;
-                return "reference " + construct.type.identifier + ".id." + uid + " -> construct " + construct.type.identifier + ".id." + construct.uid;
+            if (this.object.getClass() == Structure.class) {
+                Structure structure = (Structure) this.object;
+                return "reference " + structure.type2.identifier + ".id." + uid + " -> structure " + structure.type2.identifier + ".id." + structure.uid;
             }
         }
         return null; // Reference points to "any"
@@ -85,9 +85,9 @@ public class Reference extends Identifier {
 
     public String toColorString() {
         if (this.object != null) {
-            if (this.object.getClass() == Construct.class) {
-                Construct construct = (Construct) this.object;
-                return construct.type.toColorString() + ".id." + uid + " -> " + construct.type.toColorString() + ".id." + construct.uid;
+            if (this.object.getClass() == Structure.class) {
+                Structure structure = (Structure) this.object;
+                return structure.type2.toColorString() + ".id." + uid + " -> " + structure.type2.toColorString() + ".id." + structure.uid;
             }
         }
         return null; // Reference points to "any"

@@ -4,7 +4,7 @@ import camp.computer.util.console.Color;
 
 public class Error {
 
-    // TODO: Make Error extend Type
+    // TODO: Make Error extend TypeId
 
     enum Type {
         ERROR,

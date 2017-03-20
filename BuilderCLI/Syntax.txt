@@ -12,12 +12,12 @@
 // archive
 //
 // INSTANTIATING/LINKING TO PRIMITIVE CONSTRUCTS:
-// none                                                returns primitive construct 'none'
-// 234                                                 returns primitive number type pointing to 234 construct
-// 'foo'                                               returns primitive construct pointing to 'foo'
-// ()                                                  creates construct -> empty list //// allows use of 'list' command for CLI
-// [type-identifier]                                   creates (or selects) a concept of specified type, creating the type if non-existent
-// type-identifier                                     creates a construct of the specified type
+// none                                                returns primitive structure 'none'
+// 234                                                 returns primitive number typeId pointing to 234 structure
+// 'foo'                                               returns primitive structure pointing to 'foo'
+// ()                                                  creates structure -> empty list //// allows use of 'list' command for CLI
+// [typeId-identifier]                                   creates (or selects) a type of specified typeId, creating the typeId if non-existent
+// typeId-identifier                                     creates a structure of the specified typeId
 //
 // [port].mode list : 'input', 'output'
 // [port].mode : list : 'input', 'output'
@@ -32,42 +32,42 @@
 //
 // LISTING CONSTRUCTS:
 // <>                                                  returns list of current links
-// []                                                  returns list of current concepts
+// []                                                  returns list of current types
 // .                                                   returns list of current constructs
-// ?                                                   shows current construct _link_ if it exists
-// !                                                   deletes current construct _link_ if exists?
-// :                                                   returns list of current construct or concept features
+// ?                                                   shows current structure _link_ if it exists
+// !                                                   deletes current structure _link_ if exists?
+// :                                                   returns list of current structure or type features
 //
 // <port>.id.34
 //
 // [port]
-// [port]?                                             checks for existence of port type and returns it if so
-// ![port]                                             deletes the port type (blocks use of concepts for creating new constructs, but doesn't disallow access to existing constructs)
-// [port].id.34                                        syntax for concept lookup/selection
-// [port].id.34?                                       syntax for concept lookup/selection
-// ![port].id.34                                       syntax for concept lookup/selection
+// [port]?                                             checks for existence of port typeId and returns it if so
+// ![port]                                             deletes the port typeId (blocks use of types for creating new constructs, but doesn't disallow access to existing constructs)
+// [port].id.34                                        syntax for type lookup/selection
+// [port].id.34?                                       syntax for type lookup/selection
+// ![port].id.34                                       syntax for type lookup/selection
 // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815
 // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815?
 // ![port].uuid.4a78b550-8d20-4f11-8209-655c90039815
 // [port].id
 // [port].uuid
-// [port].uri                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
-// [port].api                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
+// [port].uri                                          returns api callable URI in terms of data model (types, types, constructs, etc.)?
+// [port].api                                          returns api callable URI in terms of data model (types, types, constructs, etc.)?
 //
-// [port](id:34)                                       syntax for concept lookup
-// [port(id:34)]                                       syntax for concept lookup
-// [port].34                                           syntax for concept lookup
+// [port](id:34)                                       syntax for type lookup
+// [port(id:34)]                                       syntax for type lookup
+// [port].34                                           syntax for type lookup
 // [port].4a78b550-8d20-4f11-8209-655c90039815
-// [port.34]                                           syntax for concept lookup
+// [port.34]                                           syntax for type lookup
 // [port].34?
 // [port].34?
 // ![port].34
-// [port].id.34                                        syntax for concept lookup/selection
+// [port].id.34                                        syntax for type lookup/selection
 // [port].id                                           syntax for describing id
 // [port].uuid.4a78b550-8d20-4f11-8209-655c90039815
-// [port].uri                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
-// [port].api                                          returns api callable URI in terms of data model (types, concepts, constructs, etc.)?
-// port(id:34)                                         syntax for construct lookup
+// [port].uri                                          returns api callable URI in terms of data model (types, types, constructs, etc.)?
+// [port].api                                          returns api callable URI in terms of data model (types, types, constructs, etc.)?
+// port(id:34)                                         syntax for structure lookup
 // <port>                                              creates a link to a port
 //
 // port.34.mode digital, analog : port.34.voltage cmos, ttl :: port.66.mode digital, analog : port.66.voltage cmos, ttl
@@ -79,7 +79,7 @@
 // .mode ('digital', 'analog'), .voltage ('cmos', 'ttl') : .mode 'digital', .voltage ('cmos', 'ttl')
 // .mode 'digital', 'analog', .voltage 'cmos', 'ttl' : .mode 'digital', .voltage 'cmos', 'ttl'
 // .mode !'digital', 'analog', .voltage !'cmos', 'ttl' : .mode !'digital', .voltage 'cmos', !'ttl'
-// port.34 : port.66 # returns list of valid domain range states that are valid for the type
+// port.34 : port.66 # returns list of valid domain range states that are valid for the typeId
 //
 // CONSIDER USING FORMAT:
 // port
@@ -89,47 +89,47 @@
 // port.uuid.4a78b550-8d20-4f11-8209-655c90039815
 // .mode # creates mode feature and assigns it to none (i.e., replaces "has")
 // .mode none # assigns mode to none only works if mode feature exists (i.e., above command must have been executed)
-// port<mode> 'feature-data' # looks up a feature called "mode" and assigns a construct to it
-// path<source-port> port.44 # looks up a feature called "mode" and ADDS a construct to list
-// port<mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
-// port<mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
-// port<mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
-// (mode) 'feature-data' # looks up a feature called "mode" and assigns a construct to it
-// (source-port) port.44 # looks up a feature called "mode" and assigns a construct to it
-// !(mode) # deletes the feature if it exists from current construct
-// :mode 'feature-data' # looks up a feature called "mode" and assigns a construct to it
-// :source-port port.44 # looks up a feature called "mode" and assigns a construct to it
-// !:mode # deletes the feature if it exists from current construct
-// .mode 'feature-data' # looks up a feature called "mode" and assigns a construct to it
-// .source-port port.44 # looks up a feature called "mode" and assigns a construct to it
-// !.mode # deletes the feature if it exists from current construct
+// port<mode> 'feature-data' # looks up a feature called "mode" and assigns a structure to it
+// path<source-port> port.44 # looks up a feature called "mode" and ADDS a structure to list
+// port<mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a structure to list
+// port<mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a structure from list
+// port<mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a structure from list
+// (mode) 'feature-data' # looks up a feature called "mode" and assigns a structure to it
+// (source-port) port.44 # looks up a feature called "mode" and assigns a structure to it
+// !(mode) # deletes the feature if it exists from current structure
+// :mode 'feature-data' # looks up a feature called "mode" and assigns a structure to it
+// :source-port port.44 # looks up a feature called "mode" and assigns a structure to it
+// !:mode # deletes the feature if it exists from current structure
+// .mode 'feature-data' # looks up a feature called "mode" and assigns a structure to it
+// .source-port port.44 # looks up a feature called "mode" and assigns a structure to it
+// !.mode # deletes the feature if it exists from current structure
 // <> # list of links!
 // [
 // link
 // (mode)? # checks for existence of mode feature
-// (mode-list) 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
-// <mode> 'feature-data' # looks up a feature called "mode" and assigns a construct to it
-// <mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a construct to list
-// <mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
-// <mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a construct from list
-// <> # returns list of current construct's features with values
+// (mode-list) 'feature-data' # looks up a feature called "mode" and ADDS a structure to list
+// <mode> 'feature-data' # looks up a feature called "mode" and assigns a structure to it
+// <mode-list> 'feature-data' # looks up a feature called "mode" and ADDS a structure to list
+// <mode-list> !'feature-data' # looks up a feature called "mode" and REMOVES a structure from list
+// <mode-list> -'feature-data' # looks up a feature called "mode" and REMOVES a structure from list
+// <> # returns list of current structure's features with values
 // port 34
 // port 4a78b550-8d20-4f11-8209-655c90039815
 // port @tag
-// list [port] # lists port concepts
+// list [port] # lists port types
 // list port # lists port constructs
-// list # creates a list construct
-// number [port] # prints count of port concepts
+// list # creates a list structure
+// number [port] # prints count of port types
 // number port # prints count of port constructs
 // // comment
 // [port] # to create port
-// list-feature << construct-assignment # to add element to port list construct
+// list-feature << structure-assignment # to add element to port list structure
 // port # to reference the port in the workspace context scope
-// [port.id.34] # to create port with specified construct
+// [port.id.34] # to create port with specified structure
 // port.id.34 # to reference port with specified id
-// describe # to show current construct or concept in context
-// describe port.id.34 # to describe specific construct
-// describe [port.id.44] # to describe specific concept
+// describe # to show current structure or type in context
+// describe port.id.34 # to describe specific structure
+// describe [port.id.44] # to describe specific type
 // - Use CLI by creating data structures and assembling models with them.
 // TODO: replace uid with a hex string of form "0x343f"
 // TODO: replace uid with a hex string of form "x343f"

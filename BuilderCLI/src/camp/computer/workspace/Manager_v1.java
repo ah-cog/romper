@@ -86,7 +86,7 @@ public class Manager_v1 {
             List<Construct_v1> constructs = new ArrayList<>(elements.values());
 
 //            for (long uid : elements.keySet()) {
-//                Concept OLD_construct = elements.clone(uid);
+//                Type OLD_construct = elements.clone(uid);
 //                if (OLD_construct.identifier != null && OLD_construct.identifier.equals(identifier)) {
 //                    return OLD_construct;
 //                }

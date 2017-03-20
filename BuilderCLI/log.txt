@@ -1,0 +1,53 @@
+	no feature match > 
+created feature [33m[1mmode[0m
+	no type match > 
+created type port.id.20
+port -> port.id.5
+	no feature match > 
+created feature [33m[1mdirection[0m
+	no type match > 
+created type port.id.25
+port -> port.id.20
+	no feature match > 
+created feature [33m[1mvoltage[0m
+	no type match > 
+created type port.id.30
+port -> port.id.25
+	no feature match > 
+created feature [33m[1mport[0m
+	no type match > 
+created type device.id.33
+device -> device.id.31
+	no type match > 
+created type path.id.35
+path -> path.id.34
+	no feature match > 
+created feature [33m[1mcode[0m
+	no type match > 
+created type script.id.38
+script -> script.id.36
+	no feature match > 
+created feature [33m[1mscript[0m
+	no type match > 
+created type task.id.41
+task -> task.id.39
+	no feature match > 
+created feature [33m[1mtask[0m
+	no type match > 
+created type computer.id.44
+computer -> computer.id.42
+	no feature match > 
+created feature [33m[1mdevice[0m
+	no type match > 
+created type project.id.47
+project -> project.id.45
+	no feature match > 
+created feature [33m[1mpath[0m
+	no type match > 
+created type project.id.49
+project -> project.id.47
+	no feature match > 
+created feature [33m[1mcomputer[0m
+	no type match > 
+created type project.id.51
+project -> project.id.49

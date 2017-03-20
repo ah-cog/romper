@@ -71,7 +71,7 @@ add mode 'analog'
 add mode 'digital'
 
 # --------------------------------------------------------------------------------------------------
-# Note: Tests list feature with multi-type domain.
+# Note: Tests list feature with multi-typeId domain.
 # Date: 2017-03-05
 # --------------------------------------------------------------------------------------------------
 

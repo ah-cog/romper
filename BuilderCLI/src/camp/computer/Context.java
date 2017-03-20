@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import camp.computer.construct.Concept;
-import camp.computer.construct.Construct;
+import camp.computer.construct.Type;
 import camp.computer.construct.Expression;
 import camp.computer.construct.Identifier;
 import camp.computer.construct.Reference;
-import camp.computer.construct.Type;
 
 public class Context {
 
@@ -25,7 +23,8 @@ public class Context {
      */
     public HashMap<String, Reference> references = new HashMap<>();
 
-    public HashMap<Type, Concept> conceptReferences = new HashMap<>(); // current concepts to use
+//    public HashMap<TypeId, Type> conceptReferences = new HashMap<>(); // current concepts to use
+    public HashMap<String, Type> conceptReferences = new HashMap<>(); // current concepts to use
 
     public String expression = null;
 

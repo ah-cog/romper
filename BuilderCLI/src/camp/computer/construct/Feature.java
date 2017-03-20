@@ -23,17 +23,17 @@ public class Feature extends Identifier {
     public String identifier = null; // e.g., mode; direction; voltage
     // TODO: Make identifier separate from feature in database so it's identified uniquely by it's types list and domain list?
 
-    // Content Type (e.g., none, any, text, list, etc.)
-//    public List<Type> types = new ArrayList<>(); // if size == 0, then unconstrained!
+    // Content TypeId (e.g., none, any, text, list, etc.)
+//    public List<TypeId> types = new ArrayList<>(); // if size == 0, then unconstrained!
     public List<Type> types = null; // new ArrayList<>(); // if size == 0, then 'none' type! if null, then 'any'.
 
     // Content Domain (contains Identifier Types and Identifier Content)
     // NOTE: This only ever contains "text object" or references to specific constructs
-    public List<Construct> domain; // if size == 0, then 'none'! if null, then 'any'!
+    public List<Structure> domain; // if size == 0, then 'none'! if null, then 'any'!
     // TODO: Create a separate feature domain for each types in featureType
 
     /**
-     * Only used for <em>list</em> {@code Type}.
+     * Only used for <em>list</em> {@code TypeId}.
      *
      * {@code listTypes} is {@code null} when <em>any</em> types is acceptable. {@code listTypes} is
      * an empty list when the list's types is <em>none</em>, meaning nothing can be added to the
@@ -42,7 +42,7 @@ public class Feature extends Identifier {
     public List<Type> listTypes = null; // if size == 0, then unconstrained!
     // TODO: Remove listTypes and add it to the "list" primitive construct's architecture?
 
-    private Feature(String identifier, List<Type> types, List<Construct> domain, List<Type> listTypes) {
+    private Feature(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 
         this.identifier = identifier;
 
@@ -68,8 +68,8 @@ public class Feature extends Identifier {
         }
     }
 
-    public static Feature create(String identifier, List<Type> types, List<Construct> domain, List<Type> listTypes) {
-        Feature feature = new Feature(identifier, types, domain, listTypes);
+    public static Feature create(String identifier, List<Type> typeIds, List<Structure> domain, List<Type> listTypeIds) {
+        Feature feature = new Feature(identifier, typeIds, domain, listTypeIds);
         return feature;
     }
 
@@ -77,7 +77,7 @@ public class Feature extends Identifier {
         return null;
     }
 
-    public static Feature request(String identifier, List<Type> types, List<Construct> domain, List<Type> listTypes) {
+    public static Feature request(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 
         List<Identifier> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {

@@ -20,10 +20,10 @@ public abstract class Construct_v1 {
 
     // string => String
     // list => ArrayList<?>
-    // list of types Type => ArrayList<Type>
+    // list of types TypeId => ArrayList<TypeId>
     public HashMap<String, Feature> features = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
 
-    // HashMap<String, List<Concept>> constructs;
+    // HashMap<String, List<Type>> constructs;
 
     /*
     public List<PortConstruct> portConstructs = new ArrayList<>();
@@ -46,8 +46,8 @@ public abstract class Construct_v1 {
     */
 
     // TODO: types (generic types identifier so can use single OLD_construct)
-    // TODO: HashMap<?> features (can be Concept or other values)
-    // Concept (Prototype) -> Container (must specify types or is anonymous) -> Container Revision
+    // TODO: HashMap<?> features (can be Type or other values)
+    // Type (Prototype) -> Container (must specify types or is anonymous) -> Container Revision
 
     // Structure/Links:
     // TODO: parent
@@ -59,7 +59,7 @@ public abstract class Construct_v1 {
     // TODO: nextVersions (maybe just use previousVersion)
 
     // TODO: features/features/properties/states
-    // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Concept
+    // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
 
 
     public Construct_v1() {

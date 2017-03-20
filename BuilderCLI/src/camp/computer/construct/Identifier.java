@@ -13,23 +13,23 @@ public class Identifier {
     public String tag = null; // label/identifier(s)
 
     public static boolean isConcept(Identifier identifier) {
-        return (identifier != null && identifier.getClass() == Concept.class);
+        return (identifier != null && identifier.getClass() == Type.class);
     }
 
     public static boolean isConstruct(Identifier identifier) {
-        return (identifier != null && identifier.getClass() == Reference.class && ((Reference) identifier).object.getClass() == Construct.class);
+        return (identifier != null && identifier.getClass() == Reference.class && ((Reference) identifier).object.getClass() == Structure.class);
     }
 
-    public static Concept getConcept(Identifier identifier) {
+    public static Type getConcept(Identifier identifier) {
         if (Identifier.isConcept(identifier)) {
-            return (Concept) identifier;
+            return (Type) identifier;
         }
         return null;
     }
 
-    public static Construct getConstruct(Identifier identifier) {
+    public static Structure getConstruct(Identifier identifier) {
         if (Identifier.isConstruct(identifier)) {
-            return (Construct) ((Reference) identifier).object;
+            return (Structure) ((Reference) identifier).object;
         }
         return null;
     }

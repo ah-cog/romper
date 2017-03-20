@@ -34,8 +34,8 @@ public class Expression {
             }
             if (context.references.containsKey(tokens[i])) {
                 // TODO: Check for type error!
-                Construct construct = (Construct) context.references.get(tokens[i]).object;
-                tokens[i] = construct.toString();
+                Structure structure = (Structure) context.references.get(tokens[i]).object;
+                tokens[i] = structure.toString();
             }
         }
         expression = String.join(" ", tokens);
