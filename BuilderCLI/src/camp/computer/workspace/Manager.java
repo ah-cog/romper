@@ -443,97 +443,97 @@ public class Manager {
 //    }
 
 //    public static Type request(String constructUri) {
-    public static Address get(String constructUri) {
-
-        // Parse:
-        // 3
-        // "foo"
-        // uid(44)
-        // uuid(a716a27b-8489-4bae-b099-2bc73e963876)
-
-        // edit port(uid:25)         # _global_ lookup by UID
-        // edit port(uuid:<uuid>)    # _global_ lookup by UUID
-        // edit port(1)              # _relative_ lookup list item by index
-        // edit my-OLD_construct-address     # _global?_ lookup by address
-        // edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
-        //
-        // edit port(my-address)              # _relative_ lookup list item by list address and element address?
-        // edit port                # lookup by property label
-
-//        if (address.startsWith("port")) {
+//    public static Address get(String constructUri) {
 //
-//        }
-
-        if (constructUri.startsWith("project")
-                || constructUri.startsWith("device")
-                || constructUri.startsWith("port")
-                || constructUri.startsWith("path")
-                || constructUri.startsWith("task")
-                || constructUri.startsWith("script")) {
-
-//        if (constructUri.startsWith("\"") && constructUri.endsWith("\"")) {
+//        // Parse:
+//        // 3
+//        // "foo"
+//        // uid(44)
+//        // uuid(a716a27b-8489-4bae-b099-2bc73e963876)
 //
+//        // edit port(uid:25)         # _global_ lookup by UID
+//        // edit port(uuid:<uuid>)    # _global_ lookup by UUID
+//        // edit port(1)              # _relative_ lookup list item by index
+//        // edit my-OLD_construct-address     # _global?_ lookup by address
+//        // edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
+//        //
+//        // edit port(my-address)              # _relative_ lookup list item by list address and element address?
+//        // edit port                # lookup by property label
 //
+////        if (address.startsWith("port")) {
+////
+////        }
+//
+//        if (constructUri.startsWith("project")
+//                || constructUri.startsWith("device")
+//                || constructUri.startsWith("port")
+//                || constructUri.startsWith("path")
+//                || constructUri.startsWith("task")
+//                || constructUri.startsWith("script")) {
+//
+////        if (constructUri.startsWith("\"") && constructUri.endsWith("\"")) {
+////
+////
+////
+////        } else {
+//
+//            String type = constructUri.substring(0, constructUri.indexOf("("));
+//
+//            String identifierDeclaration = constructUri.substring(constructUri.indexOf("(") + 1, constructUri.indexOf(")"));
+//
+//            String identifierType = identifierDeclaration.split(":")[0];
+//            String identifier = identifierDeclaration.split(":")[1];
+//
+//            if (identifierType.equals("uid")) {
+//
+//                long inputTaskUid = Long.valueOf(identifier);
+//
+//                if (Manager.elements.containsKey(inputTaskUid)) {
+//                    return Manager.elements.get(inputTaskUid);
+//                }
+//
+//            } else if (identifierType.equals("uuid")) {
+//
+//                UUID inputTaskUuid = UUID.fromString(identifier);
+//
+//                for (int i = 0; i < Manager.elements.size(); i++) {
+//                    if (Manager.elements.get(i).uuid.equals(inputTaskUuid)) {
+//                        return Manager.elements.get(i);
+//                    }
+//                }
+//
+//            } else {
+//
+//                // TODO: Lookup by index.
+//
+//            }
 //
 //        } else {
-
-            String type = constructUri.substring(0, constructUri.indexOf("("));
-
-            String identifierDeclaration = constructUri.substring(constructUri.indexOf("(") + 1, constructUri.indexOf(")"));
-
-            String identifierType = identifierDeclaration.split(":")[0];
-            String identifier = identifierDeclaration.split(":")[1];
-
-            if (identifierType.equals("uid")) {
-
-                long inputTaskUid = Long.valueOf(identifier);
-
-                if (Manager.elements.containsKey(inputTaskUid)) {
-                    return Manager.elements.get(inputTaskUid);
-                }
-
-            } else if (identifierType.equals("uuid")) {
-
-                UUID inputTaskUuid = UUID.fromString(identifier);
-
-                for (int i = 0; i < Manager.elements.size(); i++) {
-                    if (Manager.elements.get(i).uuid.equals(inputTaskUuid)) {
-                        return Manager.elements.get(i);
-                    }
-                }
-
-            } else {
-
-                // TODO: Lookup by index.
-
-            }
-
-        } else {
-
-//            String address = constructUri.substring(1, constructUri.length() - 1);
-            String title = String.valueOf(constructUri);
-
-            List<Address> addresses = new ArrayList<>(elements.values());
-
-//            for (long uid : elements.keySet()) {
-//                Type OLD_construct = elements.clone(uid);
-//                if (OLD_construct.address != null && OLD_construct.address.equals(address)) {
-//                    return OLD_construct;
+//
+////            String address = constructUri.substring(1, constructUri.length() - 1);
+//            String title = String.valueOf(constructUri);
+//
+//            List<Address> addresses = new ArrayList<>(elements.values());
+//
+////            for (long uid : elements.keySet()) {
+////                Type OLD_construct = elements.clone(uid);
+////                if (OLD_construct.address != null && OLD_construct.address.equals(address)) {
+////                    return OLD_construct;
+////                }
+////            }
+//
+//            for (int i = 0; i < addresses.size(); i++) {
+//                Address address = addresses.get(i);
+//                if (address.tag != null && address.tag.equals(title)) {
+//                    return address;
 //                }
 //            }
-
-            for (int i = 0; i < addresses.size(); i++) {
-                Address address = addresses.get(i);
-                if (address.tag != null && address.tag.equals(title)) {
-                    return address;
-                }
-            }
-
-        }
-
-        return null;
-
-    }
+//
+//        }
+//
+//        return null;
+//
+//    }
 
     public static Address remove(long uid) {
 

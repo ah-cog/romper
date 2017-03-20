@@ -4,11 +4,9 @@ import java.util.UUID;
 
 public class Address {
 
-    public UUID uuid = UUID.randomUUID(); // universal address (unique among all in central repo)
-
     public long uid = -1L; // Manager_v1.elementCounter++; // manager/cache UID
 
-    public String tag = null; // label/address(s)
+    public UUID uuid = UUID.randomUUID(); // universal address (unique among all in central repo)
 
     public static boolean isType(Address address) {
         return (address != null && address.getClass() == Type.class);
