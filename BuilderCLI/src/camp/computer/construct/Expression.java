@@ -1,8 +1,5 @@
 package camp.computer.construct;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import camp.computer.Context;
 
 public class Expression {
@@ -32,58 +29,17 @@ public class Expression {
             if (i == 0 || Type.exists(tokens[0])) {
                 continue;
             }
-            if (context.references.containsKey(tokens[i])) {
-                // TODO: Check for type error!
-                Structure structure = (Structure) context.references.get(tokens[i]).object;
-                tokens[i] = structure.toString();
-            }
+//            if (context.references.containsKey(tokens[i])) {
+//                // TODO: Check for type error!
+//                Structure structure = (Structure) context.references.get(tokens[i]).object;
+//                tokens[i] = structure.toString();
+//            }
         }
         expression = String.join(" ", tokens);
 
         // TODO: validate expression after sanitization
 
         return new Expression(expression);
-    }
-
-    public static List<String> tokenize(String expression) {
-
-        // type port
-        // has mode text
-        // !has mode
-        // has mode text : 'digital', 'analog', ...
-        // let ...
-        //
-        // port
-        // port (id: 34)
-        //
-        // port source-port
-        // source-port
-        // set mode 'digital'
-        // set mode text (id: 34)
-        //
-        // port.id.34
-        // port.id.34.text 'digital'
-        //
-        // source-port.text 'digital'
-        // source-port.text none
-        //
-        // !source-port
-
-        boolean hasUndo = false; // i.e., expression starts with '!'
-
-        List<String> tokens = new ArrayList<>();
-
-        int i = -1, j = -1;
-        for (i = 0; i < expression.length(); i++) {
-
-            // Extract first token if it hasn't already been extracted.
-            if (i == -1 && j == -1) {
-
-            }
-        }
-
-        return tokens;
-
     }
 
     /**
@@ -93,16 +49,8 @@ public class Expression {
      * @param expression
      * @return
      */
-    public static boolean isConstruct(String expression) {
+    public static boolean isStructure(String expression) {
 //        return expression.matches("([a-z]+)[ ]*\\([ ]*(id|uid|uuid)[ ]*:[ ]*[0-9]+[ ]*\\)");
         return expression.matches("[A-Za-z]+\\.(id|uuid)\\.[0-9]+");
     }
-
-//    public static boolean isText(String featureContent) {
-//        if (!featureContent.startsWith("'") || !featureContent.endsWith("'")) {
-//            return false;
-//        }
-//        return true;
-//    }
-
 }

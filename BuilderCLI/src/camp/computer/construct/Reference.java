@@ -77,7 +77,7 @@ public class Reference extends Address {
         if (this.object != null) {
             if (this.object.getClass() == Structure.class) {
                 Structure structure = (Structure) this.object;
-                return "reference " + structure.type2.identifier + ".id." + uid + " -> structure " + structure.type2.identifier + ".id." + structure.uid;
+                return "reference " + structure.type.identifier + ".id." + uid + " -> structure " + structure.type.identifier + ".id." + structure.uid;
             }
         }
         return null; // Reference points to "any"
@@ -87,7 +87,7 @@ public class Reference extends Address {
         if (this.object != null) {
             if (this.object.getClass() == Structure.class) {
                 Structure structure = (Structure) this.object;
-                return structure.type2.toColorString() + ".id." + uid + " -> " + structure.type2.toColorString() + ".id." + structure.uid;
+                return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
             }
         }
         return null; // Reference points to "any"

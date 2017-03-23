@@ -240,7 +240,7 @@ public class Manager {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
-                        if (structure.type2 == Type.request("none") && structure.objectType == null && structure.object == null) {
+                        if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
                             return structure;
                         }
                     }
@@ -257,7 +257,7 @@ public class Manager {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
                         String textContentDefault = "";
-                        if (structure.type2 == Type.request("text") && structure.objectType == String.class && textContentDefault.equals(structure.object)) {
+                        if (structure.type == Type.request("text") && structure.objectType == String.class && textContentDefault.equals(structure.object)) {
 //                        if (structure.classType == TypeId.request("text") && structure.objectType == String.class && ((textContent == null && structure.object == null) || textContent.equals(structure.object))) {
                             return structure;
                         }
@@ -273,7 +273,7 @@ public class Manager {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
-                        if (structure.type2 == Type.request("list") && structure.objectType == List.class && structure.object != null && ((List) structure.object).size() == 0) {
+                        if (structure.type == Type.request("list") && structure.objectType == List.class && structure.object != null && ((List) structure.object).size() == 0) {
                             // TODO: Look for permutation of a list (matching list of constructs)?
                             return structure;
                         }
@@ -291,7 +291,7 @@ public class Manager {
                         Structure structure = (Structure) identiferList.get(i);
 
                         // TODO: Update type check to also check the Type?
-                        if (structure.type2 == type && structure.objectType == Map.class && structure.object != null) {
+                        if (structure.type == type && structure.objectType == Map.class && structure.object != null) {
 
                             // Check (1) if structure is based on the specified type, and
                             //       (2) same set of features as type and assignments to default constructs.
@@ -424,7 +424,7 @@ public class Manager {
         List<Structure> structureList = new ArrayList<>();
         for (Address address : elements.values()) {
             if (address.getClass() == Structure.class) {
-                if (((Structure) address).type2 == type) {
+                if (((Structure) address).type == type) {
                     structureList.add((Structure) address);
                 }
             }

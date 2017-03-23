@@ -27,6 +27,7 @@ public class Type extends Address {
     // TODO: Change this to {@code Structure} and allocate a HashMap structure to contain features?
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
+    // TODO: (cont'd) Map<String, List<String>> configurations = null;
 
     /**
      * Constructor to create the <em>default type</em> identified by {@code address}.
@@ -59,17 +60,72 @@ public class Type extends Address {
 
     }
 
+    /**
+     * Returns a {@code List} of the {@code Type} identifiers.
+     *
+     * @return
+     */
     public static List<Type> list() {
         List<Type> typeList = Manager.get(Type.class);
         Iterator<Type> typeIterator = typeList.iterator();
         while (typeIterator.hasNext()) {
             Type type = typeIterator.next(); // must be called before you can call i.remove()
             if (type.features != null) {
-                System.out.println("Removing!");
+//                System.out.println("Removing!");
                 typeIterator.remove();
             }
         }
         return typeList;
+    }
+
+    /**
+     * Returns a {@code List} of the {@code Type}s with the specified identifier.
+     *
+     * @return
+     */
+    public static List<Type> list(String identifier) {
+        List<Type> typeList = Manager.get(Type.class);
+        Iterator<Type> typeIterator = typeList.iterator();
+        while (typeIterator.hasNext()) {
+            Type type = typeIterator.next(); // must be called before you can call i.remove()
+            if (!type.identifier.equals(identifier)) {
+                typeIterator.remove();
+            }
+        }
+        return typeList;
+    }
+
+    /**
+     * e.g.,
+     * count type             # counts the number of types (there's only ever one type for "type" identifier)
+     * count none             # constant: 1 (primitive type that can't be modified)
+     * count text             # constant: 1 (primitive type that can't be modified)
+     * count number           # constant: 1 (primitive type that can't be modified)
+     * count list             # constant: 1 (primitive type that can't be modified)
+     *
+     * @return
+     */
+    public static int count() {
+        int count = 0;
+        List<Type> typeList = Manager.get(Type.class);
+        Iterator<Type> typeIterator = typeList.iterator();
+        while (typeIterator.hasNext()) {
+            count++;
+        }
+        return count;
+    }
+
+    public static int count(Type type) {
+        int count = 0;
+        List<Type> typeList = Manager.get(Type.class);
+        Iterator<Type> typeIterator = typeList.iterator();
+        while (typeIterator.hasNext()) {
+            Type currentType = typeIterator.next(); // must be called before you can call i.remove()
+            if (currentType.identifier.equals(type.identifier)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     // TODO: make private
@@ -147,7 +203,7 @@ public class Type extends Address {
             return Type.request("text");
         } else if (expression.contains(",")) { // TODO: Update with regex match
             return Type.request("list");
-        } else if (Expression.isConstruct(expression)) {
+        } else if (Expression.isStructure(expression)) {
             // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
             String typeIdentifier = expression.split("\\.")[0];
             typeList = Manager.get(Type.class);

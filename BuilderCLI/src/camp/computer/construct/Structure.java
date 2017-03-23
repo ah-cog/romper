@@ -2,6 +2,7 @@ package camp.computer.construct;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +19,6 @@ public class Structure extends Address {
     // TODO:      null for primitive "none" types
 
     // <CONCEPT>
-//    public TypeId type = null; // TODO: Remove!
-    public Type type2 = null; // TODO: Remove!
     public Type type = null; // The {@code Structure} used to create this Structure.
 
 //    public HashMap<String, Feature> features = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
@@ -35,6 +34,30 @@ public class Structure extends Address {
     public Object object = null;
     // </CONCEPT>
 
+    // <TODO>
+    // Update Tuple class to extend List. Rename to List (or Sequence)!
+    //
+    // (a) For non-primitive, don't store Map<String, Feature>. That's stored in the referenced Type!
+    // (cont'd) Instead, create a Map<String, Structure> to store the states corresponding to
+    // (cont'd) features. Then (b) remove the Structure.states HashMap. Leaves Structure as general
+    // (cont'd) purpose data structuring primitive/construct.
+    //
+    // For "reference" type (or "index"), set type = "reference", classType = Structure.class,
+    // (cont'd) object = referenced/indexed Construct.
+    //
+    // [A] Rename "Feature" to "Container" since it can contain any Type or Structure.
+    // [B] For "feature", there are multiple types, so replace "Type type" with "List<Type> types"
+    //     in Structure. "feature" is the only Structure that has more than one type (?).
+    // [C] For feature, also add Structure.domain and Structure.listTypes (?) or use Map?
+    //
+    // Add custom List(...), Map(...)/Dictionary(...) classes with convenient constructors and for
+    // (cont'd) use in the Manager.
+    //
+    // Add configuration to {@code Type}, but not Structure for now.
+    //
+    // Add constraint solver back into the new model (finally!).
+    // </TODO>
+
     // This is only present for non-primitive types (that instantiate a Map)
     // TODO: Remove this after removing the State class.
     public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
@@ -48,7 +71,7 @@ public class Structure extends Address {
 
     private Structure(Type type) {
 
-        this.type2 = Type.request(type.identifier);
+//        this.type2 = Type.request(type.identifier);
 
         this.type = type;
 
@@ -117,6 +140,45 @@ public class Structure extends Address {
 //        }
 //        return null;
 //    }
+
+    /**
+     * Returns the number of {@code Structure}s that have a {@code type} <em>exactly</em>
+     * identical to {@code Type} (i.e., the {@code Type} UUIDs are identical).
+     *
+     * @param type
+     * @return
+     */
+    public static int count(Type type) {
+        int count = 0;
+        List<Structure> structureList = Manager.get(Structure.class);
+        Iterator<Structure> structureIterator = structureList.iterator();
+        while (structureIterator.hasNext()) {
+            Structure structure = structureIterator.next(); // must be called before you can call i.remove()
+            if (structure.type.identifier.equals(type.identifier)) {
+            // if (structure.type == type) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns a {@code List} of the {@code Structure}s with the specified {@code Type}.
+     *
+     * @return
+     */
+    public static List<Structure> list(Type type) {
+        List<Structure> structureList = Manager.get(Structure.class);
+        Iterator<Structure> structureIterator = structureList.iterator();
+        while (structureIterator.hasNext()) {
+            Structure structure = structureIterator.next(); // must be called before you can call i.remove()
+            if (!structure.type.identifier.equals(type.identifier)) {
+            // if (structure.type == type) {
+                structureIterator.remove();
+            }
+        }
+        return structureList;
+    }
 
     public static Structure create(Type type) {
         if (type != null) {
@@ -220,7 +282,7 @@ public class Structure extends Address {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
-                        if (structure.type2 == Type.request("none") && structure.objectType == null && structure.object == null) {
+                        if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
                             return structure;
                         }
                     }
@@ -251,7 +313,7 @@ public class Structure extends Address {
                         if (expression.startsWith("'") && expression.endsWith("'")) {
                             textContent = expression.substring(1, expression.length() - 1);
                         }
-                        if (structure.type2 == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
+                        if (structure.type == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
 //                        if (structure.classType == Type.request("text") && structure.objectType == String.class && ((textContent == null && structure.object == null) || textContent.equals(structure.object))) {
                             return structure;
                         }
@@ -281,7 +343,7 @@ public class Structure extends Address {
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
-                        if (structure.type2 == Type.request("list") && structure.objectType == List.class && structure.object != null) {
+                        if (structure.type == Type.request("list") && structure.objectType == List.class && structure.object != null) {
                             // TODO: Look for permutation of a list (matching list of constructs)?
                             return structure;
                         }
@@ -290,7 +352,7 @@ public class Structure extends Address {
 
             } else {
 
-                if (Expression.isConstruct(expression)) {
+                if (Expression.isStructure(expression)) {
 
 //                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
 //                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
@@ -390,7 +452,7 @@ public class Structure extends Address {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
 
-                if (candidateStructure.type2 == type && candidateStructure.objectType == List.class && candidateStructure.object != null) {
+                if (candidateStructure.type == type && candidateStructure.objectType == List.class && candidateStructure.object != null) {
                     // LIST
 
 
@@ -476,7 +538,7 @@ public class Structure extends Address {
     public static Structure request(Structure currentStructure, String featureToReplace, Structure featureStructureReplacement) {
 
 //        TypeId type = currentStructure.type; // Structure type
-        Type type2 = currentStructure.type2; // Structure type
+        Type type2 = currentStructure.type; // Structure type
 
         // Look for persistent "empty list" object (i.e., the default list).
         List<Address> identiferList = Manager.get();
@@ -484,7 +546,7 @@ public class Structure extends Address {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
 
-                if (candidateStructure.type2 == type2 && candidateStructure.objectType == List.class && candidateStructure.object != null) {
+                if (candidateStructure.type == type2 && candidateStructure.objectType == List.class && candidateStructure.object != null) {
                     // LIST
 
 
@@ -493,7 +555,7 @@ public class Structure extends Address {
                     List candidateConstructList = (List) candidateStructure.object;
                     List currentConstructList = (List) currentStructure.object;
 
-                } else if (candidateStructure.type2 == type2 && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
+                } else if (candidateStructure.type == type2 && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
 //                } else if (Structure.isComposite(construct)) {
                     // HASHMAP
 
@@ -920,10 +982,10 @@ public class Structure extends Address {
 
     @Override
     public String toString() {
-        if (type2 == Type.request("text")) {
+        if (type == Type.request("text")) {
             String content = (String) this.object;
-            return "'" + content + "' " + type2 + ".id." + uid + "";
-        } else if (type2 == Type.request("list")) {
+            return "'" + content + "' " + type + ".id." + uid + "";
+        } else if (type == Type.request("list")) {
             String content = "";
             List list = (List) this.object;
             for (int i = 0; i < list.size(); i++) {
@@ -932,19 +994,19 @@ public class Structure extends Address {
                     content += ", ";
                 }
             }
-            return type2 + ".id." + uid + " : " + content;
+            return type + ".id." + uid + " : " + content;
         } else {
-            return type2 + ".id." + uid;
+            return type + ".id." + uid;
         }
     }
 
     public String toColorString() {
-        if (type2 == Type.request("text")) {
+        if (type == Type.request("text")) {
             String content = (String) this.object;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
-            return  "'" + content + "' " + Color.ANSI_BLUE + type2 + Color.ANSI_RESET + ".id." + uid;
+            return  "'" + content + "' " + Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
         } else {
-            return Color.ANSI_BLUE + type2 + Color.ANSI_RESET + ".id." + uid;
+            return Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
         }
     }

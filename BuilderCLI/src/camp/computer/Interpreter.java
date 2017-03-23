@@ -53,12 +53,6 @@ public class Interpreter {
         workspace = new Workspace();
 
         // Instantiate primitive types
-//        TypeId.create("type"); // TypeId.add("type");
-//        TypeId.create("none");
-//        TypeId.create("number");
-//        TypeId.create("text");
-//        TypeId.create("list");
-
         Type.request("type"); // TypeId.add("type");
         Type.request("none");
         Type.request("number");
@@ -139,31 +133,27 @@ public class Interpreter {
             // Save line in history
             context.expressionTimeline.add(inputLine);
 
-            if (context.expression.startsWith("import file")) {
+            if (context.expression.startsWith("run")) { // previously, "import file"
                 importFileTask(context);
-//            } else if (context.expression.startsWith("define") || context.expression.startsWith("def")) { // "new", "describe"
-            } else if (context.expression.startsWith("type")) { // "define", "generate", "type"
-                defineTask(context);
-            } else if (context.expression.startsWith("structure")) {
-                constructTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
-            } else if (context.expression.startsWith("has")) {
+            } else if (context.expression.startsWith("type")) {
+                typeTask(context);
+            } else if (context.expression.startsWith("has")) { // TODO: has? !has
                 hasTask(context);
-            } else if (context.expression.startsWith("let")) {
+            } else if (context.expression.startsWith("let")) { // TODO: let?, !list
                 letTask(context);
+            } else if (context.expression.startsWith("structure") || context.expression.startsWith("struct")) {
+                structureTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
             } else if (context.expression.startsWith("set")) {
                 setTask(context);
             } else if (context.expression.startsWith("add")) {
                 addTask(context);
             } else if (context.expression.startsWith("remove") || context.expression.startsWith("rem") || context.expression.startsWith("rm")) {
                 removeTask(context);
-            } else if (context.expression.startsWith("list index")) { // previously: list-reference / list-ref
-                listReferenceTask(context);
-            } else if (context.expression.startsWith("list type")) { // list-type
-                listTypeTask(context);
+            } else if (context.expression.startsWith("link")) { // !link, link?
+                // TODO: Callback to create a link in the active context/namespace.
+                linkTask(context);
             } else if (context.expression.startsWith("list")) { // previously: ws, show, ls, locate
                 listTask(context);
-//                describeTask(context);
-//            } else if (context.expression.startsWith("search")) {
             } else if (context.expression.startsWith("browse")) {
                 searchTask(context);
             } else if (context.expression.startsWith("describe") || context.expression.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
@@ -198,9 +188,9 @@ public class Interpreter {
 
                 } else if (Type.exists(context.expression.split("[ ]+")[0])) { // REFACTOR
 
-//                    constructTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
+//                    structureTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
 
-                } else if (Expression.isConstruct(context.expression)) {
+                } else if (Expression.isStructure(context.expression)) {
 
                     String[] tokens = context.expression.split("\\.");
                     String typeIdentifierToken = tokens[0];
@@ -247,7 +237,7 @@ public class Interpreter {
         }
     }
 
-    public void defineTask(Context context) {
+    public void typeTask(Context context) {
 
         String[] inputLineTokens = context.expression.split("[ ]+");
 
@@ -769,7 +759,7 @@ public class Interpreter {
     // e.g.,
     // structure port
     // [DELETED] structure port my-port
-    public void constructTask(Context context) {
+    public void structureTask(Context context) {
 
         String[] inputLineTokens = context.expression.split("[ ]+");
 
@@ -780,16 +770,11 @@ public class Interpreter {
         if (inputLineTokens.length >= 2) {
             featureIdentifierToken = inputLineTokens[1];
 
-//                TypeId type = null;
-                Type type = null;
-//                if (Type.exists(featureIdentifierToken)) {
-                    if (Type.exists(featureIdentifierToken)) {
-//                        type = Type.request(type);
-
-                        // TODO: Factor this into a function in Context (to automate tracking of most-recent type)
-                        type = context.conceptReferences.get(featureIdentifierToken);
-                    }
-//                }
+            Type type = null;
+            if (Type.exists(featureIdentifierToken)) {
+                // TODO: Factor this into a function in Context (to automate tracking of most-recent type)
+                type = context.conceptReferences.get(featureIdentifierToken);
+            }
 
 //                // Parse label if it exists
 //                String label = null;
@@ -820,6 +805,9 @@ public class Interpreter {
 //                        context.references.put(label, constructReference);
 //                    }
 
+                    // Update context reference corresponding to the type
+                    context.references.put(structure.type.identifier, constructReference);
+
                     // Update object
 //                    address = structure;
                     context.address = constructReference;
@@ -839,6 +827,10 @@ public class Interpreter {
 //            }
 
 //        }
+
+    }
+
+    public void linkTask(Context context) {
 
     }
 
@@ -882,9 +874,9 @@ public class Interpreter {
                     // Note: Any feature can be assigned 'none' and any type can be assigned if the feature supports any time (i.e., types is null).
                     if (replacementFeatureStructure != Structure.request("none")
                             && Structure.getFeature(currentStructure, featureIdentifier).types != null
-                            && !Structure.getFeature(currentStructure, featureIdentifier).types.contains(replacementFeatureStructure.type2)) {
+                            && !Structure.getFeature(currentStructure, featureIdentifier).types.contains(replacementFeatureStructure.type)) {
                         // TODO: Check types!
-                        System.out.println(Error.get("Feature " + featureIdentifier + " doesn't support type " + replacementFeatureStructure.type2));
+                        System.out.println(Error.get("Feature " + featureIdentifier + " doesn't support type " + replacementFeatureStructure.type));
                         return;
                     }
 
@@ -968,7 +960,7 @@ public class Interpreter {
                 Structure currentFeatureStructure = currentStructure.states.get(featureIdentifier);
 
                 if ((currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.request("list")))
-                        || currentFeatureStructure.type2 == Type.request("list")) {
+                        || currentFeatureStructure.type== Type.request("list")) {
 
                     Structure additionalFeatureStructure = null;
                     if (context.references.containsKey(stateExpression)) {
@@ -979,7 +971,7 @@ public class Interpreter {
                     }
 
                     ArrayList requestedConstructList = new ArrayList();
-                    if (currentFeatureStructure.type2 == Type.request("list")) {
+                    if (currentFeatureStructure.type== Type.request("list")) {
                         requestedConstructList.addAll(((List) currentFeatureStructure.object));
                     }
                     requestedConstructList.add(additionalFeatureStructure);
@@ -1001,7 +993,7 @@ public class Interpreter {
                         }
                         currentStructure = (Structure) ((Reference) context.address).object;
 //                    System.out.println("REPLACEMENT: " + replacementStructure);
-                        System.out.println("reference " + currentStructure.type2.toColorString() + " (id: " + context.address.uid + ") -> construct " + currentStructure.type2.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
+                        System.out.println("reference " + currentStructure.type.toColorString() + " (id: " + context.address.uid + ") -> construct " + currentStructure.type.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
                     }
 
                 } else {
@@ -1074,7 +1066,7 @@ public class Interpreter {
             // String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
             String typeToken = context.expression.substring(context.expression.indexOf(" ") + 1);
 
-                if (Expression.isConstruct(typeToken)) {
+                if (Expression.isStructure(typeToken)) {
 
                     // String[] tokens = context.expression.split("\\.");
                     String[] tokens = typeToken.split("\\.");
@@ -1102,17 +1094,17 @@ public class Interpreter {
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                         }
 
-                        if (structure != null && structure.type2 == Type.request(typeIdentifierToken)) {
-                            if (structure.type2 == Type.request("type")) {
-                                System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primistructure");
-                            } else if (structure.type2 == Type.request("none")) {
-                                System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " default primitive structure that represents absence of any data structure");
-                            } else if (structure.type2 == Type.request("number")) {
-                                System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
-                            } else if (structure.type2 == Type.request("text")) {
-                                System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
-                            } else if (structure.type2 == Type.request("list")) {
-                                System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
+                        if (structure != null && structure.type== Type.request(typeIdentifierToken)) {
+                            if (structure.type== Type.request("type")) {
+                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primistructure");
+                            } else if (structure.type== Type.request("none")) {
+                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " default primitive structure that represents absence of any data structure");
+                            } else if (structure.type== Type.request("number")) {
+                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
+                            } else if (structure.type== Type.request("text")) {
+                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
+                            } else if (structure.type== Type.request("list")) {
+                                System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
                             } else {
 
 //                                System.out.println(Color.ANSI_BLUE + structure.type.address + Color.ANSI_RESET);
@@ -1159,7 +1151,7 @@ public class Interpreter {
 
                         Type typeId = Type.request(typeToken);
 
-                        if (typeId == Type.request("typeId")) {
+                        if (typeId == Type.request("type")) {
                             System.out.println(Color.ANSI_BLUE + typeId.identifier + Color.ANSI_RESET + " a data structure that characterizes an entity");
                         } else if (typeId == Type.request("none")) {
                             System.out.println(Color.ANSI_BLUE + typeId.identifier + Color.ANSI_RESET + " denotes absence or nonexistence (of structure)");
@@ -1173,7 +1165,7 @@ public class Interpreter {
 
                             System.out.println(Color.ANSI_BLUE + typeId.identifier + Color.ANSI_RESET);
 
-                            // Determine the type to describe for the typeId
+                            // Determine the type to describe for the type
                             Type type = null;
                             if (context.conceptReferences.containsKey(typeId)) {
                                 type = context.conceptReferences.get(typeId);
@@ -1224,7 +1216,7 @@ public class Interpreter {
                 int typeReferenceCount = 0;
                 for (int j = 0; j < referenceList.size(); j++) {
                     Type typeDefault = Type.request(typeIdList.get(i).identifier);
-                    if (((Structure) (((Reference) referenceList.get(j)).object)).type2 == typeDefault) {
+                    if (((Structure) (((Reference) referenceList.get(j)).object)).type== typeDefault) {
                         typeReferenceCount++;
                     }
                 }
@@ -1235,7 +1227,7 @@ public class Interpreter {
 
             String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
 
-            if (Expression.isConstruct(typeToken)) {
+            if (Expression.isStructure(typeToken)) {
 
 //                String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
 //                String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1312,23 +1304,23 @@ public class Interpreter {
 ////                    System.out.println("(id: " + structureList.request(i).uid + ") " + Application.ANSI_GREEN + structureList.request(i).classType + Application.ANSI_RESET + " (uuid: " + structureList.request(i).uuid + ")");
 //                    }
 
-                    if (structure != null && structure.type2 == Type.request(typeToken)) {
-                        if (structure.type2 == Type.request("none")) {
+                    if (structure != null && structure.type== Type.request(typeToken)) {
+                        if (structure.type== Type.request("none")) {
 
                             System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("number")) {
+                        } else if (structure.type== Type.request("number")) {
 
-                        } else if (structure.type2 == Type.request("text")) {
+                        } else if (structure.type== Type.request("text")) {
 
 //                            String feature = (String) structure.object;
                             System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("list")) {
+                        } else if (structure.type== Type.request("list")) {
 
                         } else {
 
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET);
+                            System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET);
 
                             HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
                             for (String featureIdentifier : features.keySet()) {
@@ -1385,7 +1377,7 @@ public class Interpreter {
 
             String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
 
-            if (Expression.isConstruct(typeToken)) {
+            if (Expression.isStructure(typeToken)) {
 
                 String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
                 String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1411,23 +1403,23 @@ public class Interpreter {
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                     }
 
-                    if (structure != null && structure.type2 == Type.request(typeIdentifierToken)) {
-                        if (structure.type2 == Type.request("none")) {
+                    if (structure != null && structure.type== Type.request(typeIdentifierToken)) {
+                        if (structure.type== Type.request("none")) {
 
                             System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("number")) {
+                        } else if (structure.type== Type.request("number")) {
 
-                        } else if (structure.type2 == Type.request("text")) {
+                        } else if (structure.type== Type.request("text")) {
 
 //                            String feature = (String) structure.object;
                             System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("list")) {
+                        } else if (structure.type== Type.request("list")) {
 
                         } else {
 
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET);
+                            System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET);
 
                             HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
                             HashMap<String, Structure> states = (HashMap<String, Structure>) structure.states;
@@ -1468,333 +1460,282 @@ public class Interpreter {
     }
 
     // Lists references to constructs in the current (private) context
+    // e.g.,
+    // list
+    // list type [<identifier>]
+    // list structure [<identifier>]
+    // list link [<identifier>]
     public void listTask(Context context) { // previously, viewTask
 
         String[] inputLineTokens = context.expression.split("[ ]+");
 
         if (inputLineTokens.length == 1) {
 
-            List<Type> typeList = Type.list();
-            for (int i = 0; i < typeList.size(); i++) {
-                List<Structure> structureList = Manager.getStructureList(typeList.get(i));
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
-                System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
-            }
+//            List<Type> typeList = Type.list();
+//            for (int i = 0; i < typeList.size(); i++) {
+//                List<Structure> structureList = Manager.getStructureList(typeList.get(i));
+//                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).address + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+//                System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
+//            }
+
+            System.out.println("list <type|structure|reference> [<identifier>]");
 
         } else if (inputLineTokens.length >= 2) {
 
-            String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
+            String constructToken = inputLineTokens[1]; // i.e., "type", "structure", "link"
 
-            if (Expression.isConstruct(typeToken)) {
+            if (constructToken.equals("type")) {
 
-                String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
-                String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
-                String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+                if (inputLineTokens.length == 2) {
+                    for (Type type : Type.list()) {
+                        System.out.println(Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + " (count: " + Type.count(type) + ")");
+                    }
+                } else if (inputLineTokens.length >= 3) {
 
-                if (addressTypeToken.equals("id")) {
-                    Structure structure = null;
-                    long uid = Long.parseLong(addressToken.trim());
-                    Address address = Manager.get(uid);
-                    if (address == null) {
-                        System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
-                        return;
+                    // TODO: print "identifier" next to the default type for each identifier
+                    // TODO: separate namespace contexts from data. create namespaces then link things into it from the central repository.
+
+                    String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
+                    Type type = Type.request(typeToken);
+                    if (type != null) {
+                        List<Type> types = Manager.get(Type.class);
+                        for (int i = 0; i < types.size(); i++) {
+                            if (types.get(i).identifier.equals(typeToken)) {
+                                System.out.print(types.get(i).toColorString());
+                                if (types.get(i).features == null) {
+                                    System.out.print(" [identifier]");
+                                }
+                                System.out.println();
+                            }
+                        }
                     }
 
-                    if (address.getClass() == Reference.class) {
-                        Reference reference = (Reference) address;
-                        structure = (Structure) reference.object;
-                    } else if (address.getClass() == Structure.class) {
-                        structure = (Structure) address;
+                }
+
+            } else if (constructToken.equals("structure") || constructToken.equals("struct")) {
+
+                if (inputLineTokens.length == 2) {
+                    for (Type type : Type.list()) {
+                        System.out.println(Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + " (count: " + Structure.count(type) + ")");
+                    }
+                } else if (inputLineTokens.length >= 3) {
+
+                    // TODO: print "identifier" next to the default type for each identifier
+                    // TODO: separate namespace contexts from data. create namespaces then link things into it from the central repository.
+
+//                    String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
+//                    Type type = Type.request(typeToken);
+//                    if (type != null) {
+//                        List<Type> types = Manager.get(Type.class);
+//                        for (int i = 0; i < types.size(); i++) {
+//                            if (types.get(i).identifier.equals(typeToken)) {
+//                                System.out.print(types.get(i).toColorString());
+//                                if (types.get(i).features == null) {
+//                                    System.out.print(" [identifier]");
+//                                }
+//                                System.out.println();
+//                            }
+//                        }
+//                    }
+//
+//                }
+
+                    String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
+
+                    if (Expression.isStructure(typeToken)) {
+
+                        String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
+                        String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
+                        String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+
+                        if (addressTypeToken.equals("id")) {
+                            Structure structure = null;
+                            long uid = Long.parseLong(addressToken.trim());
+                            Address address = Manager.get(uid);
+                            if (address == null) {
+                                System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
+                                return;
+                            }
+
+//                            if (address.getClass() == Reference.class) {
+//                                Reference reference = (Reference) address;
+//                                structure = (Structure) reference.object;
+//                            } else if (address.getClass() == Structure.class) {
+                                structure = (Structure) address;
 //                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
 //                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
-                    }
+//                            }
 
-                    if (structure != null && structure.type2 == Type.request(typeIdentifierToken)) {
-                        if (structure.type2 == Type.request("none")) {
-
-//                            System.out.println("REFERENCE (id:X) -> " + structure);
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " default primitive structure that represents absence of any data structure");
-
-                        } else if (structure.type2 == Type.request("number")) {
-
-                        } else if (structure.type2 == Type.request("text")) {
+                            if (structure != null && structure.type == Type.request(typeIdentifierToken)) {
+                                if (structure.type == Type.request("none")) {
 
 //                            System.out.println("REFERENCE (id:X) -> " + structure);
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
+                                    System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " default primitive structure that represents absence of any data structure");
 
-                        } else if (structure.type2 == Type.request("list")) {
+                                } else if (structure.type == Type.request("number")) {
 
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
+                                } else if (structure.type == Type.request("text")) {
+
+//                            System.out.println("REFERENCE (id:X) -> " + structure);
+                                    System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
+
+                                } else if (structure.type == Type.request("list")) {
+
+                                    System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
+
+                                } else {
+
+                                    System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET);
+
+                                    HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
+                                    HashMap<String, Structure> states = (HashMap<String, Structure>) structure.states;
+                                    for (String featureIdentifier : features.keySet()) {
+                                        Feature feature = features.get(featureIdentifier);
+                                        String featureTypes = "";
+                                        for (int i = 0; i < feature.types.size(); i++) {
+                                            featureTypes += feature.types.get(i);
+                                            if ((i + 1) < feature.types.size()) {
+                                                featureTypes += ", ";
+                                            }
+                                        }
+                                        System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier));
+                                        // TODO: print current object types; print available feature types
+                                    }
+
+                                }
+                            }
+                        } else if (addressToken.equals("uuid")) {
 
                         } else {
 
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET);
-
-                            HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
-                            HashMap<String, Structure> states = (HashMap<String, Structure>) structure.states;
-                            for (String featureIdentifier : features.keySet()) {
-                                Feature feature = features.get(featureIdentifier);
-                                String featureTypes = "";
-                                for (int i = 0; i < feature.types.size(); i++) {
-                                    featureTypes += feature.types.get(i);
-                                    if ((i + 1) < feature.types.size()) {
-                                        featureTypes += ", ";
-                                    }
-                                }
-                                System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier));
-                                // TODO: print current object types; print available feature types
-                            }
-
                         }
-                    }
-                } else if (addressToken.equals("uuid")) {
 
-                } else {
+                    } else if (Type.exists(typeToken)) {
 
-                }
-
-            } else if (Type.exists(typeToken)) {
-
-                // TODO: Print Type
+                        // TODO: Print Type
 //                System.out.println("VIEW CONCEPT");
 //                System.out.println();
 
-                List<Structure> structureList = Manager.getStructureList(Type.request(typeToken));
-                for (int i = 0; i < structureList.size(); i++) {
-                    System.out.println(structureList.get(i).toColorString());
+//                        List<Structure> structureList = Manager.getStructureList(Type.request(typeToken));
+                        List<Structure> structureList = Structure.list(Type.request(typeToken));
+                        for (int i = 0; i < structureList.size(); i++) {
+                            System.out.println(structureList.get(i).toColorString());
 //                    System.out.println("(id: " + structureList.request(i).uid + ") " + Application.ANSI_GREEN + structureList.request(i).classType + Application.ANSI_RESET + " (uuid: " + structureList.request(i).uuid + ")");
-                }
-            }
-        }
-    }
-
-    // Lists references to constructs in the current (private) context
-    public void listReferenceTask(Context context) { // previously, viewTask
-
-        String[] inputLineTokens = context.expression.split("[ ]+");
-
-        if (inputLineTokens.length == 1) {
-
-            for (String referenceKey : context.references.keySet()) {
-                Reference reference = context.references.get(referenceKey);
-                Structure structure = (Structure) reference.object;
-//                System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -> " + reference.toColorString());
-//                System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -- " + reference.toColorString());
-                System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " >> " + reference.toColorString());
-            }
-
-            // List anonymous references
-            List<Reference> referenceList = Manager.get(Reference.class);
-            for (Reference reference : referenceList) {
-                if (!context.references.containsValue(reference)) {
-//                    System.out.println(Color.ANSI_YELLOW + "(anonymous)" + Color.ANSI_RESET + " " + reference.toColorString());
-                    System.out.println(reference.toColorString());
-                }
-            }
-
-//            List<TypeId> typeList = Type.request();
-//            for (int i = 0; i < typeList.size(); i++) {
-//                List<Structure> constructList = Manager.getStructureList(typeList.request(i));
-//                // System.out.println("(id: " + typeList.request(i).uid + ") " + Application.ANSI_BLUE + typeList.request(i).address + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeList.request(i).uuid + ")");
-//                System.out.println(Color.ANSI_BLUE + typeList.request(i).address + Color.ANSI_RESET + " (count: " + constructList.size() + ")");
-//            }
-
-        } else if (inputLineTokens.length >= 2) {
-
-            String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
-
-            if (Expression.isConstruct(typeToken)) {
-
-                String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
-                String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
-                String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
-
-                if (addressTypeToken.equals("id")) {
-                    Structure structure = null;
-                    long uid = Long.parseLong(addressToken.trim());
-                    Address address = Manager.get(uid);
-                    if (address == null) {
-                        System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
-                        return;
+                        }
                     }
+                }
 
-                    if (address.getClass() == Reference.class) {
-                        Reference reference = (Reference) address;
-                        structure = (Structure) reference.object;
-                    } else if (address.getClass() == Structure.class) {
-                        structure = (Structure) address;
+            } else if (constructToken.equals("link")) {
+
+                if (inputLineTokens.length == 2) {
+                    // List context references
+                    for (String referenceKey : context.references.keySet()) {
+                        Reference reference = context.references.get(referenceKey);
+                        // Structure structure = (Structure) reference.object;
+                        System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " >> " + reference.toColorString());
+                    }
+//                    // List anonymous references
+//                    List<Reference> referenceList = Manager.get(Reference.class);
+//                    for (Reference reference : referenceList) {
+//                        if (!context.references.containsValue(reference)) {
+////                    System.out.println(Color.ANSI_YELLOW + "(anonymous)" + Color.ANSI_RESET + " " + reference.toColorString());
+//                            System.out.println(reference.toColorString());
+//                        }
+//                    }
+                } else if (inputLineTokens.length >= 3) {
+
+                    String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
+
+                    if (Expression.isStructure(typeToken)) {
+
+                        String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
+                        String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
+                        String addressToken = typeToken.substring(typeToken.indexOf(":") + 1, typeToken.indexOf(")")).trim(); // text between ':' and ')'
+
+                        if (addressTypeToken.equals("id")) {
+                            Structure structure = null;
+                            long uid = Long.parseLong(addressToken.trim());
+                            Address address = Manager.get(uid);
+                            if (address == null) {
+                                System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
+                                return;
+                            }
+
+                            if (address.getClass() == Reference.class) {
+                                Reference reference = (Reference) address;
+                                structure = (Structure) reference.object;
+                            } else if (address.getClass() == Structure.class) {
+                                structure = (Structure) address;
 //                        } else if (address.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
 //                            //                                Type type = (Type) address;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
-                    }
+                            }
 
-                    if (structure != null && structure.type2 == Type.request(typeIdentifierToken)) {
-                        if (structure.type2 == Type.request("none")) {
+                            if (structure != null && structure.type== Type.request(typeIdentifierToken)) {
+                                if (structure.type== Type.request("none")) {
 
-                            System.out.println("REFERENCE (id:X) -> " + structure);
+                                    System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("number")) {
+                                } else if (structure.type== Type.request("number")) {
 
-                        } else if (structure.type2 == Type.request("text")) {
+                                } else if (structure.type== Type.request("text")) {
 
 //                            String feature = (String) structure.object;
-                            System.out.println("REFERENCE (id:X) -> " + structure);
+                                    System.out.println("REFERENCE (id:X) -> " + structure);
 
-                        } else if (structure.type2 == Type.request("list")) {
+                                } else if (structure.type== Type.request("list")) {
+
+                                } else {
+
+                                    System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET);
+
+                                    HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
+                                    HashMap<String, Structure> states = (HashMap<String, Structure>) structure.states;
+                                    for (String featureIdentifier : features.keySet()) {
+                                        Feature feature = features.get(featureIdentifier);
+                                        String featureTypes = "";
+                                        for (int i = 0; i < feature.types.size(); i++) {
+                                            featureTypes += feature.types.get(i);
+                                            if ((i + 1) < feature.types.size()) {
+                                                featureTypes += ", ";
+                                            }
+                                        }
+                                        System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier));
+                                        // TODO: print current object types; print available feature types
+                                    }
+
+                                }
+                            }
+                        } else if (addressToken.equals("uuid")) {
 
                         } else {
 
-                            System.out.println(Color.ANSI_BLUE + structure.type2.identifier + Color.ANSI_RESET);
-
-                            HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
-                            HashMap<String, Structure> states = (HashMap<String, Structure>) structure.states;
-                            for (String featureIdentifier : features.keySet()) {
-                                Feature feature = features.get(featureIdentifier);
-                                String featureTypes = "";
-                                for (int i = 0; i < feature.types.size(); i++) {
-                                    featureTypes += feature.types.get(i);
-                                    if ((i + 1) < feature.types.size()) {
-                                        featureTypes += ", ";
-                                    }
-                                }
-                                System.out.println(Color.ANSI_GREEN + features.get(featureIdentifier).identifier + Color.ANSI_RESET + " " + Color.ANSI_BLUE + featureTypes + Color.ANSI_RESET + " " + states.get(featureIdentifier));
-                                // TODO: print current object types; print available feature types
-                            }
-
                         }
-                    }
-                } else if (addressToken.equals("uuid")) {
 
-                } else {
+                    } else if (Type.exists(typeToken)) {
 
-                }
-
-            } else if (Type.exists(typeToken)) {
-
-                // TODO: Print Type
+                        // TODO: Print Type
 //                System.out.println("VIEW CONCEPT");
 //                System.out.println();
 
-                List<Structure> structureList = Manager.getStructureList(Type.request(typeToken));
-                for (int i = 0; i < structureList.size(); i++) {
-                    System.out.println(structureList.get(i).toColorString());
+                        List<Structure> structureList = Manager.getStructureList(Type.request(typeToken));
+                        for (int i = 0; i < structureList.size(); i++) {
+                            System.out.println(structureList.get(i).toColorString());
 //                    System.out.println("(id: " + structureList.request(i).uid + ") " + Application.ANSI_GREEN + structureList.request(i).classType + Application.ANSI_RESET + " (uuid: " + structureList.request(i).uuid + ")");
-                }
-            }
-        }
-    }
-
-    public void listTypeTask(Context context) {
-
-        String[] inputLineTokens = context.expression.split("[ ]+");
-
-        if (inputLineTokens.length == 1) {
-
-            for (Type type : Type.list()) {
-                System.out.println(type.toColorString() + " (count: TODO-LIST-CONCEPT-COUNT)");
-            }
-
-        } else if (inputLineTokens.length >= 2) {
-
-            String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
-            Type type = Type.request(typeToken);
-            if (type != null) {
-                List<Type> types = Manager.get(Type.class);
-                for (int i = 0; i < types.size(); i++) {
-                    if (types.get(i).identifier.equals(typeToken)) {
-                        System.out.println(types.get(i).toColorString());
+                        }
                     }
                 }
+
+            } else {
+
+                System.out.println(Error.get("Invalid construct identifier \"" + constructToken + "\""));
+                return;
+
             }
-
         }
-    }
-
-    // print <feature-address>
-    // e.g., print mode
-    public void printTask(Context context) {
-
-        // Determine interpreter's object. Type or instance?
-        if (Address.isStructure(context.address)) {
-
-            String[] inputLineTokens = context.expression.split("[ ]+");
-
-            // Defaults
-            String featureToken = null;
-
-            // Determine address
-            if (inputLineTokens.length >= 2) {
-
-                // Determine address
-                featureToken = inputLineTokens[1];
-
-                // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
-
-                Structure structure = Address.getStructure(context.address).states.get(featureToken);
-
-                System.out.println(structure);
-
-//                if (state != null && state.types == Type.request("text")) {
-////                    System.out.println("" + ((String) state.object));
-//                    System.out.println("" + state);
-//                } else if (state != null && state.types == Type.request("text")) {
-//                    List contentList = (List) state.object;
-//                    for (int i = 0; i < contentList.size(); i++) {
-//                        // TODO: Possibly use Content object for values to pair types with object (like little "files with extensions")?
-////                        if (contentList.request(i).types == Type.request("text")) {
-////                            System.out.println("" + ((String) object.object));
-////                        }
-//                    }
-//                }
-
-//                if (object.types == Type.request("text")) {
-//                    System.out.println("" + ((String) object.object));
-//                } else if (object.types == Type.request("list")) {
-//                    List contentList = (List) object;
-//                    for (int i = 0; i < contentList.size(); i++) {
-//                        // TODO: Possibly use Content object for values to pair types with object (like little "files with extensions")?
-////                        if (contentList.request(i).types == Type.request("text")) {
-////                            System.out.println("" + ((String) object.object));
-////                        }
-//                    }
-//                }
-
-//                TypeId types = null;
-//                Type identity = null;
-//                if (TypeId.has(instanceTagToken)) {
-//                    types = Type.request(instanceTagToken);
-//                    if (Type.has(types)) {
-//                        identity = Type.request(types);
-//                    }
-//                }
-
-//                if (types != null && identity != null) {
-//    //                    Structure instance = new Structure(identity);
-//                    Structure instance = Structure.request(types);
-//
-//                    List<Structure> instanceList = Manager.request(Structure.class);
-//                    System.out.println("added instance of identity " + instance.types + " (" + instanceList.size() + " instances)");
-//                } else {
-//                    System.out.println("Error: No types or identity matches '" + instanceTagToken + "'");
-//                }
-            }
-
-            // Parse constraint
-//            String letParameters = object.expression.substring(object.expression.indexOf(":") + 1);
-//            String[] letParameterTokens = letParameters.split("[ ]*,[ ]*");
-
-//            System.out.println("let parameters (" + letParameterTokens.length + "): " + letParameters);
-//            for (int i = 0; i < letParameterTokens.length; i++) {
-//                System.out.println("\t" + letParameterTokens[i].trim());
-//            }
-
-        } else {
-            System.out.println(Color.ANSI_RED + "Error: Cannot set feature on type." + Color.ANSI_RESET);
-        }
-
     }
 
     // CUSTOM_CONSTRUCT CONTEXT:
