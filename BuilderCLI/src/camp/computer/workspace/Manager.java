@@ -85,7 +85,7 @@ public class Manager {
 //
 //            } else {
 //
-//                if (Expression.isStructure(expression)) {
+//                if (Expression.isAddress(expression)) {
 //
 //                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
 //                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'

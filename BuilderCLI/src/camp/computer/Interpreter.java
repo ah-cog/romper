@@ -53,32 +53,32 @@ public class Interpreter {
         workspace = new Workspace();
 
         // Instantiate primitive types
-        Type.request("type"); // TypeId.add("type");
-        Type.request("none");
-        Type.request("number");
-        Type.request("text");
-        Type.request("list");
+        Type.requestOrCreate("type"); // TypeId.add("type");
+        Type.requestOrCreate("none");
+        Type.requestOrCreate("number");
+        Type.requestOrCreate("text");
+        Type.requestOrCreate("list");
         // "any" isn't actually represented with a type, since it's a constraint, not a type. It's
         // encoded in the way Types and Structure are represented in memory.
 
-        // Instantiate primitive concepts
-        if (!Type.exists("none")) {
-            Type noneType = Type.request("none");
-        }
-
-        /*
-        if (!Type.exists(Type.request("number"))) {
-            Type numberConcept = Type.request(Type.request("number"));
-        }
-        */
-
-        if (!Type.exists("text")) {
-            Type textType = Type.request("text");
-        }
-
-        if (!Type.exists("list")) {
-            Type listType = Type.request("list");
-        }
+//        // Instantiate primitive concepts
+//        if (!Type.exists("none")) {
+//            Type noneType = Type.request("none");
+//        }
+//
+//        /*
+//        if (!Type.exists(Type.request("number"))) {
+//            Type numberConcept = Type.request(Type.request("number"));
+//        }
+//        */
+//
+//        if (!Type.exists("text")) {
+//            Type textType = Type.request("text");
+//        }
+//
+//        if (!Type.exists("list")) {
+//            Type listType = Type.request("list");
+//        }
     }
 
     public static Interpreter getInstance() {
@@ -133,32 +133,33 @@ public class Interpreter {
             // Save line in history
             context.expressionTimeline.add(inputLine);
 
-            if (context.expression.startsWith("run")) { // previously, "import file"
+            if (context.expression.startsWith("open")) { // previously, "import file"
                 importFileTask(context);
-            } else if (context.expression.startsWith("type")) {
+//            } else if (context.expression.startsWith("type")) {
+            } else if (context.expression.matches("^type[ ]+.*")) {
                 typeTask(context);
-            } else if (context.expression.startsWith("has")) { // TODO: has? !has
+            } else if (context.expression.matches("^has[ ]+.*")) { // TODO: has? !has
                 hasTask(context);
-            } else if (context.expression.startsWith("let")) { // TODO: let?, !list
+            } else if (context.expression.matches("^let[ ]+.*")) { // TODO: let?, !list
                 letTask(context);
-            } else if (context.expression.startsWith("structure") || context.expression.startsWith("struct")) {
-                structureTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
-            } else if (context.expression.startsWith("set")) {
+            } else if (context.expression.matches("^(structure|struct)[ ]+.*")) {
+                structureTask(context);
+            } else if (context.expression.matches("^set[ ]+.*")) {
                 setTask(context);
-            } else if (context.expression.startsWith("add")) {
+            } else if (context.expression.matches("^add[ ]+.*")) {
                 addTask(context);
-            } else if (context.expression.startsWith("remove") || context.expression.startsWith("rem") || context.expression.startsWith("rm")) {
+            } else if (context.expression.matches("^(remove|rem|rm)[ ]+.*")) {
                 removeTask(context);
-            } else if (context.expression.startsWith("link")) { // !link, link?
+            } else if (context.expression.matches("^(reference|ref)[ ]+.*")) { // !link, link?
                 // TODO: Callback to create a link in the active context/namespace.
-                linkTask(context);
-            } else if (context.expression.startsWith("list")) { // previously: ws, show, ls, locate
+                referenceTask(context);
+            } else if (context.expression.matches("^list[ ]*.*")) {
                 listTask(context);
-            } else if (context.expression.startsWith("browse")) {
+            } else if (context.expression.matches("^search[ ]+.*")) {
                 searchTask(context);
-            } else if (context.expression.startsWith("describe") || context.expression.startsWith("ds")) { // previously: list, index, inspect, view, ls, cite, db, browse
+            } else if (context.expression.matches("^(describe|ds)[ ]+.*")) {
                 describeTask(context);
-            } else if (context.expression.startsWith("context")) { // previously: list, index, inspect, view, ls, cite, db, browse
+            } else if (context.expression.matches("^context[ ]+.*")) {
                 privateContextTask(context);
 //            } else if (context.expression.startsWith("next")) {
 //                // TODO: Allow if previous command was "search" and more items exist (or say no more exist)
@@ -169,14 +170,15 @@ public class Interpreter {
             } else if (context.expression.equals("exit")) {
                 exitTask(context);
             } else {
-                // TODO: Validate string as valid construct instance address.
+
+                // Attempts to evaluate expression as a type, structure, or reference
 
                 if (context.references != null && context.references.containsKey(context.expression.split("[ ]+")[0])) { // REFACTOR
                     // e.g., "foo" -> port.id.9
 
                     String referenceKey = context.expression.split("[ ]+")[0];
                     Reference reference = context.references.get(referenceKey);
-                    Structure structure = (Structure) reference.object;
+//                    Structure structure = (Structure) reference.object;
 
                     // Update object
 //                    context.address = structure;
@@ -188,46 +190,46 @@ public class Interpreter {
 
                 } else if (Type.exists(context.expression.split("[ ]+")[0])) { // REFACTOR
 
-//                    structureTask(context); // "address" here is in the sense of "Hereafter, until otherwise specified, expressions address type or construct <X>."
+                    System.out.println("TODO: evaluate type");
 
-                } else if (Expression.isStructure(context.expression)) {
+                } else if (Expression.isAddress(context.expression)) {
 
                     String[] tokens = context.expression.split("\\.");
-                    String typeIdentifierToken = tokens[0];
-                    String addressTypeToken = tokens[1];
-                    String addressToken = tokens[2];
+                    String identifierToken = tokens[0];
+                    String addressExpressionToken = tokens[1];
+                    String[] addressExpressionTokens = addressExpressionToken.split("=");
+                    String addressTypeToken = addressExpressionTokens[0];
+                    String addressToken = addressExpressionTokens[1];
 
-                    if (Type.exists(typeIdentifierToken)) {
+                    if (Type.exists(identifierToken)) {
                         if (addressTypeToken.equals("id")) {
-                            long uid = Long.parseLong(addressToken);
-                            Address address = Manager.get(uid);
+                            long id = Long.parseLong(addressToken);
+                            Address address = Manager.get(id);
                             if (address == null) {
-                                System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
+                                System.out.println(Color.ANSI_RED + "Error: No data exists with id=" + id + Color.ANSI_RESET);
                             } else if (address.getClass() == Reference.class) {
                                 Reference reference = (Reference) address;
                                 Structure structure = (Structure) reference.object;
-//                                System.out.println("[FOUND] " + structure.type + ".id." + reference.uid + " -> " + structure.type + ".id." + structure.uid);
-                                System.out.println("(link) " + reference.toColorString());
+                                System.out.println(reference.toColorString());
 
                                 // Update object
-//                                currentContextType = ContextType.CONSTRUCT;
                                 context.address = reference;
                             } else if (address.getClass() == Structure.class) {
                                 Structure structure = (Structure) address;
-//                                System.out.println("[FOUND] " + structure.toColorString());
-                                System.out.println("(structure) " + structure.toColorString());
+                                System.out.println(structure.toColorString());
 
                                 // Update object
-//                                currentContextType = ContextType.CONSTRUCT;
                                 context.address = structure;
 
                             } else if (address.getClass() == Type.class) {
-                                System.out.println(Color.ANSI_RED + "Error: The UID is for a type." + Color.ANSI_RESET);
-//                                Type type = (Type) address;
-//                                System.out.println("Found " + type.types + " with UID " + uid);
+                                Type type = (Type) address;
+                                System.out.println(type.toColorString());
+
+                                // Update object
+                                context.address = type;
                             }
                         } else if (context.expression.contains("uuid:")) {
-
+                            // TODO:
                         }
                     }
                 } else {
@@ -578,8 +580,11 @@ public class Interpreter {
                             if (featureDomain == null) {
                                 featureDomain = new ArrayList<>();
                             }
-                            Structure state = Structure.request(constraintToken.trim());
-                            featureDomain.add(state);
+                            Structure structure = Structure.request(constraintToken);
+                            if (structure == null) {
+                                structure = Structure.create(constraintToken);
+                            }
+                            featureDomain.add(structure);
                         }
                     }
                 }
@@ -830,8 +835,67 @@ public class Interpreter {
 
     }
 
-    public void linkTask(Context context) {
+    // e.g.,
+    // link device ir-rangefinder-ttl
+    public void referenceTask(Context context) {
 
+        String[] inputLineTokens = context.expression.split("[ ]+");
+
+        // Defaults
+        String featureIdentifierToken = null;
+
+        // Determine address
+        if (inputLineTokens.length >= 3) {
+            featureIdentifierToken = inputLineTokens[1];
+            String referenceIdentifier = inputLineTokens[2];
+
+//            Type type = null;
+//            // TODO: Check if type identifier token is an EXACT type address. Otherwise, get indexed, or default.
+//            if (Type.exists(featureIdentifierToken)) {
+//                // TODO: Factor this into a function in Context (to automate tracking of most-recent type)
+//                type = context.conceptReferences.get(featureIdentifierToken);
+//            }
+//            Structure structure = null;
+            Reference reference = null;
+            // TODO: Check if structure identifier token is an EXACT structure address. Otherwise, get indexed, or default.
+//            if (Type.exists(featureIdentifierToken)) {
+                // TODO: Factor this into a function in Context (to automate tracking of most-recent structure)
+            // Resolve the referenced type or structure.
+            // 1. Check if the referenced entity is a reference (i.e., in the context).
+            Reference featureObject = context.references.get(featureIdentifierToken);
+            if (featureObject != null) {
+                if (Reference.isStructure(featureObject)) {
+                    Structure structure = (Structure) featureObject.object;
+                    reference = Reference.create(structure);
+                } else if (Reference.isType(featureObject)) {
+                    Type type = (Type) featureObject.object;
+                    reference = Reference.create(type);
+                }
+            }
+            // 2. Check if the referenced entity is a <em>type</em>
+            if (reference == null) {
+                Type type = Type.request(featureIdentifierToken);
+                if (type != null) {
+//                Type type = Type.request(featureIdentifierToken);
+                    reference = Reference.create(type);
+                }
+            }
+            // 3. Check if the referenced entity is a <em>structure</em>
+            if (reference == null) {
+                Structure structure = Structure.request(featureIdentifierToken);
+                if (structure != null) {
+//                Structure structure = Structure.request(featureIdentifierToken);
+                    reference = Reference.create(structure);
+                }
+            }
+
+            // Create the reference and add it to the context
+//            Reference reference = Reference.create(structure);
+            context.references.put(referenceIdentifier, reference);
+
+            // Feedback
+            System.out.println(Color.ANSI_YELLOW + referenceIdentifier + Color.ANSI_RESET + " -> " + reference.toColorString());
+        }
     }
 
     // e.g.,
@@ -978,7 +1042,7 @@ public class Interpreter {
 
                     // TODO: Search for list!
                     Structure replacementFeatureStructure = Structure.request(requestedConstructList);
-                    System.out.println(replacementFeatureStructure);
+                    System.out.println(replacementFeatureStructure.toColorString());
 
                     // TODO: Search for Structure with new list...
                     Structure replacementStructure = Structure.request(currentStructure, featureIdentifier, replacementFeatureStructure);
@@ -993,12 +1057,12 @@ public class Interpreter {
                         }
                         currentStructure = (Structure) ((Reference) context.address).object;
 //                    System.out.println("REPLACEMENT: " + replacementStructure);
-                        System.out.println("reference " + currentStructure.type.toColorString() + " (id: " + context.address.uid + ") -> construct " + currentStructure.type.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
+//                        System.out.println("reference " + currentStructure.type.toColorString() + " (id: " + context.address.uid + ") -> construct " + currentStructure.type.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
+                        System.out.println(currentStructure.type.identifier + ".id=" + context.address.uid + " -> " + currentStructure.type.identifier + ".id=" + currentStructure.uid);
                     }
 
                 } else {
                     System.out.println(Color.ANSI_RED + "Error: Cannot assign non-list to a list." + Color.ANSI_RESET);
-
                 }
 
 
@@ -1066,17 +1130,20 @@ public class Interpreter {
             // String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
             String typeToken = context.expression.substring(context.expression.indexOf(" ") + 1);
 
-                if (Expression.isStructure(typeToken)) {
+                if (Expression.isAddress(typeToken)) {
 
                     // String[] tokens = context.expression.split("\\.");
-                    String[] tokens = typeToken.split("\\.");
-                    String typeIdentifierToken = tokens[0];
-                    String addressTypeToken = tokens[1];
-                    String addressToken = tokens[2];
+//                    String[] tokens = typeToken.split("\\.");
+//                    String typeIdentifierToken = tokens[0];
+//                    String addressTypeToken = tokens[1];
+//                    String addressToken = tokens[2];
+                    String[] expressionTokens = typeToken.split("\\.");
+                    String typeIdentifierToken = expressionTokens[0]; // e.g., "port"
+                    String identifierTypeToken = expressionTokens[1].split("=")[0]; // e.g., "id"
+                    long uid = Long.parseLong(expressionTokens[1].split("=")[1]); // e.g., "9"
 
-                    if (addressTypeToken.equals("id")) {
+                    if (identifierTypeToken.equals("id")) {
                         Structure structure = null;
-                        long uid = Long.parseLong(addressToken.trim());
                         Address address = Manager.get(uid);
                         if (address == null) {
                             System.out.println(Error.get("No type with UID " + uid));
@@ -1094,16 +1161,17 @@ public class Interpreter {
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                         }
 
-                        if (structure != null && structure.type== Type.request(typeIdentifierToken)) {
-                            if (structure.type== Type.request("type")) {
+//                        if (structure != null && structure.type== Type.request(typeIdentifierToken)) {
+                        if (structure != null && structure.type.identifier.equals(typeIdentifierToken)) {
+                            if (structure.type == Type.request("type")) {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primistructure");
-                            } else if (structure.type== Type.request("none")) {
+                            } else if (structure.type == Type.request("none")) {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " default primitive structure that represents absence of any data structure");
-                            } else if (structure.type== Type.request("number")) {
+                            } else if (structure.type == Type.request("number")) {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
-                            } else if (structure.type== Type.request("text")) {
+                            } else if (structure.type == Type.request("text")) {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a sequence of characters");
-                            } else if (structure.type== Type.request("list")) {
+                            } else if (structure.type == Type.request("list")) {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
                             } else {
 
@@ -1127,7 +1195,7 @@ public class Interpreter {
 
                             }
                         }
-                    } else if (addressToken.equals("uuid")) {
+                    } else if (identifierTypeToken.equals("uuid")) {
 
                     } else {
 
@@ -1148,6 +1216,10 @@ public class Interpreter {
 //                        System.out.println(constructList.request(i).toColorString());
 ////                    System.out.println("(id: " + constructList.request(i).uid + ") " + Application.ANSI_GREEN + constructList.request(i).classType + Application.ANSI_RESET + " (uuid: " + constructList.request(i).uuid + ")");
 //                    }
+                    String[] expressionTokens = typeToken.split("\\.");
+                    String typeIdentifierToken = expressionTokens[0]; // e.g., "port"
+                    String identifierTypeToken = expressionTokens[1].split("=")[0]; // e.g., "id"
+                    long uid = Long.parseLong(expressionTokens[1].split("=")[1]); // e.g., "9"
 
                         Type typeId = Type.request(typeToken);
 
@@ -1227,7 +1299,7 @@ public class Interpreter {
 
             String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
 
-            if (Expression.isStructure(typeToken)) {
+            if (Expression.isAddress(typeToken)) {
 
 //                String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
 //                String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1377,7 +1449,7 @@ public class Interpreter {
 
             String typeToken = inputLineTokens[1]; // "port" or "port (id: 3)"
 
-            if (Expression.isStructure(typeToken)) {
+            if (Expression.isAddress(typeToken)) {
 
                 String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
                 String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1542,7 +1614,7 @@ public class Interpreter {
 
                     String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
 
-                    if (Expression.isStructure(typeToken)) {
+                    if (Expression.isAddress(typeToken)) {
 
                         String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
                         String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1614,27 +1686,30 @@ public class Interpreter {
 
                     } else if (Type.exists(typeToken)) {
 
-                        // TODO: Print Type
-//                System.out.println("VIEW CONCEPT");
-//                System.out.println();
-
-//                        List<Structure> structureList = Manager.getStructureList(Type.request(typeToken));
                         List<Structure> structureList = Structure.list(Type.request(typeToken));
                         for (int i = 0; i < structureList.size(); i++) {
                             System.out.println(structureList.get(i).toColorString());
-//                    System.out.println("(id: " + structureList.request(i).uid + ") " + Application.ANSI_GREEN + structureList.request(i).classType + Application.ANSI_RESET + " (uuid: " + structureList.request(i).uuid + ")");
                         }
+
                     }
                 }
 
-            } else if (constructToken.equals("link")) {
+            } else if (constructToken.matches("^(reference|ref)$")) {
 
                 if (inputLineTokens.length == 2) {
                     // List context references
                     for (String referenceKey : context.references.keySet()) {
                         Reference reference = context.references.get(referenceKey);
                         // Structure structure = (Structure) reference.object;
-                        System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " >> " + reference.toColorString());
+                        System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -> " + reference.toColorString());
+                    }
+
+                    // Type References
+                    // TODO: Update this so it actually uses references to types!
+                    for (String referenceKey : context.conceptReferences.keySet()) {
+                        Type reference = context.conceptReferences.get(referenceKey);
+                        // Structure structure = (Structure) reference.object;
+                        System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -> " + reference.toColorString());
                     }
 //                    // List anonymous references
 //                    List<Reference> referenceList = Manager.get(Reference.class);
@@ -1648,7 +1723,7 @@ public class Interpreter {
 
                     String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
 
-                    if (Expression.isStructure(typeToken)) {
+                    if (Expression.isAddress(typeToken)) {
 
                         String typeIdentifierToken = typeToken.substring(0, typeToken.indexOf("(")).trim(); // text before '('
                         String addressTypeToken = typeToken.substring(typeToken.indexOf("(") + 1, typeToken.indexOf(":")).trim(); // text between '(' and ':'
@@ -1927,15 +2002,24 @@ public class Interpreter {
     // <REFACTOR>
     // TODO: Create "Command" class with command (1) keywords and (2) task to handle command.
 
+    /**
+     * Imports the resource at the specified URI.
+     * Reference:
+     * - https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+     * @param context
+     */
     public void importFileTask(Context context) {
         // TODO: Change argument to "Context object" (temporary cache/manager)
 
         // TODO: Lookup object.clone("expression")
         String[] inputLineTokens = context.expression.split("[ ]+");
 
-        String inputFilePath = inputLineTokens[2];
+        String resourceUri = inputLineTokens[1];
 
-        new LoadBuildFileTask().execute(inputFilePath);
+        String uriScheme = resourceUri.split(":")[0];
+        String uriPath = resourceUri.split(":")[1];
+
+        new LoadBuildFileTask().execute(uriPath);
 
     }
 

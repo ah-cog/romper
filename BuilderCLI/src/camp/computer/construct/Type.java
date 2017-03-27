@@ -203,20 +203,36 @@ public class Type extends Address {
             return Type.request("text");
         } else if (expression.contains(",")) { // TODO: Update with regex match
             return Type.request("list");
-        } else if (Expression.isStructure(expression)) {
+        }
+//        } else
+
+        if (Expression.isAddress(expression)) {
             // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
-            String typeIdentifier = expression.split("\\.")[0];
+            String[] expressionTokens = expression.split("\\.");
+            String typeToken = expressionTokens[0];
+            long id = Long.parseLong(expressionTokens[1].split("=")[1]);
+
+            // TODO: Support UUID as well as UID.
             typeList = Manager.get(Type.class);
             for (int i = 0; i < typeList.size(); i++) {
-                if (typeList.get(i).identifier.equals(typeIdentifier)
-                        && typeList.get(i).features != null) {
+                if (typeList.get(i).identifier.equals(typeToken) && typeList.get(i).uid == id) {
                     return typeList.get(i);
                 }
             }
         }
 
+        // TODO: Separate request and create! Potentially add a requestOrCreate function! Yeah do that.
 //        return create(address);
-        return create(expression);
+//        return create(expression);
+        return null;
+    }
+
+    public static Type requestOrCreate(String expression) {
+        Type type = Type.request(expression);
+        if (type == null) {
+            type = Type.create(expression);
+        }
+        return type;
     }
 
     /**
@@ -446,6 +462,7 @@ public class Type extends Address {
      * @return True
      */
     public static boolean exists(String identifier) {
+        // TODO: Verify that this is correct...
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(identifier)
@@ -458,11 +475,11 @@ public class Type extends Address {
 
     @Override
     public String toString() {
-        return identifier + ".id." + uid;
+        return identifier + ".id=" + uid;
     }
 
     public String toColorString() {
-        return Color.ANSI_BLUE + Color.ANSI_BOLD_ON + identifier + Color.ANSI_RESET + ".id." + uid;
+        return Color.ANSI_BLUE + Color.ANSI_BOLD_ON + identifier + Color.ANSI_RESET + ".id=" + uid;
     }
 
 }

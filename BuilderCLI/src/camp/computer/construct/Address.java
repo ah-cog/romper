@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class Address {
 
-    public long uid = -1L;
+    public long uid = -1L; // Manager_v1.elementCounter++; // manager/cache UID
 
     public UUID uuid = UUID.randomUUID(); // universal address (unique among all in central repo)
 

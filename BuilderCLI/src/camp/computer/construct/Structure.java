@@ -18,21 +18,16 @@ public class Structure extends Address {
     // TODO:      Double for primitive "number" types;
     // TODO:      null for primitive "none" types
 
-    // <CONCEPT>
     public Type type = null; // The {@code Structure} used to create this Structure.
 
-//    public HashMap<String, Feature> features = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
-    // TODO: (Replace ^ with this, based on TODO block above:) Bytes storing actual object and object types
-
     // null for "none"
-    // List for "list" (allocates ArrayList<Object>)
     // String for "text"
     // Double for "number"
     // [DELETE] Structure for non-primitive types
+    // List for "list" (allocates ArrayList<Object>)
     // Map for non-primitive construct (allocates HashMap or TreeMap)
     public Class objectType = null;
     public Object object = null;
-    // </CONCEPT>
 
     // <TODO>
     // Update Tuple class to extend List. Rename to List (or Sequence)!
@@ -71,8 +66,6 @@ public class Structure extends Address {
 
     private Structure(Type type) {
 
-//        this.type2 = Type.request(type.identifier);
-
         this.type = type;
 
         // Allocate default object based on specified classType
@@ -81,7 +74,7 @@ public class Structure extends Address {
             this.object = null;
         } else if (this.type.identifier.equals("number")) {
             this.objectType = Double.class;
-            this.object = 0; // TODO: Default to null?
+            this.object = 0; // TODO: Default to null (i.e., "none" structure)?
         } else if (this.type.identifier.equals("text")) {
             this.objectType = String.class;
             this.object = ""; // TODO: Default to null?
@@ -92,21 +85,13 @@ public class Structure extends Address {
             this.objectType = Map.class;
             this.object = new HashMap<String, Feature>();
 
-            // Create Content for each Feature
+            // Initialize each {@code Feature} to the default value of <em>none</em>.
             HashMap<String, Feature> features = (HashMap<String, Feature>) this.object;
             for (Feature feature : type.features.values()) {
                 features.put(feature.identifier, feature);
-                Type type2 = Type.request("none");
-                Structure structure = Structure.create(type2);
+                Type noneType = Type.request("none");
+                Structure structure = Structure.create(noneType);
                 states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
-//                states.put(feature.address, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
-//                if (feature.types != null) { // if (feature.types.size() == 1) {
-//                    // Get default feature structure state
-//                    // states.put(feature.address, Structure.request(feature.types.request(0).address)); // Initialize with only available types if there's only one available
-//                    states.put(feature.address, Structure.create(Type.request("none"))); // Initialize with only available types if there's only one available
-//                } else {
-//                    states.put(feature.address, null); // Default to "any" types by setting null
-//                }
             }
         }
     }
@@ -202,7 +187,20 @@ public class Structure extends Address {
 //        return construct;
 //    }
 
-    //    public static Structure REFACTOR_getList(Structure currentConstruct, String featureToReplace, Structure featureConstructReplacement) {
+    public static Structure create(String text) {
+
+        if (Expression.isText(text)) {
+            Type type = Type.request("text");
+            Structure newTextStructure = new Structure(type);
+
+            newTextStructure.object = text.substring(1, text.length() - 1);
+
+            long uid = Manager.add(newTextStructure);
+            return newTextStructure;
+        }
+        return null;
+    }
+
     public static Structure create(List list) { // previously, REFACTOR_getList(...)
 
         Type type = Type.request("list");
@@ -260,11 +258,15 @@ public class Structure extends Address {
      *
      * 'foo'
      * text('foo')
+     * text.'foo'
      * text(id:34)
+     * text.id=34
      *
      * 66
      * number(66)
+     * number(66)
      * number(id:12)
+     * number.id=12
      *
      * text(id:34), 'foo', 'bar'
      * list(text(id:34), 'foo', 'bar')
@@ -272,23 +274,21 @@ public class Structure extends Address {
      *
      * port(id:99)
      */
-    public static Structure request(String expression) { // previously, getPersistentConstruct
-        Type constructTypeId = Type.request(expression);
-        if (constructTypeId != null) {
+    public static Structure request2(String expression) { // previously, getPersistentConstruct
+        Type structureType = Type.request(expression);
+        if (structureType != null) {
 
-            if (constructTypeId == Type.request("none")) {
+            if (structureType == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
-                List<Address> identiferList = Manager.get();
-                for (int i = 0; i < identiferList.size(); i++) {
-                    if (identiferList.get(i).getClass() == Structure.class) {
-                        Structure structure = (Structure) identiferList.get(i);
-                        if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
-                            return structure;
-                        }
+                List<Structure> structureList = Manager.get(Structure.class);
+                for (int i = 0; i < structureList.size(); i++) {
+                    Structure structure = structureList.get(i);
+                    if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
+                        return structure;
                     }
                 }
                 // State wasn't found, so create a new one and return it
-                Type type = Type.request(constructTypeId.identifier);
+                Type type = Type.request(structureType.identifier);
                 return Structure.create(type);
 //                return Structure.create(constructTypeId);
                 /*
@@ -298,42 +298,40 @@ public class Structure extends Address {
                 }
                 return construct;
                 */
-            } else if (constructTypeId == Type.request("text")) {
+            } else if (structureType == Type.request("text")) {
                 // e.g.,
                 // [ ] 'foo'
                 // [ ] text('foo')
                 // [ ] text(id:234)
 
                 // Look for existing (persistent) state for the given expression
-                List<Address> identiferList = Manager.get();
-                for (int i = 0; i < identiferList.size(); i++) {
-                    if (identiferList.get(i).getClass() == Structure.class) {
-                        Structure structure = (Structure) identiferList.get(i);
-                        String textContent = "";
-                        if (expression.startsWith("'") && expression.endsWith("'")) {
-                            textContent = expression.substring(1, expression.length() - 1);
-                        }
-                        if (structure.type == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
+                List<Structure> structureList = Manager.get(Structure.class);
+                for (int i = 0; i < structureList.size(); i++) {
+                    Structure structure = structureList.get(i);
+                    String textContent = "";
+                    if (expression.startsWith("'") && expression.endsWith("'")) {
+                        textContent = expression.substring(1, expression.length() - 1);
+                    }
+                    if (structure.type == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
 //                        if (structure.classType == Type.request("text") && structure.objectType == String.class && ((textContent == null && structure.object == null) || textContent.equals(structure.object))) {
-                            return structure;
-                        }
+                        return structure;
                     }
                 }
                 // State wasn't found, so create a new one and return it
                 // TODO: Store in the database
                 Structure structure = null;
                 if (expression.startsWith("'") && expression.endsWith("'")) {
-                    Type typeType = Type.request(constructTypeId.identifier);
+                    Type typeType = Type.request(structureType.identifier);
                     structure = new Structure(typeType);
                     long uid = Manager.add(structure);
                     structure.object = expression.substring(1, expression.length() - 1);
                 } else {
-                    Type type = Type.request(constructTypeId.identifier);
+                    Type type = Type.request(structureType.identifier);
                     structure = Structure.create(type);
                     structure.object = "";
                 }
                 return structure;
-            } else if (constructTypeId == Type.request("list")) {
+            } else if (structureType == Type.request("list")) {
 
                 // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
                 // TODO: Also support looking up by construct permutation contained in list?
@@ -352,7 +350,7 @@ public class Structure extends Address {
 
             } else {
 
-                if (Expression.isStructure(expression)) {
+                if (Expression.isAddress(expression)) {
 
 //                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
 //                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
@@ -408,7 +406,7 @@ public class Structure extends Address {
                     // Create new State
                     // TODO: Add new state to persistent store
 
-                    Type typeType = Type.request(constructTypeId.identifier);
+                    Type typeType = Type.request(structureType.identifier);
                     structure = new Structure(typeType);
                     long uid = Manager.add(structure);
 //                    structure.object = expression.substring(1, expression.length() - 1);
@@ -428,6 +426,277 @@ public class Structure extends Address {
 //                    }
                 }
                 return structure;
+            }
+        }
+
+        return null;
+    }
+
+    // e.g.,
+    // none
+    // none.id=3
+    // 'foo'
+    // text.id=34
+    // port.id=44
+    // port.id=23, port.id=44, port.id=12
+    //
+    // text => default text structure
+    // list => default list structure
+    // port => default port structure
+
+    // TODO: Refactor to separate request, create, requestOrCreate
+    public static Structure request(String expression) { // previously, getPersistentConstruct
+
+        // Search for <em>address</em> (default structure or structure address).
+        List<Structure> structureList = Manager.get(Structure.class);
+        for (int i = 0; i < structureList.size(); i++) {
+            if (structureList.get(i).type.identifier.equals(expression)
+                    && structureList.get(i).type.features == null) {
+                // Return the <em>default</em> {@code Type} for the address.
+                return structureList.get(i);
+            }
+        }
+
+        if (Expression.isAddress(expression)) {
+
+//                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
+//                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
+//                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+//                    String[] tokens = expression.split("\\.");
+//                    String typeIdentifierToken = tokens[0];
+//                    String addressTypeToken = tokens[1];
+//                    String addressToken = tokens[2];
+                    // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
+                    String[] expressionTokens = expression.split("\\.");
+                    String typeToken = expressionTokens[0];
+                    long id = Long.parseLong(expressionTokens[1].split("=")[1]);
+
+//                    long uid = Long.parseLong(addressToken.trim());
+
+                    Address address = Manager.get(id);
+                    if (address != null) {
+                        if (address.getClass() == Structure.class) {
+                            // TODO: Check that type matches type identifier!
+                            return (Structure) address;
+                        } else {
+                            return null; // Return {@code null} if class isn't Structure.
+                        }
+                    }
+
+//                    if (address != null) {
+//                        return (Structure) address;
+//                    }
+
+
+//                    // Look for existing (persistent) state for the given expression
+//                    if (address != null) {
+//                        List<Address> identiferList = Manager.request();
+//                        for (int i = 0; i < identiferList.size(); i++) {
+//                            if (identiferList.request(i).getClass() == Structure.class) {
+//                                Structure structure = (Structure) identiferList.request(i);
+////                            String textContent = expression.substring(1, expression.length() - 1);
+//                                // TODO: Also check TypeId?
+//                                if (structure.objectType == Map.class && structure.object != null) {
+////                                        && structure.object == address) {
+////                                        && structure.object == address) {
+//                                    for (Structure featureConstruct : structure.states.values()) {
+//                                        if (features.containsValue(address)) { // TODO: iterate through features to see if contains feature...
+//                                            return structure;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+
+                }
+
+//                // Create new structure since a persistent one wasn't found for the expression
+//                Structure structure = null;
+//                if (structure == null) {
+//
+//                    // Create new State
+//                    // TODO: Add new state to persistent store
+//
+//                    Type typeType = Type.request(type.identifier);
+//                    structure = new Structure(typeType);
+//                    long uid = Manager.add(structure);
+////                    structure.object = expression.substring(1, expression.length() - 1);
+//
+////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
+////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
+////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+////
+////                    long uid = Long.parseLong(addressToken.trim());
+////                    Address address = Manager.request(uid);
+////                    if (address != null) {
+////                        structure = Structure.request(constructTypeId);
+////                        structure.object = address;
+////                        return structure;
+////                    } else {
+////                        System.out.println(Error.request("Error: " + expression + " does not exist."));
+////                    }
+//                }
+//                return structure;
+
+        Type type = Type.request(expression);
+        if (type != null) {
+
+            if (type == Type.request("none")) {
+                // Look for existing (persistent) state for the given expression
+//                List<Structure> structureList = Manager.get(Structure.class);
+                structureList = Manager.get(Structure.class);
+                for (int i = 0; i < structureList.size(); i++) {
+                    Structure structure = structureList.get(i);
+                    if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
+                        return structure;
+                    }
+                }
+                // State wasn't found, so create a new one and return it
+                Type type2 = Type.request(type.identifier);
+                return Structure.create(type2);
+//                return Structure.create(constructTypeId);
+                /*
+                if (construct == null) {
+                    // TODO: Store in the database
+                    construct = Structure.create(constructTypeId);
+                }
+                return construct;
+                */
+            } else if (type == Type.request("text")) {
+                // e.g.,
+                // [ ] 'foo'
+                // [ ] text('foo')
+                // [ ] text(id:234)
+
+                // Look for existing (persistent) state for the given expression
+//                List<Structure> structureList = Manager.get(Structure.class);
+                structureList = Manager.get(Structure.class);
+                for (int i = 0; i < structureList.size(); i++) {
+                    Structure structure = structureList.get(i);
+                    String textContent = "";
+                    if (expression.startsWith("'") && expression.endsWith("'")) {
+                        textContent = expression.substring(1, expression.length() - 1);
+                    }
+                    if (structure.type == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
+//                        if (structure.classType == Type.request("text") && structure.objectType == String.class && ((textContent == null && structure.object == null) || textContent.equals(structure.object))) {
+                        return structure;
+                    }
+                }
+                // State wasn't found, so create a new one and return it
+                // TODO: Store in the database
+                Structure structure = null;
+                if (expression.startsWith("'") && expression.endsWith("'")) {
+                    Type typeType = Type.request(type.identifier);
+                    structure = new Structure(typeType);
+                    long uid = Manager.add(structure);
+                    structure.object = expression.substring(1, expression.length() - 1);
+                } else {
+                    Type type2 = Type.request(type.identifier);
+                    structure = Structure.create(type2);
+                    structure.object = "";
+                }
+                return structure;
+            } else if (type == Type.request("list")) {
+
+                // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
+                // TODO: Also support looking up by construct permutation contained in list?
+
+                // Look for existing (persistent) state for the given expression
+                List<Address> identiferList = Manager.get();
+                for (int i = 0; i < identiferList.size(); i++) {
+                    if (identiferList.get(i).getClass() == Structure.class) {
+                        Structure structure = (Structure) identiferList.get(i);
+                        if (structure.type == Type.request("list") && structure.objectType == List.class && structure.object != null) {
+                            // TODO: Look for permutation of a list (matching list of constructs)?
+                            return structure;
+                        }
+                    }
+                }
+
+            } else {
+
+//                if (Expression.isAddress(expression)) {
+//
+////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
+////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
+////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+////                    String[] tokens = expression.split("\\.");
+////                    String typeIdentifierToken = tokens[0];
+////                    String addressTypeToken = tokens[1];
+////                    String addressToken = tokens[2];
+//                    // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
+//                    String[] expressionTokens = expression.split("\\.");
+//                    String typeToken = expressionTokens[0];
+//                    long id = Long.parseLong(expressionTokens[1].split("=")[1]);
+//
+////                    long uid = Long.parseLong(addressToken.trim());
+//
+//                    Address address = Manager.get(id);
+//                    if (address != null) {
+//                        if (address.getClass() == Structure.class) {
+//                            // TODO: Check that type matches type identifier!
+//                            return (Structure) address;
+//                        } else {
+//                            return null; // Return {@code null} if class isn't Structure.
+//                        }
+//                    }
+//
+////                    if (address != null) {
+////                        return (Structure) address;
+////                    }
+//
+//
+////                    // Look for existing (persistent) state for the given expression
+////                    if (address != null) {
+////                        List<Address> identiferList = Manager.request();
+////                        for (int i = 0; i < identiferList.size(); i++) {
+////                            if (identiferList.request(i).getClass() == Structure.class) {
+////                                Structure structure = (Structure) identiferList.request(i);
+//////                            String textContent = expression.substring(1, expression.length() - 1);
+////                                // TODO: Also check TypeId?
+////                                if (structure.objectType == Map.class && structure.object != null) {
+//////                                        && structure.object == address) {
+//////                                        && structure.object == address) {
+////                                    for (Structure featureConstruct : structure.states.values()) {
+////                                        if (features.containsValue(address)) { // TODO: iterate through features to see if contains feature...
+////                                            return structure;
+////                                        }
+////                                    }
+////                                }
+////                            }
+////                        }
+////                    }
+//
+//                }
+//
+//                // Create new structure since a persistent one wasn't found for the expression
+//                Structure structure = null;
+//                if (structure == null) {
+//
+//                    // Create new State
+//                    // TODO: Add new state to persistent store
+//
+//                    Type typeType = Type.request(type.identifier);
+//                    structure = new Structure(typeType);
+//                    long uid = Manager.add(structure);
+////                    structure.object = expression.substring(1, expression.length() - 1);
+//
+////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
+////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
+////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
+////
+////                    long uid = Long.parseLong(addressToken.trim());
+////                    Address address = Manager.request(uid);
+////                    if (address != null) {
+////                        structure = Structure.request(constructTypeId);
+////                        structure.object = address;
+////                        return structure;
+////                    } else {
+////                        System.out.println(Error.request("Error: " + expression + " does not exist."));
+////                    }
+//                }
+//                return structure;
             }
         }
 
@@ -984,7 +1253,7 @@ public class Structure extends Address {
     public String toString() {
         if (type == Type.request("text")) {
             String content = (String) this.object;
-            return "'" + content + "' " + type + ".id." + uid + "";
+            return "'" + content + "' " + type + ".id=" + uid + "";
         } else if (type == Type.request("list")) {
             String content = "";
             List list = (List) this.object;
@@ -994,9 +1263,9 @@ public class Structure extends Address {
                     content += ", ";
                 }
             }
-            return type + ".id." + uid + " : " + content;
+            return type.identifier + ".id=" + uid + " : " + content;
         } else {
-            return type + ".id." + uid;
+            return type.identifier + ".id=" + uid;
         }
     }
 
@@ -1004,9 +1273,9 @@ public class Structure extends Address {
         if (type == Type.request("text")) {
             String content = (String) this.object;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
-            return  "'" + content + "' " + Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
+            return  "'" + content + "' " + Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + ".id=" + uid;
         } else {
-            return Color.ANSI_BLUE + type + Color.ANSI_RESET + ".id." + uid;
+            return Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + ".id=" + uid;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";
         }
     }

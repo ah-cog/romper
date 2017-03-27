@@ -8,13 +8,13 @@ type port
 #has mode text 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i2c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
 #has direction text 'input', 'output', 'bidirectional'
 #has voltage text 'common', 'ttl', 'cmos'
-has mode # any structure of any type or any type (unconstrained reference)
-has mode text # any text
-has mode 'foo' # constant
+#has mode # any structure of any type or any type (unconstrained reference)
+#has mode text # any text
+#has mode 'foo' # constant
 # has mode 'true', 'false' # binary
-#has mode text : 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i2c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
-#has direction text : 'input', 'output', 'bidirectional'
-#has voltage text : 'common', 'ttl', 'cmos'
+has mode text : 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i2c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
+has direction text : 'input', 'output', 'bidirectional'
+has voltage text : 'common', 'ttl', 'cmos'
 # TODO: add configurations
 #let mode:none; direction:none; voltage:none # Automatically infer this?
 #let mode:'digital'; direction:'input','output','bidirectional'; voltage:'ttl','cmos'
@@ -32,13 +32,13 @@ has code text
 type task
 has script
 
-type computer # process
+type processor # process
 has task list # sequence
 
 type project
 has device list
 has path list
-has computer list
+has processor list
 
 # TODO: user
 # TODO: item

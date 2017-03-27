@@ -2,23 +2,27 @@
 # Model: IR Rangefinder
 # --------------------------------------------------------------------------------------------------
 
-port port-1
+structure port
 set mode 'power'
 set direction 'input'
 set voltage 'ttl'
+reference port port-1
 
-port port-2
+structure port
 set mode 'power'
 set direction 'output'
 set voltage 'common'
+reference port port-2
 
-port port-3
+structure port
 set mode 'analog'
 set direction 'output'
 set voltage 'ttl'
+reference port port-3
 
-device ir-rangefinder-ttl
+structure device
 add port port-1
 add port port-2
 add port port-3
+reference ir-rangefinder-ttl
 

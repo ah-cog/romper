@@ -1,5 +1,6 @@
 package camp.computer.construct;
 
+import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
 public class Reference extends Address {
@@ -17,65 +18,26 @@ public class Reference extends Address {
     private Reference() {
     }
 
-    public static Reference get(long id, long revisionUid) {
-
-        Reference reference = new Reference();
-
-        // TODO: Loads (and instantiates immediately?) the specified reference from the persistent store.
-
-        return reference;
+    public static Reference create(Object object) {
+        if (object.getClass() != Type.class && object.getClass() != Structure.class) {
+            System.err.println(Error.get("Can't create reference for " + object.getClass()));
+            return null;
+        } else {
+            Reference reference = new Reference();
+            // TODO: Load (most recent revision) of default type or structure for the specified type.
+            reference.classType = object.getClass();
+            reference.object = object;
+            long uid = Manager.add(reference);
+            return reference;
+        }
     }
-
-//    public static Reference getReference(TypeId type) {
-//
-//        Reference reference = new Reference();
-//
-//        // TODO: Load (most recent revision) of default type or construct for the specified type.
-//
-//        return reference;
-//
-//    }
-
-    public static Reference create(Structure structure) {
-
-        Reference reference = new Reference();
-
-        // TODO: Load (most recent revision) of default type or structure for the specified type.
-        reference.classType = Structure.class;
-        reference.object = structure;
-
-        long uid = Manager.add(reference);
-
-        return reference;
-
-    }
-
-//    public static Reference getReference(TypeId type, long id) {
-//
-//        Reference reference = new Reference();
-//
-//        // TODO: Load the specified version of the type or construct for the specified type.
-//
-//        return reference;
-//
-//    }
-
-//    public static Reference getReference(TypeId type, long id, long revisionUid) {
-//
-//        Reference reference = new Reference();
-//
-//        // TODO: Load specified type or construct from cache (or persistent store).
-//
-//        return reference;
-//    }
-
-//    public static Reference updateChild(Reference reference, ) {
-//
-//    }
 
     public String toString() {
         if (this.object != null) {
-            if (this.object.getClass() == Structure.class) {
+            if (this.object.getClass() == Type.class) {
+                Type type = (Type) this.object;
+                return "reference " + type.identifier + ".id=" + uid + " -> structure " + type.identifier + ".id=" + type.uid;
+            } else if (this.object.getClass() == Structure.class) {
                 Structure structure = (Structure) this.object;
                 return "reference " + structure.type.identifier + ".id." + uid + " -> structure " + structure.type.identifier + ".id." + structure.uid;
             }
@@ -85,9 +47,13 @@ public class Reference extends Address {
 
     public String toColorString() {
         if (this.object != null) {
-            if (this.object.getClass() == Structure.class) {
+            if (this.object.getClass() == Type.class) {
+                Type type = (Type) this.object;
+                return "" + type.identifier + ".id=" + uid + " -> " + type.identifier + ".id=" + type.uid;
+            } else if (this.object.getClass() == Structure.class) {
                 Structure structure = (Structure) this.object;
-                return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
+                // return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
+                return Color.ANSI_YELLOW + structure.type.identifier + Color.ANSI_RESET + ".id=" + uid + " -> " + Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + ".id=" + structure.uid;
             }
         }
         return null; // Reference points to "any"

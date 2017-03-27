@@ -4,6 +4,9 @@ import camp.computer.Context;
 
 public class Expression {
 
+    public static String REGEX_ADDRESS_EXPRESSION = "[A-Za-z]+\\.(id|uuid)=[0-9]+";
+    public static String REGEX_TEXT_EXPRESSION = "^'[A-Za-z0-9 -_]*'$";
+
     public String expression = null;
 
     private Expression(String expression) {
@@ -43,14 +46,19 @@ public class Expression {
     }
 
     /**
-     * Matches expressions identifying constructs such as "port.id.34" and reasonable
+     * Matches expressions identifying constructs such as "port.id=34" and reasonable
      * equivalent expressions.
      *
      * @param expression
      * @return
      */
-    public static boolean isStructure(String expression) {
-//        return expression.matches("([a-z]+)[ ]*\\([ ]*(id|uid|uuid)[ ]*:[ ]*[0-9]+[ ]*\\)");
-        return expression.matches("[A-Za-z]+\\.(id|uuid)\\.[0-9]+");
+    public static boolean isAddress(String expression) {
+        // return expression.matches("([a-z]+)[ ]*\\([ ]*(id|uid|uuid)[ ]*:[ ]*[0-9]+[ ]*\\)");
+        // return expression.matches("[A-Za-z]+\\.(id|uuid)\\.[0-9]+");
+        return expression.matches(REGEX_ADDRESS_EXPRESSION);
+    }
+
+    public static boolean isText(String expression) {
+        return expression.matches(REGEX_TEXT_EXPRESSION);
     }
 }

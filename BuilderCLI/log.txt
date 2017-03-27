@@ -1,43 +1,5 @@
 	no feature match > 
 created feature [33m[1mmode[0m
 	no type match > 
-created type port.id.7
-port -> port.id.5
-	no feature match > 
-created feature [33m[1mport[0m
-	no type match > 
-created type device.id.10
-device -> device.id.8
-	no type match > 
-created type path.id.12
-path -> path.id.11
-	no feature match > 
-created feature [33m[1mcode[0m
-	no type match > 
-created type script.id.15
-script -> script.id.13
-	no feature match > 
-created feature [33m[1mscript[0m
-	no type match > 
-created type task.id.18
-task -> task.id.16
-	no feature match > 
-created feature [33m[1mtask[0m
-	no type match > 
-created type computer.id.21
-computer -> computer.id.19
-	no feature match > 
-created feature [33m[1mdevice[0m
-	no type match > 
-created type project.id.24
-project -> project.id.22
-	no feature match > 
-created feature [33m[1mpath[0m
-	no type match > 
-created type project.id.26
-project -> project.id.24
-	no feature match > 
-created feature [33m[1mcomputer[0m
-	no type match > 
-created type project.id.28
-project -> project.id.26
+created type port.id=9
+port -> port.id=5
