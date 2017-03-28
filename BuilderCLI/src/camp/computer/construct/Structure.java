@@ -54,11 +54,10 @@ public class Structure extends Address {
     // </TODO>
 
     // This is only present for non-primitive types (that instantiate a Map)
-    // TODO: Remove this after removing the State class.
+    // TODO: Allocate object/objectType to store states. Refer to Type for features.
     public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
-
 
     // TODO:
     // 1. Use types, features, and states for non-console (structure) constructs (custom non-primitive constructs)
@@ -95,36 +94,6 @@ public class Structure extends Address {
             }
         }
     }
-
-//    /**
-//     * Returns {@code true} if {@code construct} is configured to store one or more
-//     * <em>primitive</em> constructs. This configuration is determined to be present if the
-//     * {@code construct} references a {@code Map}.
-//     * @param construct
-//     * @return
-//     */
-//    public static boolean isComposite(Structure construct) {
-////        if (!Structure.isPrimitive(construct) && construct.objectType == Map.class && construct.object != null) {
-//        if (construct.objectType == Map.class && construct.object != null) {
-//            return true;
-//        }
-//        return false;
-//    }
-
-//    public static Structure create(TypeId type) {
-//        Type type = Type.request(type);
-//        if (type != null) {
-//            Structure construct = Manager.getPersistentConstruct(type);
-//            if (construct == null) {
-//                // TODO: Check if default construct for classType already exists!
-//                construct = new Structure(type);
-//                long uid = Manager.add(construct);
-//                return construct;
-//            }
-//            return construct;
-//        }
-//        return null;
-//    }
 
     /**
      * Returns the number of {@code Structure}s that have a {@code type} <em>exactly</em>
@@ -180,13 +149,6 @@ public class Structure extends Address {
         return null;
     }
 
-//    // TODO: public static Structure create(Double number)
-//    public static Structure create(String text) {
-//        Structure construct = null;
-//       // TODO:
-//        return construct;
-//    }
-
     public static Structure create(String text) {
 
         if (Expression.isText(text)) {
@@ -228,9 +190,6 @@ public class Structure extends Address {
      */
     public static Structure create(Structure baseStructure, String targetFeature, Structure replacementStructure) {
 
-//        Type type = Type.request(baseStructure.type);
-//        Type type = Type.request(baseStructure.type);
-//        Structure newContruct = new Structure(type);
         Structure newContruct = new Structure(baseStructure.type);
 
         // Copy states from source Structure.
@@ -277,7 +236,6 @@ public class Structure extends Address {
     public static Structure request2(String expression) { // previously, getPersistentConstruct
         Type structureType = Type.request(expression);
         if (structureType != null) {
-
             if (structureType == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
                 List<Structure> structureList = Manager.get(Structure.class);
@@ -298,7 +256,9 @@ public class Structure extends Address {
                 }
                 return construct;
                 */
+
             } else if (structureType == Type.request("text")) {
+
                 // e.g.,
                 // [ ] 'foo'
                 // [ ] text('foo')
@@ -331,6 +291,7 @@ public class Structure extends Address {
                     structure.object = "";
                 }
                 return structure;
+
             } else if (structureType == Type.request("list")) {
 
                 // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
@@ -352,9 +313,6 @@ public class Structure extends Address {
 
                 if (Expression.isAddress(expression)) {
 
-//                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-//                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-//                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
                     String[] tokens = expression.split("\\.");
                     String typeIdentifierToken = tokens[0];
                     String addressTypeToken = tokens[1];
@@ -374,7 +332,6 @@ public class Structure extends Address {
                     if (address != null) {
                         return (Structure) address;
                     }
-
 
 //                    // Look for existing (persistent) state for the given expression
 //                    if (address != null) {
@@ -459,85 +416,21 @@ public class Structure extends Address {
 
         if (Expression.isAddress(expression)) {
 
-//                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-//                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-//                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
-//                    String[] tokens = expression.split("\\.");
-//                    String typeIdentifierToken = tokens[0];
-//                    String addressTypeToken = tokens[1];
-//                    String addressToken = tokens[2];
-                    // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
-                    String[] expressionTokens = expression.split("\\.");
-                    String typeToken = expressionTokens[0];
-                    long id = Long.parseLong(expressionTokens[1].split("=")[1]);
+            // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
+            String[] expressionTokens = expression.split("\\.");
+            String typeToken = expressionTokens[0];
+            long id = Long.parseLong(expressionTokens[1].split("=")[1]);
 
-//                    long uid = Long.parseLong(addressToken.trim());
-
-                    Address address = Manager.get(id);
-                    if (address != null) {
-                        if (address.getClass() == Structure.class) {
-                            // TODO: Check that type matches type identifier!
-                            return (Structure) address;
-                        } else {
-                            return null; // Return {@code null} if class isn't Structure.
-                        }
-                    }
-
-//                    if (address != null) {
-//                        return (Structure) address;
-//                    }
-
-
-//                    // Look for existing (persistent) state for the given expression
-//                    if (address != null) {
-//                        List<Address> identiferList = Manager.request();
-//                        for (int i = 0; i < identiferList.size(); i++) {
-//                            if (identiferList.request(i).getClass() == Structure.class) {
-//                                Structure structure = (Structure) identiferList.request(i);
-////                            String textContent = expression.substring(1, expression.length() - 1);
-//                                // TODO: Also check TypeId?
-//                                if (structure.objectType == Map.class && structure.object != null) {
-////                                        && structure.object == address) {
-////                                        && structure.object == address) {
-//                                    for (Structure featureConstruct : structure.states.values()) {
-//                                        if (features.containsValue(address)) { // TODO: iterate through features to see if contains feature...
-//                                            return structure;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-
+            Address address = Manager.get(id);
+            if (address != null) {
+                if (address.getClass() == Structure.class) {
+                    // TODO: Check that type matches type identifier!
+                    return (Structure) address;
+                } else {
+                    return null; // Return {@code null} if class isn't Structure.
                 }
-
-//                // Create new structure since a persistent one wasn't found for the expression
-//                Structure structure = null;
-//                if (structure == null) {
-//
-//                    // Create new State
-//                    // TODO: Add new state to persistent store
-//
-//                    Type typeType = Type.request(type.identifier);
-//                    structure = new Structure(typeType);
-//                    long uid = Manager.add(structure);
-////                    structure.object = expression.substring(1, expression.length() - 1);
-//
-////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
-////
-////                    long uid = Long.parseLong(addressToken.trim());
-////                    Address address = Manager.request(uid);
-////                    if (address != null) {
-////                        structure = Structure.request(constructTypeId);
-////                        structure.object = address;
-////                        return structure;
-////                    } else {
-////                        System.out.println(Error.request("Error: " + expression + " does not exist."));
-////                    }
-//                }
-//                return structure;
+            }
+        }
 
         Type type = Type.request(expression);
         if (type != null) {
@@ -597,6 +490,7 @@ public class Structure extends Address {
                     structure.object = "";
                 }
                 return structure;
+
             } else if (type == Type.request("list")) {
 
                 // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
@@ -613,93 +507,8 @@ public class Structure extends Address {
                         }
                     }
                 }
-
-            } else {
-
-//                if (Expression.isAddress(expression)) {
-//
-////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
-////                    String[] tokens = expression.split("\\.");
-////                    String typeIdentifierToken = tokens[0];
-////                    String addressTypeToken = tokens[1];
-////                    String addressToken = tokens[2];
-//                    // TODO: Test this case and all other cases (after Type refactoring from old Type/Concept/Construct paradigm)
-//                    String[] expressionTokens = expression.split("\\.");
-//                    String typeToken = expressionTokens[0];
-//                    long id = Long.parseLong(expressionTokens[1].split("=")[1]);
-//
-////                    long uid = Long.parseLong(addressToken.trim());
-//
-//                    Address address = Manager.get(id);
-//                    if (address != null) {
-//                        if (address.getClass() == Structure.class) {
-//                            // TODO: Check that type matches type identifier!
-//                            return (Structure) address;
-//                        } else {
-//                            return null; // Return {@code null} if class isn't Structure.
-//                        }
-//                    }
-//
-////                    if (address != null) {
-////                        return (Structure) address;
-////                    }
-//
-//
-////                    // Look for existing (persistent) state for the given expression
-////                    if (address != null) {
-////                        List<Address> identiferList = Manager.request();
-////                        for (int i = 0; i < identiferList.size(); i++) {
-////                            if (identiferList.request(i).getClass() == Structure.class) {
-////                                Structure structure = (Structure) identiferList.request(i);
-//////                            String textContent = expression.substring(1, expression.length() - 1);
-////                                // TODO: Also check TypeId?
-////                                if (structure.objectType == Map.class && structure.object != null) {
-//////                                        && structure.object == address) {
-//////                                        && structure.object == address) {
-////                                    for (Structure featureConstruct : structure.states.values()) {
-////                                        if (features.containsValue(address)) { // TODO: iterate through features to see if contains feature...
-////                                            return structure;
-////                                        }
-////                                    }
-////                                }
-////                            }
-////                        }
-////                    }
-//
-//                }
-//
-//                // Create new structure since a persistent one wasn't found for the expression
-//                Structure structure = null;
-//                if (structure == null) {
-//
-//                    // Create new State
-//                    // TODO: Add new state to persistent store
-//
-//                    Type typeType = Type.request(type.identifier);
-//                    structure = new Structure(typeType);
-//                    long uid = Manager.add(structure);
-////                    structure.object = expression.substring(1, expression.length() - 1);
-//
-////                    String typeIdentifierToken = expression.substring(0, expression.indexOf("(")).trim(); // text before '('
-////                    String addressTypeToken = expression.substring(expression.indexOf("(") + 1, expression.indexOf(":")).trim(); // text between '(' and ':'
-////                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
-////
-////                    long uid = Long.parseLong(addressToken.trim());
-////                    Address address = Manager.request(uid);
-////                    if (address != null) {
-////                        structure = Structure.request(constructTypeId);
-////                        structure.object = address;
-////                        return structure;
-////                    } else {
-////                        System.out.println(Error.request("Error: " + expression + " does not exist."));
-////                    }
-//                }
-//                return structure;
             }
         }
-
         return null;
     }
 
@@ -712,7 +521,6 @@ public class Structure extends Address {
      */
     public static Structure request(List list) { // previously, getPersistentListConstruct
 
-//        TypeId type = Type.request("list");
         Type type = Type.request("list");
 
         // Look for persistent "empty list" object (i.e., the default list).
@@ -792,7 +600,6 @@ public class Structure extends Address {
 
     }
 
-
     /**
      * Requests a {@code Structure} by feature change. Creates {@code Structure} if it doesn't
      * exist in the persistent store.
@@ -802,11 +609,8 @@ public class Structure extends Address {
      *
      * If no such {@code Structure} exists, returns {@code null}.
      */
-//    public static Structure getPersistentConstruct(Structure construct, String expression) {
-//    public static Structure getPersistentConstruct(Structure construct, Feature feature, Structure featureStructureReplacement) {
     public static Structure request(Structure currentStructure, String featureToReplace, Structure featureStructureReplacement) {
 
-//        TypeId type = currentStructure.type; // Structure type
         Type type2 = currentStructure.type; // Structure type
 
         // Look for persistent "empty list" object (i.e., the default list).
@@ -896,358 +700,6 @@ public class Structure extends Address {
     // If listType is "any", allow anything to go in the list
     // if listType is "text", only allow text to be placed in the list
     // if listType is specific "text" values, only allow those values in the list
-//    public void set(String featureIdentifier, String expression) {
-//
-//        // TODO: Check if classType can use "set"
-//
-//        HashMap<String, Feature> features = (HashMap<String, Feature>) this.object;
-//
-//        if (features.containsKey(featureIdentifier)) {
-//
-//            TypeId constructType = Type.request(expression);
-//            Feature feature = features.request(featureIdentifier);
-////            if (feature.types == null || feature.types.contains(constructType)) {
-//            if (feature.types.size() == 0 || feature.types.contains(constructType)) {
-//
-//                /*
-//                // Get feature's current state
-//                State state = states.request(featureIdentifier);
-//
-//                if (stateType == Type.request("none")) {
-//
-//                    // Remove the types of the stored object
-//                    if (state == null) {
-//                        state = State.getState(stateType);
-//                    } else if (state.types != stateType) {
-////                        featureContent.objectType = null;
-////                        featureContent.object = null;
-//                        state = State.getState(stateType);
-//                    }
-//
-//                } else if (stateType == Type.request("list")) {
-//
-//                    // Change the types of the stored object if it is not a list
-//                    if (state == null) {
-//                        state = State.getState(stateType);
-//                    } else if (state.types != stateType) {
-////                        featureContent.objectType = List.class;
-////                        featureContent.object = new ArrayList<>();
-//                        state = State.getState(stateType);
-//                    }
-//
-//                    // Update the object
-//
-//                } else if (stateType == Type.request("text")) {
-//
-//                    // Change the types of the stored object if it is not a string (for text)
-////                    if (state == null) {
-////                        state = State.getPersistentState(stateType);
-////                    } else if (state.types != stateType) {
-//////                        featureContent.objectType = String.class;
-//////                        featureContent.object = null;
-////                        state = State.getPersistentState(stateType);
-////                    }
-//
-////                    if (Content.isText((String) object)) {
-//                   state = State.getState((String) expression);
-////                    if (feature.domain == null || feature.domain.contains(stateExpression)) {
-//                    if (feature.domain == null || feature.domain.contains(state)) { // TODO: Make sure 'contains' works!
-////                        state.object = (String) stateExpression;
-//                        states.put(featureIdentifier, state);
-//                    } else {
-//                        System.out.println(Application.ANSI_RED + "Error: Specified text is not in the feature's domain." + Application.ANSI_RESET);
-//                    }
-////                    } else {
-////                        System.out.println("Error: Cannot assign non-text to text feature.");
-////                    }
-//
-//                } else {
-//
-//
-//                }
-//                */
-//
-//                if (constructType == Type.request("none")) {
-//
-//                    Structure construct = Structure.request(expression);
-//
-//                    if (feature.domain == null || feature.domain.contains(construct)) { // TODO: Make sure 'contains' works!
-//                        states.put(featureIdentifier, construct);
-//                        // TODO: Update Structure in database
-//                    } else {
-//                        System.out.println(Color.ANSI_RED + "Error: Specified text is not in the feature's domain." + Color.ANSI_RESET);
-//                    }
-//
-////                } else if (stateType == Type.request("text")) {
-////
-////                    State state = State.getState(expression);
-////
-////                    if (state != null) {
-////                        if (feature.domain == null || feature.domain.contains(state)) { // TODO: Make sure 'contains' works!
-////                            states.put(featureIdentifier, state);
-////                            // TODO: Update Structure in database
-////                        } else {
-////                            System.out.println(Application.ANSI_RED + "Error: Specified text is not in the feature's domain." + Application.ANSI_RESET);
-////                        }
-////                    } else {
-////                        System.out.println(Application.ANSI_RED + "Error: Interpreter error. State is null." + Application.ANSI_RESET);
-////                    }
-//
-//                } else if (constructType == Type.request("list")) {
-//
-//                    // TODO: Allow lists to be assigned? Yes!
-//                    System.out.println(Color.ANSI_RED + "Error: Cannot SET on a list. (This might change!)." + Color.ANSI_RESET);
-//
-//                } else {
-//
-////                    State state = State.getState(expression);
-////
-////                    // Add to the list in memory
-////                    // TODO: if (state != null && state != states.request(featureIdentifier)) {
-////                    if (state != null) {
-////                        if (feature.domain == null || feature.domain.contains(state)) { // TODO: Update domain to contain State objects so it can contain port and other Constructs
-////                            State featureState = states.request(featureIdentifier);
-////                            Structure featureConstruct = (Structure) featureState.object;
-//////                        contents.request(tag).state.object = (String) object;
-////                            featureConstruct.request(state);
-////                        } else {
-////                            System.out.println(Application.ANSI_RED + "Error: Specified " + stateType + " is not in the feature's domain." + Application.ANSI_RESET);
-////                        }
-////                    }
-//
-//                    Structure construct = Structure.request(expression);
-//
-//                    if (construct != null) {
-//                        if (feature.domain == null || feature.domain.contains(construct)) { // TODO: Make sure 'contains' works!
-//                            states.put(featureIdentifier, construct);
-//                            // TODO: Update Structure in database
-//                        } else {
-//                            System.out.println(Color.ANSI_RED + "Error: Specified text is not in the feature's domain." + Color.ANSI_RESET);
-//                        }
-//                    } else {
-//                        System.out.println(Color.ANSI_RED + "Error: Interpreter error. State is null." + Color.ANSI_RESET);
-//                    }
-//
-////                    System.out.println(Application.ANSI_RED + "Error: Feature types mismatches object types." + Application.ANSI_RESET);
-//
-//                }
-//            }
-//
-//
-//            /*
-//            if (contents.request(tag).types == Type.request("none")) {
-//                // TODO: Can't assign anything to the feature object
-//                System.out.println("Error: Cannot assign feature with types 'none'.");
-//            } else if (contents.request(tag).types == Type.request("any")) {
-//                // TODO: Verify that this is correct!
-//                contents.request(tag).object = object;
-//            } else if (contents.request(tag).types == Type.request("list")) {
-//                List contentList = (List) contents.request(tag).object;
-//
-//                // TODO: Check types of list contents and restrict to the types (or any if "any")
-//                // TODO: If specific text tokens are allowed AS WELL AS text construct, text construct subsumes the tokens and the tokens are not included in the domain
-//
-////                if (contents.request(address).listType == Type.request("text")) {
-//                if (contents.request(tag).listTypes.contains(Type.request("text"))) {
-//                    if (Content.isText((String) object)) {
-//                        contentList.request(object);
-//                    } else {
-//                        System.out.println("Error: Cannot request non-text to list (only can contain text).");
-//                    }
-////                } else if (contents.request(address).listType == Type.request("construct")) {
-////                } else if (contents.request(address).listTypes.contains(Type.request("construct"))) {
-//                } else {
-//                    // TODO: Determine if the construct object is allowed into the list based on the specific types!
-//                    contentList.request(object);
-//                }
-//            } else if (contents.request(tag).types == Type.request("text")) {
-//                if (Content.isText((String) object)) {
-//                    contents.request(tag).object = (String) object;
-//                } else {
-//                    System.out.println("Error: Cannot assign non-text to text feature.");
-//                }
-//            } else {
-//                contents.request(tag).object = object;
-//            }
-//            */
-//        }
-//    }
-
-//    public Feature request(String tag) {
-//        if (features.containsKey(tag)) {
-//            return features.request(tag);
-//        }
-//        return null;
-//    }
-
-    // TODO: request <list-feature-address> : <object>
-
-//    /**
-//     * Adds a {@code State} to a <em>list</em> {@code Structure}, which is a {@code Structure} with
-//     * a {@code TypeId} uniquely identified by its {@code address} equal to {@code "list"}.
-//     *
-//     * {@code expression} is a <em>state expression</em>.
-//     *
-//     * @param featureIdentifier
-//     * @param expression
-//     */
-//    public void insert(String featureIdentifier, String expression) {
-//        if (features.containsKey(featureIdentifier)) {
-//            Feature feature = features.request(featureIdentifier);
-//            Structure featureState = states.request(featureIdentifier);
-//
-//            // Check if feature can be a list
-//            if (!feature.types.contains(Type.request("list"))) {
-//                System.out.println(Color.ANSI_RED + "Error: Cannot add to a non-list." + Color.ANSI_RESET);
-//                return;
-//            }
-//
-//            // Check if feature is currently configured as a list
-//            if (featureState.type != Type.request("list")) {
-//                // Change the types of the stored object if it is not a list
-//                if (featureState == null) {
-//                    featureState = Structure.create(Type.request("list"));
-//                } else if (featureState.type != Type.request("list")) {
-//                    featureState = Structure.create(Type.request("list"));
-//                }
-//            }
-//
-//            // Add the object to the list
-//            TypeId stateType = Type.request((String) expression);
-//            if (stateType != null
-//                    && (feature.listTypes == null || feature.listTypes.contains(stateType))) {
-//
-//                if (stateType == Type.request("none")) {
-//
-////                    // Remove the types of the stored object
-////                    if (featureContent.state == null) {
-////                        featureContent.state = new State(objectType);
-////                    } else if (featureContent.state.types != objectType) {
-//////                        featureContent.objectType = null;
-//////                        featureContent.object = null;
-////                        featureContent.state = new State(objectType);
-////                    }
-//
-//                } else if (stateType == Type.request("list")) {
-//
-//                    // Change the types of the stored object if it is not a list
-//                    if (featureState == null) {
-//                        featureState = Structure.create(stateType);
-//                    } else if (featureState.type != stateType) {
-////                        featureContent.objectType = List.class;
-////                        featureContent.object = new ArrayList<>();
-//                        featureState = Structure.create(stateType);
-//                    }
-//
-//                    // Update the object
-//
-//                } else if (stateType == Type.request("text")) {
-//
-//                    // Change the types of the stored object if it is not a string (for text)
-////                    if (featureContent.state == null) {
-////                        featureContent.state = new State(objectType);
-////                    } else if (featureContent.state.types != objectType) {
-//////                        featureContent.objectType = String.class;
-//////                        featureContent.object = null;
-////                        featureContent.state = new State(objectType);
-////                    }
-//
-//
-////                    // Encapsulate text state
-////                    State state = State.getState(stateType);
-////                    state.object = expression;
-//
-//                    // Encapsulate text state
-//                    Structure construct = Structure.request(expression);
-//
-//
-////                    if (Content.isText((String) object)) {
-////                    if (feature.domain == null || feature.domain.contains((String) expression)) {
-//                    if (feature.domain == null || feature.domain.contains(construct)) {
-//                    // TODO: if (feature.domain == null || feature.domain.contains(state)) {
-//                            List list = (List) featureState.object;
-////                        contents.request(tag).state.object = (String) object;
-////                            list.request(expression);
-//                            list.add(construct);
-//                        } else {
-//                            System.out.println(Color.ANSI_RED + "Error: Specified " + stateType + " is not in the feature's domain." + Color.ANSI_RESET);
-//                        }
-////                    }
-////                    } else {
-////                        System.out.println("Error: Cannot assign non-text to text feature.");
-////                    }
-//
-//                } else {
-//
-////                    // Change the types of the stored object if it is not a list
-////                    if (state == null) {
-////                        state = State.getPersistentState(contentType);
-////                    } else if (state.types != contentType) {
-//////                        featureContent.objectType = List.class;
-//////                        featureContent.object = new ArrayList<>();
-////                        state = State.getPersistentState(contentType);
-////                    }
-//
-//                    // Encapsulate text state
-//                    Structure construct = Structure.request(expression);
-//
-//                    // Add to the list in memory
-////                    if (Content.isText((String) object)) {
-//                    if (construct != null) {
-////                        if (feature.domain == null || feature.domain.contains((String) expression)) { // TODO: Update domain to contain State objects so it can contain port and other Constructs
-//                        if (feature.domain == null || feature.domain.contains(construct)) { // TODO: Update domain to contain State objects so it can contain port and other Constructs
-//                            List list = (List) featureState.object;
-////                        contents.request(tag).state.object = (String) object;
-//                            list.add(construct);
-//                        } else {
-//                            System.out.println(Color.ANSI_RED + "Error: Specified " + stateType + " is not in the feature's domain." + Color.ANSI_RESET);
-//                        }
-//                    }
-//
-//                }
-//            } else {
-//                System.out.println(Color.ANSI_RED + "Error: Feature types mismatches object types." + Color.ANSI_RESET);
-//            }
-//
-//
-//            /*
-//            if (contents.request(tag).types == Type.request("none")) {
-//                // TODO: Can't assign anything to the feature object
-//                System.out.println("Error: Cannot assign feature with types 'none'.");
-//            } else if (contents.request(tag).types == Type.request("any")) {
-//                // TODO: Verify that this is correct!
-//                contents.request(tag).object = object;
-//            } else if (contents.request(tag).types == Type.request("list")) {
-//                List contentList = (List) contents.request(tag).object;
-//
-//                // TODO: Check types of list contents and restrict to the types (or any if "any")
-//                // TODO: If specific text tokens are allowed AS WELL AS text construct, text construct subsumes the tokens and the tokens are not included in the domain
-//
-////                if (contents.request(address).listType == Type.request("text")) {
-//                if (contents.request(tag).listTypes.contains(Type.request("text"))) {
-//                    if (Content.isText((String) object)) {
-//                        contentList.request(object);
-//                    } else {
-//                        System.out.println("Error: Cannot request non-text to list (only can contain text).");
-//                    }
-////                } else if (contents.request(address).listType == Type.request("construct")) {
-////                } else if (contents.request(address).listTypes.contains(Type.request("construct"))) {
-//                } else {
-//                    // TODO: Determine if the construct object is allowed into the list based on the specific types!
-//                    contentList.request(object);
-//                }
-//            } else if (contents.request(tag).types == Type.request("text")) {
-//                if (Content.isText((String) object)) {
-//                    contents.request(tag).object = (String) object;
-//                } else {
-//                    System.out.println("Error: Cannot assign non-text to text feature.");
-//                }
-//            } else {
-//                contents.request(tag).object = object;
-//            }
-//            */
-//        }
-//    }
 
     @Override
     public String toString() {

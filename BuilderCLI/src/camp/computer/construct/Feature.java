@@ -68,8 +68,8 @@ public class Feature extends Address {
         }
     }
 
-    public static Feature create(String identifier, List<Type> typeIds, List<Structure> domain, List<Type> listTypeIds) {
-        Feature feature = new Feature(identifier, typeIds, domain, listTypeIds);
+    public static Feature create(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
+        Feature feature = new Feature(identifier, types, domain, listTypes);
         return feature;
     }
 
