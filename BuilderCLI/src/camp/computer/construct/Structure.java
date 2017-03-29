@@ -1,11 +1,10 @@
 package camp.computer.construct;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
+import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
@@ -55,7 +54,7 @@ public class Structure extends Address {
 
     // This is only present for non-primitive types (that instantiate a Map)
     // TODO: Allocate object/objectType to store states. Refer to Type for features.
-    public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
+//    public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
 
@@ -79,15 +78,17 @@ public class Structure extends Address {
             this.object = ""; // TODO: Default to null?
         } else if (this.type.identifier.equals("list")) {
             this.objectType = List.class;
-            this.object = new ArrayList<>();
+            this.object = new List<>();
+//        } else if (this.type.identifier.equals("reference")) {
+//            this.objectType = Structure.class; // TODO: this.objectType = Type.class OR Structure.class;
+//            this.object = null;
         } else if (this.type.identifier != null) {
             this.objectType = Map.class;
-            this.object = new HashMap<String, Feature>();
+            this.object = new HashMap<String, Structure>();
 
             // Initialize each {@code Feature} to the default value of <em>none</em>.
-            HashMap<String, Feature> features = (HashMap<String, Feature>) this.object;
+            HashMap<String, Structure> states = (HashMap<String, Structure>) this.object;
             for (Feature feature : type.features.values()) {
-                features.put(feature.identifier, feature);
                 Type noneType = Type.request("none");
                 Structure structure = Structure.create(noneType);
                 states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
@@ -179,6 +180,11 @@ public class Structure extends Address {
 
     }
 
+    public static HashMap<String, Structure> getStates(Structure structure) {
+        HashMap<String, Structure> states = (HashMap<String, Structure>) structure.object;
+        return states;
+    }
+
     /**
      * Creates a {@code Structure} by specified feature change. Creates {@code Structure} if it
      * doesn't exist in the persistent store.
@@ -190,19 +196,21 @@ public class Structure extends Address {
      */
     public static Structure create(Structure baseStructure, String targetFeature, Structure replacementStructure) {
 
-        Structure newContruct = new Structure(baseStructure.type);
+        Structure newStructure = new Structure(baseStructure.type);
 
         // Copy states from source Structure.
-        for (String featureIdentifier : baseStructure.states.keySet()) {
+        HashMap<String, Structure> states = Structure.getStates(baseStructure);
+        HashMap<String, Structure> newStructureStates = Structure.getStates(newStructure);
+        for (String featureIdentifier : states.keySet()) {
             if (featureIdentifier.equals(targetFeature)) {
-                newContruct.states.put(targetFeature, replacementStructure);
+                newStructureStates.put(targetFeature, replacementStructure);
             } else {
-                newContruct.states.put(featureIdentifier, baseStructure.states.get(featureIdentifier));
+                newStructureStates.put(featureIdentifier, states.get(featureIdentifier));
             }
         }
 
-        long uid = Manager.add(newContruct);
-        return newContruct;
+        long uid = Manager.add(newStructure);
+        return newStructure;
 
     }
 
@@ -634,8 +642,8 @@ public class Structure extends Address {
 
                     // Check (1) if constructs are based on the same specified type version, and
                     //       (2) same set of features and assignments to constructs except the specified feature to change.
-                    HashMap<String, Feature> candidateConstructFeatures = (HashMap<String, Feature>) candidateStructure.object;
-                    HashMap<String, Feature> currentConstructFeatures = (HashMap<String, Feature>) currentStructure.object;
+                    HashMap<String, Feature> candidateConstructFeatures = candidateStructure.type.features; // (HashMap<String, Feature>) candidateStructure.object;
+                    HashMap<String, Feature> currentConstructFeatures = currentStructure.type.features; // (HashMap<String, Feature>) currentStructure.object;
 
                     // Compare identifer, types, domain, listTypes
                     // TODO: Move comparison into Type.hasConstruct(type, construct);
@@ -648,15 +656,15 @@ public class Structure extends Address {
                         for (String featureIdentifier : currentConstructFeatures.keySet()) {
                             if (featureIdentifier.equals(featureToReplace)) {
                                 if (!candidateConstructFeatures.containsKey(featureIdentifier)
-                                        || !candidateStructure.states.containsKey(featureIdentifier)
-                                        || candidateStructure.states.get(featureIdentifier) != featureStructureReplacement) {
+                                        || !Structure.getStates(candidateStructure).containsKey(featureIdentifier)
+                                        || Structure.getStates(candidateStructure).get(featureIdentifier) != featureStructureReplacement) {
 //                                        || !candidateConstructFeatures.containsValue(featureStructureReplacement)) {
                                     isConstructMatch = false;
                                 }
                             } else {
                                 if (!candidateConstructFeatures.containsKey(featureIdentifier)
-                                        || !candidateStructure.states.containsKey(featureIdentifier)
-                                        || candidateStructure.states.get(featureIdentifier) != currentStructure.states.get(featureIdentifier)) {
+                                        || !Structure.getStates(candidateStructure).containsKey(featureIdentifier)
+                                        || Structure.getStates(candidateStructure).get(featureIdentifier) != Structure.getStates(currentStructure).get(featureIdentifier)) {
 //                                        || !candidateConstructFeatures.containsValue(type.features.request(featureIdentifier))) {
                                     isConstructMatch = false;
                                 }
@@ -690,7 +698,7 @@ public class Structure extends Address {
     }
 
     public static Feature getFeature(Structure structure, String featureIdentifier) {
-        HashMap<String, Feature> features = (HashMap<String, Feature>) structure.object;
+        HashMap<String, Feature> features = structure.type.features; // (HashMap<String, Feature>) structure.object;
         if (features.containsKey(featureIdentifier)) {
             return features.get(featureIdentifier);
         }
@@ -705,7 +713,7 @@ public class Structure extends Address {
     public String toString() {
         if (type == Type.request("text")) {
             String content = (String) this.object;
-            return "'" + content + "' " + type + ".id=" + uid + "";
+            return "'" + content + "' " + type.identifier + ".id=" + uid + "";
         } else if (type == Type.request("list")) {
             String content = "";
             List list = (List) this.object;

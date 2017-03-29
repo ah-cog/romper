@@ -2,14 +2,14 @@ package camp.computer.workspace;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import camp.computer.construct.Address;
 import camp.computer.construct.Type;
 import camp.computer.construct.Structure;
 import camp.computer.construct.Feature;
+import camp.computer.util.List;
 
 public class Manager {
 
@@ -26,11 +26,11 @@ public class Manager {
     }
 
     public static List<Address> get() {
-        return new ArrayList<>(elements.values());
+        return new List<>(elements.values());
     }
 
     public static <T extends Address> List<T> get(Class classType) {
-        List<T> constructList = new ArrayList<>();
+        List<T> constructList = new List<>();
         for (Address address : elements.values()) {
             if (address.getClass() == classType) {
                 constructList.add((T) address);
@@ -228,9 +228,9 @@ public class Manager {
 //        return null;
 //    }
 
-    public static Structure getPersistentConstruct(Type concept) {
+    public static Structure getPersistentConstruct(Type type) {
 
-        Type type = Type.request(concept.identifier);
+//        Type type = Type.request(concept.identifier);
 
         if (type != null) {
 
@@ -300,13 +300,13 @@ public class Manager {
                             // Compare identifer, types, domain, listTypes
                             // TODO: Move comparison into Type.hasConstruct(type, structure);
                             boolean isConstructMatch = true;
-                            if (constructFeatures.size() != concept.features.size()) {
+                            if (constructFeatures.size() != type.features.size()) {
                                 isConstructMatch = false;
                             } else {
 
-                                for (String featureIdentifier : concept.features.keySet()) {
+                                for (String featureIdentifier : type.features.keySet()) {
                                     if (!constructFeatures.containsKey(featureIdentifier)
-                                            || !constructFeatures.containsValue(concept.features.get(featureIdentifier))) {
+                                            || !constructFeatures.containsValue(type.features.get(featureIdentifier))) {
                                         isConstructMatch = false;
                                     }
                                 }
@@ -421,7 +421,7 @@ public class Manager {
 
 //        Type type2 = Type.request(type.address);
 
-        List<Structure> structureList = new ArrayList<>();
+        List<Structure> structureList = new List<>();
         for (Address address : elements.values()) {
             if (address.getClass() == Structure.class) {
                 if (((Structure) address).type == type) {

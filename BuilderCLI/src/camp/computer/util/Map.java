@@ -1,9 +1,17 @@
 package camp.computer.util;
 
-public class Map<T> {
+import java.util.HashMap;
 
-    public Map(T... values) {
-        // TODO:
+public class Map<K, V> {
+
+    public Map(K key, V value) {
+
     }
+
+//    public Map(T... values) {
+//        // TODO:
+////        HashMap<String, Object> hash = new HashMap<>();
+////        hash.put()
+//    }
 
 }

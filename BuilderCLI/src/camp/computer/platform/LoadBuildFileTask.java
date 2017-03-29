@@ -1,4 +1,4 @@
-package camp.computer.platform_infrastructure;
+package camp.computer.platform;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

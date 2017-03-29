@@ -2,9 +2,10 @@ package camp.computer.construct;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+//import java.util.List;
 
 import camp.computer.Application;
+import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
@@ -28,6 +29,7 @@ public class Type extends Address {
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
     // TODO: (cont'd) Map<String, List<String>> configurations = null;
+    public List<Configuration> configurations = null; // new ArrayList<>();
 
     /**
      * Constructor to create the <em>default type</em> identified by {@code address}.
