@@ -32,13 +32,13 @@ has code text
 type task
 has script
 
-type processor # process
-has task list # sequence
+type worker
+has task list
 
 type project
 has device list
 has path list
-has processor list
+has worker list
 
 # TODO: user
 # TODO: item

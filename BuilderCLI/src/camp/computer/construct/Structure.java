@@ -88,10 +88,12 @@ public class Structure extends Address {
 
             // Initialize each {@code Feature} to the default value of <em>none</em>.
             HashMap<String, Structure> states = (HashMap<String, Structure>) this.object;
-            for (Feature feature : type.features.values()) {
-                Type noneType = Type.request("none");
-                Structure structure = Structure.create(noneType);
-                states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
+            if (type.features != null) {
+                for (Feature feature : type.features.values()) {
+                    Type noneType = Type.request("none");
+                    Structure structure = Structure.create(noneType);
+                    states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
+                }
             }
         }
     }

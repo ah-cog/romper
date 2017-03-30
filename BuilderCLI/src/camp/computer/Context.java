@@ -23,7 +23,7 @@ public class Context {
      */
     public HashMap<String, Reference> references = new HashMap<>();
 
-    public HashMap<String, Type> typeReferences = new HashMap<>(); // current concepts to use
+//    public HashMap<String, Type> typeReferences = new HashMap<>(); // current concepts to use
 
     public String expression = null;
 

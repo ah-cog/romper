@@ -49,11 +49,11 @@ public class Reference extends Address {
         if (this.object != null) {
             if (this.object.getClass() == Type.class) {
                 Type type = (Type) this.object;
-                return "" + type.identifier + ".id=" + uid + " -> " + type.identifier + ".id=" + type.uid;
+                return "" + type.identifier + ".id=" + uid + " \t-> " + type.identifier + ".id=" + type.uid;
             } else if (this.object.getClass() == Structure.class) {
                 Structure structure = (Structure) this.object;
                 // return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
-                return Color.ANSI_YELLOW + structure.type.identifier + Color.ANSI_RESET + ".id=" + uid + " -> " + Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + ".id=" + structure.uid;
+                return Color.ANSI_YELLOW + structure.type.identifier + Color.ANSI_RESET + ".id=" + uid + " \t-> " + Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + ".id=" + structure.uid;
             }
         }
         return null; // Reference points to "any"
