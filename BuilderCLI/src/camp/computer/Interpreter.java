@@ -98,7 +98,8 @@ public class Interpreter {
         // Store context in history
         // Context context = new Context();
         if (context == null) {
-            context = new Context();
+//            context = new Context();
+            context = Context.request("default");
         }
         Expression expression = Context.setExpression(context, inputLine);
 
@@ -118,8 +119,8 @@ public class Interpreter {
 
         if (context.expression.startsWith("open")) { // previously, "import file"
             importFileTask(context);
-//        } else if (context.expression.matches("^context($|[ ]+.*)")) {
-//            contextTask(context);
+        } else if (context.expression.matches("^context($|[ ]+.*)")) {
+            contextTask(context);
         } else if (context.expression.matches("^type($|[ ]+.*)")) {
             typeTask(context);
         } else if (context.expression.matches("^has[ ]+.*")) { // TODO: has? !has
@@ -134,8 +135,8 @@ public class Interpreter {
             addTask(context);
         } else if (context.expression.matches("^(remove|rem|rm)[ ]+.*")) {
             removeTask(context);
-        } else if (context.expression.matches("^(reference|ref)[ ]+.*")) { // !link, link?
-                                                                        // TODO: Callback to create a link in the active context/namespace.
+        } else if (context.expression.matches("^(name)[ ]+.*")) { // name, name?, !name
+            // TODO: Callback to create a link in the active context/namespace.
             referenceTask(context);
         } else if (context.expression.matches("^list($|[ ]+.*)")) {
             listTask(context);
@@ -208,6 +209,25 @@ public class Interpreter {
             } else {
                 System.out.println(Color.ANSI_RED + "Error: Unsupported expression." + Color.ANSI_RESET);
             }
+        }
+    }
+
+    public void contextTask(Context context) {
+
+        String[] inputLineTokens = context.expression.split("[ ]+");
+
+        if (inputLineTokens.length == 1) {
+
+            System.out.println("Usage: context <identifier>");
+
+        } else if (inputLineTokens.length == 2) {
+
+            String identifierToken = inputLineTokens[1];
+
+            this.context = Context.request(identifierToken);
+
+            System.out.println("Switched to context \"" + this.context.identifer + "\"");
+
         }
     }
 
@@ -388,9 +408,11 @@ public class Interpreter {
                 if (Reference.isStructure(featureObject)) {
                     Structure structure = (Structure) featureObject.object;
                     reference = Reference.create(structure);
+                    context.references.put(referenceIdentifier, reference);
                 } else if (Reference.isType(featureObject)) {
                     Type type = (Type) featureObject.object;
                     reference = Reference.create(type);
+                    context.references.put("type " + referenceIdentifier, reference);
                 }
             }
             // 2. Check if the referenced entity is a <em>type</em>
@@ -1425,7 +1447,7 @@ public class Interpreter {
 //                System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
 //            }
 
-            System.out.println("list <type|structure|reference> [<identifier>]");
+            System.out.println("list <type|structure|name> [<identifier>]");
 
         } else if (inputLineTokens.length >= 2) {
 
@@ -1569,82 +1591,55 @@ public class Interpreter {
                     }
                 }
 
-            } else if (constructToken.matches("^(reference|ref)$")) {
+            } else if (constructToken.matches("^(name)$")) {
 
                 if (inputLineTokens.length == 2) {
 
-                    System.out.println("CONTEXT NAMESPACE/REGISTERS:");
+//                    System.out.println("CONTEXT NAMESPACE/REGISTERS:");
 //                    System.out.println("NAME\tHANDLE/REGISTER\tSTRUCTURE");
-                    System.out.format("%-20s%20s%20s\n", "NAME", "HANDLE/REGISTER", "STRUCTURE");
+                    System.out.println("NAMESPACE");
+                    System.out.format("%-20s%20s%20s\n", "NAME", "HANDLE", "TYPE/STRUCTURE");
 
-                    // List context references
+                    // Print list of type references
                     for (String referenceKey : context.references.keySet()) {
                         Reference reference = context.references.get(referenceKey);
-                        // Structure structure = (Structure) reference.object;
                         if (referenceKey.startsWith("type ")) {
-//                            System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " \t\t-> " + reference.toColorString());
-
                             String name = referenceKey;
                             String handle = null;
                             String construct = null;
                             if (reference.object.getClass() == Type.class) {
                                 Type type = (Type) reference.object;
-                                handle = type.identifier + ".id=" + reference.uid;
+                                handle = "" + type.identifier + ".id=" + reference.uid;
                                 construct = type.identifier + ".id=" + type.uid;
-//                                String output = "" + type.identifier + ".id=" + reference.uid + " \t-> " + type.identifier + ".id=" + type.uid;
                             } else if (reference.object.getClass() == Structure.class) {
                                 Structure structure = (Structure) reference.object;
-                                handle = structure.type.identifier + ".id=" + reference.uid;
+                                handle = "" + structure.type.identifier + ".id=" + reference.uid;
                                 construct = structure.type.identifier + ".id=" + structure.uid;
-                                // return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
-//                                String output = Color.ANSI_YELLOW + structure.type.identifier + Color.ANSI_RESET + ".id=" + reference.uid + " \t-> " + Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + ".id=" + structure.uid;
                             }
-
                             System.out.format("%-20s%20s%20s\n", name, handle, construct);
                         }
                     }
 
+                    // Print list of structure references
                     for (String referenceKey : context.references.keySet()) {
                         Reference reference = context.references.get(referenceKey);
-                        // Structure structure = (Structure) reference.object;
                         if (!referenceKey.startsWith("type ")) {
-//                            System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " \t\t-> " + reference.toColorString());
-
                             String name = referenceKey;
                             String handle = null;
                             String construct = null;
                             if (reference.object.getClass() == Type.class) {
                                 Type type = (Type) reference.object;
-                                handle = type.identifier + ".id=" + reference.uid;
+                                handle = "-> " + type.identifier + ".id=" + reference.uid;
                                 construct = type.identifier + ".id=" + type.uid;
-//                                String output = "" + type.identifier + ".id=" + reference.uid + " \t-> " + type.identifier + ".id=" + type.uid;
                             } else if (reference.object.getClass() == Structure.class) {
                                 Structure structure = (Structure) reference.object;
-                                handle = structure.type.identifier + ".id=" + reference.uid;
+                                handle = "-> " + structure.type.identifier + ".id=" + reference.uid;
                                 construct = structure.type.identifier + ".id=" + structure.uid;
-                                // return structure.type.toColorString() + ".id." + uid + " -> " + structure.type.toColorString() + ".id." + structure.uid;
-//                                String output = Color.ANSI_YELLOW + structure.type.identifier + Color.ANSI_RESET + ".id=" + reference.uid + " \t-> " + Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + ".id=" + structure.uid;
                             }
-
                             System.out.format("%-20s%20s%20s\n", name, handle, construct);
                         }
                     }
 
-                    // Type References
-//                    // TODO: Update this so it actually uses references to types!
-//                    for (String referenceKey : context.references.keySet()) {
-//                        Type reference = (Type) context.references.get(referenceKey).object;
-//                        // Structure structure = (Structure) reference.object;
-//                        System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -> " + reference.toColorString());
-//                    }
-//                    // List anonymous references
-//                    List<Reference> referenceList = Manager.get(Reference.class);
-//                    for (Reference reference : referenceList) {
-//                        if (!context.references.containsValue(reference)) {
-////                    System.out.println(Color.ANSI_YELLOW + "(anonymous)" + Color.ANSI_RESET + " " + reference.toColorString());
-//                            System.out.println(reference.toColorString());
-//                        }
-//                    }
                 } else if (inputLineTokens.length >= 3) {
 
                     String typeToken = inputLineTokens[2]; // "port" or "port (id: 3)"
