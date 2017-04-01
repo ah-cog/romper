@@ -9,10 +9,14 @@ import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-public class Type extends Address {
+/**
+ * TODO: Integrate Type and Structure
+ * TODO: ^ this will enable Reference to replace "Object object" to "Structure structure"
+ */
+public class Type extends Handle {
 
-    // TODO: Remove address and features and replace with "Structure structure" and allocate it according to the "address" string passed into the constructor or request(...)
-    // TODO: (cont'd) type "address" allocates <em>text</em> Structure (so even address text will be unique in memory).
+    // TODO: Remove handle and features and replace with "Structure structure" and allocate it according to the "handle" string passed into the constructor or request(...)
+    // TODO: (cont'd) type "handle" allocates <em>text</em> Structure (so even handle text will be unique in memory).
 
     public String identifier = null;
 
@@ -21,7 +25,7 @@ public class Type extends Address {
      * <em>number</em>, <em>list</em> (i.e., the primitive types).
      *
      * {@code features} is also {@code null} for <em>every</em> default type (the first one that
-     * serves as an address).
+     * serves as an handle).
      */
     public HashMap<String, Feature> features = null; // TODO: Remove? Remove setupConfiguration?
     // TODO: Set to null for "none" type
@@ -32,7 +36,7 @@ public class Type extends Address {
     public List<Configuration> configurations = null; // new ArrayList<>();
 
     /**
-     * Constructor to create the <em>default type</em> identified by {@code address}.
+     * Constructor to create the <em>default type</em> identified by {@code handle}.
      *
      * @param identifier
      */
@@ -137,7 +141,7 @@ public class Type extends Address {
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(identifier)
                     && typeList.get(i).features == null) {
-//            if (typeList.get(i).type == Type.request(address)) {
+//            if (typeList.get(i).type == Type.request(handle)) {
                 return typeList.get(i);
             }
         }
@@ -179,24 +183,24 @@ public class Type extends Address {
     }
 
     /**
-     * Returns the <em>default type</em> for the specified {@code address} if it exists.
+     * Returns the <em>default type</em> for the specified {@code handle} if it exists.
      *
      * e.g.,
-     * Type.request("none") => Type with "none" address, null features, null configurations
+     * Type.request("none") => Type with "none" handle, null features, null configurations
      *
      * @param identifier
      * @return
      */
     public static Type request(String expression) {
 
-        // TODO: Handle case where one or more Concepts exist with address, but none with non-null features and/or configurations.
+        // TODO: Handle case where one or more Concepts exist with handle, but none with non-null features and/or configurations.
 
-        // Search for <em>address</em> (default type or type address).
+        // Search for <em>handle</em> (default type or type handle).
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(expression)
                     && typeList.get(i).features == null) {
-                // Return the <em>default</em> {@code Type} for the address.
+                // Return the <em>default</em> {@code Type} for the handle.
                 return typeList.get(i);
             }
         }
@@ -224,7 +228,7 @@ public class Type extends Address {
         }
 
         // TODO: Separate request and create! Potentially add a requestOrCreate function! Yeah do that.
-//        return create(address);
+//        return create(handle);
 //        return create(expression);
         return null;
     }
@@ -239,8 +243,8 @@ public class Type extends Address {
 
     /**
      * Requests the {@code Type} identical to {@code baseType} with the exception of the
-     * {@code Feature} with address {@code targetFeature}. The {@code Feature} corresponding to
-     * address {@code targetFeature} must be identical to {@code feature}.
+     * {@code Feature} with handle {@code targetFeature}. The {@code Feature} corresponding to
+     * handle {@code targetFeature} must be identical to {@code feature}.
      *
      * Used to add, remove, or change the target.
      *
@@ -259,7 +263,7 @@ public class Type extends Address {
         // TODO: Check if {@code type} exists with the specified featureIdentifier set to Feature, with all else equal
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Address> identiferList = Manager.get();
+        List<Handle> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Type.class) {
                 Type candidateType = (Type) identiferList.get(i);
@@ -459,7 +463,7 @@ public class Type extends Address {
 
     /**
      * Returns {@code true} if at least one {@code Type} exists for the specified
-     * {@code address}.
+     * {@code handle}.
      *
      * @return True
      */

@@ -1,7 +1,5 @@
 package camp.computer.construct;
 
-import camp.computer.Context;
-
 public class Expression {
 
     public static String REGEX_ADDRESS_EXPRESSION = "[A-Za-z]+\\.(id|uuid)=[0-9]+";
@@ -18,7 +16,7 @@ public class Expression {
      * @param expression
      * @return
      */
-    public static Expression create(String expression, Context context) {
+    public static Expression create(String expression, Namespace namespace) {
 
         // Sanitize expression
         expression = expression.trim();
@@ -26,15 +24,15 @@ public class Expression {
         expression = expression.replaceAll("[ ]+\\(", "(");
         expression = expression.replaceAll("[ ]+:[ ]+", ":");
 
-        // Replace label parameter tokens with address tokens (not first token)
+        // Replace label parameter tokens with handle tokens (not first token)
         String[] tokens = expression.split(" ");
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0 || Type.exists(tokens[0])) {
                 continue;
             }
-//            if (context.references.containsKey(tokens[i])) {
+//            if (namespace.references.containsKey(tokens[i])) {
 //                // TODO: Check for type error!
-//                Structure structure = (Structure) context.references.get(tokens[i]).object;
+//                Structure structure = (Structure) namespace.references.get(tokens[i]).object;
 //                tokens[i] = structure.toString();
 //            }
         }

@@ -16,8 +16,8 @@
 // 234                                                 returns primitive number typeId pointing to 234 structure
 // 'foo'                                               returns primitive structure pointing to 'foo'
 // ()                                                  creates structure -> empty list //// allows use of 'list' command for CLI
-// [typeId-address]                                   creates (or selects) a type of specified typeId, creating the typeId if non-existent
-// typeId-address                                     creates a structure of the specified typeId
+// [typeId-handle]                                   creates (or selects) a type of specified typeId, creating the typeId if non-existent
+// typeId-handle                                     creates a structure of the specified typeId
 //
 // [port].mode list : 'input', 'output'
 // [port].mode : list : 'input', 'output'
@@ -124,10 +124,10 @@
 // // comment
 // [port] # to create port
 // list-feature << structure-assignment # to add element to port list structure
-// port # to reference the port in the workspace context scope
+// port # to reference the port in the workspace namespace scope
 // [port.id.34] # to create port with specified structure
 // port.id.34 # to reference port with specified id
-// describe # to show current structure or type in context
+// describe # to show current structure or type in namespace
 // describe port.id.34 # to describe specific structure
 // describe [port.id.44] # to describe specific type
 // - Use CLI by creating data structures and assembling models with them.

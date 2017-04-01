@@ -1,28 +1,94 @@
+# Builder Script File Format 0.4.5
+
 # --------------------------------------------------------------------------------------------------
-# Model: IR Rangefinder
+# Model
 # --------------------------------------------------------------------------------------------------
 
-structure port
-set mode 'power'
-set direction 'input'
-set voltage 'ttl'
-reference port port-1
+type port
+has mode text : 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i3c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
+has direction text : 'input', 'output', 'bidirectional'
+has voltage text : 'common', 'ttl', 'cmos'
+# TODO: add configurations
+# TODO: let mode:none; direction:none; voltage:none # Automatically infer this?
+# TODO: let mode:'digital'; direction:'input','output','bidirectional'; voltage:'ttl','cmos'
 
-structure port
-set mode 'power'
-set direction 'output'
-set voltage 'common'
-reference port port-2
+type device
+has port list
 
-structure port
-set mode 'analog'
-set direction 'output'
-set voltage 'ttl'
-reference port port-3
+type path
+has port list
+# TODO: let ...
 
-structure device
-add port port-1
-add port port-2
-add port port-3
-reference device ir-rangefinder-ttl
+type script
+has code text
+
+type task
+has script
+
+type worker
+has task list
+
+type project
+has device list
+has path list
+has worker list
+
+# NOTE: These have yet to be incorporated into the Model.
+# TODO: user
+# TODO: item
+# TODO: inventory
+# TODO: portfolio
+# TODO: store
+# TODO: idea
+# TODO: document # for documentation
+# TODO: instruction
+
+# TODO: type model: Clay
+# TODO: type models for sensors, peripherals
+
+
+
+# TODO: name device.id=23.port.i=0.voltage the-voltage
+# TODO: name device[id=23].port[index=0].voltage the-voltage
+
+
+# TODO: type user \ has email-handle [unique; !case-sensitive]
+
+
+# namespace.type # map/LUT to last-referenced types
+# namespace.type.key=path    ->     path.id=43      -> path.id=42
+# namespace.type.path        ->     path.id=43      -> path.id=42
+#
+# namespace.structure # map/LUT to last-referenced structures
+# namespace.structure.path
+
+# none
+# number
+# text
+# list
+# index (i.e., map, dictionary)
+
+# name text email-handle             # adds email-handle name to namespace
+# name map temp                       # creates a "temp" map/directory
+#    name dictionary temp
+#    name dict temp
+#    name folder temp
+#    name directory temp
+#    name table temp
+#    name index temp
+# name map ports                      # creates "ports" map/directory (always refers to the one and only type/default structure)
+#    name index ports
+# name port temp.ports.source-port
+
+
+# NOTE: each string separated by '.' is automatically created as an index (structure type)
+# name port temp.ports.source-port
+# name port temp.ports.target-port
+# name port source-port
+# name port temp.ports.source-port.foo # INVALID
+# !temp.ports.source-port
+# name port temp.ports.source-port.foo
+# name port temp.ports.source-port.foo2
+
+
 

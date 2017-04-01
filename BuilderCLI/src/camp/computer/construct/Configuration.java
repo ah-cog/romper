@@ -8,7 +8,7 @@ import camp.computer.util.Pair;
 /**
  * Constrains the values (or values) that can be assigned <em>simultaneously</em> to each of the
  * configurations <em>in combination with each other</em> uniquely identified by each
- * {@code variableConstraint[i].address} to the values (or values) specified in {@code variableConstraint[i].values}.
+ * {@code variableConstraint[i].handle} to the values (or values) specified in {@code variableConstraint[i].values}.
  * <p>
  * Therefore {@code Configuration} specifies a constraint on the valid mutual state assignments among
  * the specified configurations.

@@ -2,43 +2,30 @@
 # Model: IR Rangefinder
 # --------------------------------------------------------------------------------------------------
 
+# Note:
+# This is an example of creating the data structures to model an IR rangefinder in the DB.
+
 structure port
 set mode 'power'
 set direction 'input'
 set voltage 'ttl'
-reference port port-1
-#register port port-1
-#handle port port-1
-#name port port-1
+name port port-1
 
 structure port
 set mode 'power'
 set direction 'output'
 set voltage 'common'
-reference port port-2
-#register port port-2
+name port port-2
 
 structure port
 set mode 'analog'
 set direction 'output'
 set voltage 'ttl'
-reference port port-3
-#register port port-3
+name port port-3
 
 structure device
 add port port-1
 add port port-2
 add port port-3
-reference ir-rangefinder-ttl
-#register ir-rangefinder-ttl
+name device ir-rangefinder-ttl
 
-struct project
-struct project
-struct project
-struct project
-struct project
-struct project
-struct project
-struct project
-struct project
-struct project

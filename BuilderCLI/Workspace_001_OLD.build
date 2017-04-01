@@ -136,9 +136,9 @@ set script:myTaskScript(data);
 # edit port(uid:25)         # _global_ lookup by UID
 # edit port(uuid:<uuid>)    # _global_ lookup by UUID
 # edit port(1)              # _relative_ lookup list item by index
-# edit my-type-address     # _global?_ lookup by address
+# edit my-type-handle     # _global?_ lookup by handle
 # edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
-#? edit port(my-address)              # _relative_ lookup list item by list address and element address?
+#? edit port(my-handle)              # _relative_ lookup list item by list handle and element handle?
 #? edit port                # lookup by property label
 # TODO: extend lookup to include versions... (for certain commands)
 
@@ -192,7 +192,7 @@ set script:myTaskScript(data);
 # TODO: use port uid:33 as "source-port"
 
 # TODO: add type "device"
-# TODO: add device <type-address>
+# TODO: add device <type-handle>
 # TODO: edit device
 # TODO: add variable "variable-name"
 # TODO: set variable-name 34
