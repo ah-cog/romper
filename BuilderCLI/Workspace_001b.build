@@ -81,7 +81,7 @@ has operation list
 port : '1'
 #name port '1'
 #label port '1'
-#handle port '1'
+#resource port '1'
 #tag port '1'
 #call port '1'
 

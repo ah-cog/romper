@@ -8,25 +8,26 @@ import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
 /**
- * An {@code VariableValueSet} stores a list of handle values for a specified handle identified by its unique label.
+ * An {@code VariableValueSet} stores a list of resource values for a specified resource identified by its unique label.
  */
-public class Feature extends Handle {
+public class Feature extends Resource {
 
-    // handle/key: string
+    // <FEATURE_ONLY>
+    // resource/key: string
     // types: string, list, construct-name
     // domain: list of accepted tokens; (or) for lists, stores list of values that can be stored in the list
 
     /**
-     * {@code handle} is a {@code String} that uniquely identifies the {@code Variable} in the
+     * {@code resource} is a {@code String} that uniquely identifies the {@code Variable} in the
      * containing {@code VariableMap}. <em>in the namespace</em>.
      */
     public String identifier = null; // e.g., mode; direction; voltage
-    // TODO: Make handle separate from feature in database so it's identified uniquely by it's types list and domain list?
+    // TODO: Make resource separate from feature in database so it's identified uniquely by it's types list and domain list?
 
     // Content Type (e.g., none, any, text, list, table, etc.)
     public List<Type> types = null; // new ArrayList<>(); // if size == 0, then 'none' type! if null, then 'any'.
 
-    // Content Domain (contains Handle Types and Handle Content)
+    // Content Domain (contains Resource Types and Resource Content)
     // NOTE: This only ever contains "text object" or references to specific constructs
     public List<Structure> domain; // if size == 0, then 'none'! if null, then 'any'!
     // TODO: Create a separate feature domain for each types in featureType
@@ -40,6 +41,13 @@ public class Feature extends Handle {
      */
     public List<Type> listTypes = null; // if size == 0, then unconstrained!
     // TODO: Remove listTypes and add it to the "list" primitive construct's architecture?
+    // </FEATURE_ONLY>
+
+    // <REFERENCE_ONLY>
+    // This is the reference ROOT construct
+    public Class classType = null; // Type.class or Structure.class
+    public Object object = null; // Type or Structure
+    // </REFERENCE_ONLY>
 
     private Feature(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 
@@ -78,7 +86,7 @@ public class Feature extends Handle {
 
     public static Feature request(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 
-        List<Handle> identiferList = Manager.get();
+        List<Resource> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Feature.class) {
                 Feature candidateFeature = (Feature) identiferList.get(i);
@@ -88,7 +96,7 @@ public class Feature extends Handle {
                 boolean hasMatchingDomain = true;
                 boolean hasMatchingListTypes = true;
 
-                // Compare handle
+                // Compare resource
                 if (!candidateFeature.identifier.equals(identifier)) {
                     hasMatchingIdentifier = false;
                 }

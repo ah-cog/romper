@@ -4,15 +4,31 @@
 # Model
 # --------------------------------------------------------------------------------------------------
 
+# Manager contains Resource (replaces "Handle")
+# (?) use "name" to create temporary variable, use "keep" to save it in the namespace
+
+# identifier
+# structure (replaces "type") --- has any number of "structure states"
+# instance (replaces former use of "structure")
+
+# set (rather than map/table)
+# sequence (replaces "list")
+# OR: list / lookup
+
+# history, undo, redo
+
+# list, describe
+# browse, next, previous
+
 type port
-has mode text : 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i3c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
+has mode text : 'digital', 'analog', 'pwm', 'resistive-touch', 'power', 'i2c(scl)', 'i2c(sda)', 'spi(sclk)', 'spi(mosi)', 'spi(miso)', 'spi(ss)', 'uart(rx)', 'uart(tx)'
 has direction text : 'input', 'output', 'bidirectional'
 has voltage text : 'common', 'ttl', 'cmos'
 # TODO: add configurations
 # TODO: let mode:none; direction:none; voltage:none # Automatically infer this?
 # TODO: let mode:'digital'; direction:'input','output','bidirectional'; voltage:'ttl','cmos'
 
-type device
+type device # (unique)
 has port list
 
 type path
@@ -52,7 +68,7 @@ has worker list
 # TODO: name device[id=23].port[index=0].voltage the-voltage
 
 
-# TODO: type user \ has email-handle [unique; !case-sensitive]
+# TODO: type user \ has email-resource [unique; !case-sensitive]
 
 
 # namespace.type # map/LUT to last-referenced types
@@ -68,7 +84,7 @@ has worker list
 # list
 # index (i.e., map, dictionary)
 
-# name text email-handle             # adds email-handle name to namespace
+# name text email-resource             # adds email-resource name to namespace
 # name map temp                       # creates a "temp" map/directory
 #    name dictionary temp
 #    name dict temp

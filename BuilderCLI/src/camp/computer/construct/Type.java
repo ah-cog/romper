@@ -13,10 +13,10 @@ import camp.computer.workspace.Manager;
  * TODO: Integrate Type and Structure
  * TODO: ^ this will enable Reference to replace "Object object" to "Structure structure"
  */
-public class Type extends Handle {
+public class Type extends Resource {
 
-    // TODO: Remove handle and features and replace with "Structure structure" and allocate it according to the "handle" string passed into the constructor or request(...)
-    // TODO: (cont'd) type "handle" allocates <em>text</em> Structure (so even handle text will be unique in memory).
+    // TODO: Remove resource and features and replace with "Structure structure" and allocate it according to the "resource" string passed into the constructor or request(...)
+    // TODO: (cont'd) type "resource" allocates <em>text</em> Structure (so even resource text will be unique in memory).
 
     public String identifier = null;
 
@@ -25,7 +25,7 @@ public class Type extends Handle {
      * <em>number</em>, <em>list</em> (i.e., the primitive types).
      *
      * {@code features} is also {@code null} for <em>every</em> default type (the first one that
-     * serves as an handle).
+     * serves as an resource).
      */
     public HashMap<String, Feature> features = null; // TODO: Remove? Remove setupConfiguration?
     // TODO: Set to null for "none" type
@@ -35,8 +35,11 @@ public class Type extends Handle {
     // TODO: (cont'd) Map<String, List<String>> configurations = null;
     public List<Configuration> configurations = null; // new ArrayList<>();
 
+    // TODO: Structure("map")   for features
+    // TODO: Structure("list")  for configurations
+
     /**
-     * Constructor to create the <em>default type</em> identified by {@code handle}.
+     * Constructor to create the <em>default type</em> identified by {@code resource}.
      *
      * @param identifier
      */
@@ -141,7 +144,7 @@ public class Type extends Handle {
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(identifier)
                     && typeList.get(i).features == null) {
-//            if (typeList.get(i).type == Type.request(handle)) {
+//            if (typeList.get(i).type == Type.request(resource)) {
                 return typeList.get(i);
             }
         }
@@ -183,24 +186,24 @@ public class Type extends Handle {
     }
 
     /**
-     * Returns the <em>default type</em> for the specified {@code handle} if it exists.
+     * Returns the <em>default type</em> for the specified {@code resource} if it exists.
      *
      * e.g.,
-     * Type.request("none") => Type with "none" handle, null features, null configurations
+     * Type.request("none") => Type with "none" resource, null features, null configurations
      *
      * @param identifier
      * @return
      */
     public static Type request(String expression) {
 
-        // TODO: Handle case where one or more Concepts exist with handle, but none with non-null features and/or configurations.
+        // TODO: Resource case where one or more Concepts exist with resource, but none with non-null features and/or configurations.
 
-        // Search for <em>handle</em> (default type or type handle).
+        // Search for <em>resource</em> (default type or type resource).
         List<Type> typeList = Manager.get(Type.class);
         for (int i = 0; i < typeList.size(); i++) {
             if (typeList.get(i).identifier.equals(expression)
                     && typeList.get(i).features == null) {
-                // Return the <em>default</em> {@code Type} for the handle.
+                // Return the <em>default</em> {@code Type} for the resource.
                 return typeList.get(i);
             }
         }
@@ -228,7 +231,7 @@ public class Type extends Handle {
         }
 
         // TODO: Separate request and create! Potentially add a requestOrCreate function! Yeah do that.
-//        return create(handle);
+//        return create(resource);
 //        return create(expression);
         return null;
     }
@@ -243,8 +246,8 @@ public class Type extends Handle {
 
     /**
      * Requests the {@code Type} identical to {@code baseType} with the exception of the
-     * {@code Feature} with handle {@code targetFeature}. The {@code Feature} corresponding to
-     * handle {@code targetFeature} must be identical to {@code feature}.
+     * {@code Feature} with resource {@code targetFeature}. The {@code Feature} corresponding to
+     * resource {@code targetFeature} must be identical to {@code feature}.
      *
      * Used to add, remove, or change the target.
      *
@@ -263,7 +266,7 @@ public class Type extends Handle {
         // TODO: Check if {@code type} exists with the specified featureIdentifier set to Feature, with all else equal
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Handle> identiferList = Manager.get();
+        List<Resource> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Type.class) {
                 Type candidateType = (Type) identiferList.get(i);
@@ -463,7 +466,7 @@ public class Type extends Handle {
 
     /**
      * Returns {@code true} if at least one {@code Type} exists for the specified
-     * {@code handle}.
+     * {@code resource}.
      *
      * @return True
      */

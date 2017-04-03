@@ -8,7 +8,7 @@ set direction 'input'
 set voltage 'ttl'
 reference port port-1
 #register port port-1
-#handle port port-1
+#resource port port-1
 #name port port-1
 
 structure port

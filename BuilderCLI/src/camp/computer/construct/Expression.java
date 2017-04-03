@@ -24,7 +24,7 @@ public class Expression {
         expression = expression.replaceAll("[ ]+\\(", "(");
         expression = expression.replaceAll("[ ]+:[ ]+", ":");
 
-        // Replace label parameter tokens with handle tokens (not first token)
+        // Replace label parameter tokens with resource tokens (not first token)
         String[] tokens = expression.split(" ");
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0 || Type.exists(tokens[0])) {

@@ -3,7 +3,7 @@ package camp.computer;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import camp.computer.construct.Handle;
+import camp.computer.construct.Resource;
 import camp.computer.construct.Namespace;
 import camp.computer.construct.Structure;
 import camp.computer.construct.Type;
@@ -157,7 +157,7 @@ public class Interpreter {
                 Reference reference = namespace.references.get(referenceKey);
 
                 // Update object
-                namespace.handle = reference;
+                namespace.resource = reference;
 
                 System.out.println(Color.ANSI_YELLOW + referenceKey + Color.ANSI_RESET + " -> " + reference.toColorString());
 
@@ -177,29 +177,29 @@ public class Interpreter {
                 if (Type.exists(identifierToken)) {
                     if (addressTypeToken.equals("id")) {
                         long id = Long.parseLong(addressToken);
-                        Handle handle = Manager.get(id);
-                        if (handle == null) {
+                        Resource resource = Manager.get(id);
+                        if (resource == null) {
                             System.out.println(Color.ANSI_RED + "Error: No data exists with id=" + id + Color.ANSI_RESET);
-                        } else if (handle.getClass() == Reference.class) {
-                            Reference reference = (Reference) handle;
+                        } else if (resource.getClass() == Reference.class) {
+                            Reference reference = (Reference) resource;
 //                            Structure structure = (Structure) reference.object;
                             System.out.println(reference.toColorString());
 
                             // Update object
-                            namespace.handle = reference;
-                        } else if (handle.getClass() == Structure.class) {
-                            Structure structure = (Structure) handle;
+                            namespace.resource = reference;
+                        } else if (resource.getClass() == Structure.class) {
+                            Structure structure = (Structure) resource;
                             System.out.println(structure.toColorString());
 
                             // Update object
-                            namespace.handle = structure;
+                            namespace.resource = structure;
 
-                        } else if (handle.getClass() == Type.class) {
-                            Type type = (Type) handle;
+                        } else if (resource.getClass() == Type.class) {
+                            Type type = (Type) resource;
                             System.out.println(type.toColorString());
 
                             // Update object
-                            namespace.handle = type;
+                            namespace.resource = type;
                         }
                     } else if (namespace.expression.contains("uuid:")) {
                         // TODO:
@@ -237,7 +237,7 @@ public class Interpreter {
 
         if (inputLineTokens.length == 1) {
 
-            System.out.println("Usage: type <handle>");
+            System.out.println("Usage: type <resource>");
 
         } else if (inputLineTokens.length == 2) {
 
@@ -292,7 +292,7 @@ public class Interpreter {
             System.out.println(type.toColorString());
 
             // Update object
-            namespace.handle = type;
+            namespace.resource = type;
 
             // TODO: Factor this into a function in Namespace (to automate tracking of most-recent type)
             namespace.references.put("type " + typeIdentifierToken, Reference.create(type));
@@ -310,7 +310,7 @@ public class Interpreter {
         // Defaults
         String featureIdentifierToken = null;
 
-        // Determine handle
+        // Determine resource
         if (inputLineTokens.length >= 2) {
             featureIdentifierToken = inputLineTokens[1];
 
@@ -355,8 +355,8 @@ public class Interpreter {
                     namespace.references.put(structure.type.identifier, constructReference);
 
                     // Update object
-//                    handle = structure;
-                    namespace.handle = constructReference;
+//                    resource = structure;
+                    namespace.resource = constructReference;
                 } else {
                     System.out.println(Color.ANSI_RED + "Error: No types or type matches '" + featureIdentifierToken + "'" + Color.ANSI_RESET);
                 }
@@ -385,20 +385,20 @@ public class Interpreter {
         // Defaults
         String featureIdentifierToken = null;
 
-        // Determine handle
+        // Determine resource
         if (inputLineTokens.length >= 3) {
             featureIdentifierToken = inputLineTokens[1];
             String referenceIdentifier = inputLineTokens[2];
 
 //            Type type = null;
-//            // TODO: Check if type identifier token is an EXACT type handle. Otherwise, get indexed, or default.
+//            // TODO: Check if type identifier token is an EXACT type resource. Otherwise, get indexed, or default.
 //            if (Type.exists(featureIdentifierToken)) {
 //                // TODO: Factor this into a function in Namespace (to automate tracking of most-recent type)
 //                type = namespace.typeReferences.get(featureIdentifierToken);
 //            }
 //            Structure structure = null;
             Reference reference = null;
-            // TODO: Check if structure identifier token is an EXACT structure handle. Otherwise, get indexed, or default.
+            // TODO: Check if structure identifier token is an EXACT structure resource. Otherwise, get indexed, or default.
 //            if (Type.exists(featureIdentifierToken)) {
                 // TODO: Factor this into a function in Namespace (to automate tracking of most-recent structure)
             // Resolve the referenced type or structure.
@@ -450,7 +450,7 @@ public class Interpreter {
         String[] inputLineSegments = namespace.expression.split("[ ]*:[ ]*");
 
         // Determine interpreter's object. Type or instance?
-        if (Handle.isType(namespace.handle)) {
+        if (Resource.isType(namespace.resource)) {
 
             // Defaults
             String featureIdentifier = null;
@@ -459,17 +459,17 @@ public class Interpreter {
 
             boolean hasError = false;
 
-            // Determine handle and types
+            // Determine resource and types
             if (inputLineSegments.length >= 1) {
 
                 String[] inputLineTokens = inputLineSegments[0].split("[ ]+");
 
-                // Determine handle
+                // Determine resource
                 featureIdentifier = inputLineTokens[1];
 
 //                // <REFACTOR>
 //                // Check if the feature already exists in the current object
-//                if (Handle.getType(namespace.handle).features.containsKey(featureIdentifier)) {
+//                if (Resource.getType(namespace.resource).features.containsKey(featureIdentifier)) {
 //                    System.out.println(Color.ANSI_RED + "Warning: Namespace already contains feature '" + featureIdentifier + "'. A new construct revision will be generated." + Color.ANSI_RESET);
 //                }
 //                // </REFACTOR>
@@ -491,9 +491,9 @@ public class Interpreter {
                             if (listTypes == null) {
                                 listTypes = new List<>();
                             }
-                            listTypes.add(Type.request(featureIdentifier)); // If handle is a construct types, then constraint list to that types by default
+                            listTypes.add(Type.request(featureIdentifier)); // If resource is a construct types, then constraint list to that types by default
                         } else {
-                            listTypes = null; // If handle is non-construct types then default list types is "any"
+                            listTypes = null; // If resource is non-construct types then default list types is "any"
                         }
                     } else {
                         // TODO: Refactor. There's some weird redundancy here with 'has' and 'Type.request'.
@@ -690,7 +690,7 @@ public class Interpreter {
 //                            for (int i = 0; i < constraintTokens.length; i++) {
 //                                String constraintToken = constraintTokens[i].trim();
 //                                // TODO: Verify this... it might be a bug...
-//                                if (!constraintToken.equals(featureTagToken)) { // NOTE: featureTagToken is the custom types handle.
+//                                if (!constraintToken.equals(featureTagToken)) { // NOTE: featureTagToken is the custom types resource.
 //                                    hasError = true;
 //                                }
 //                            }
@@ -702,7 +702,7 @@ public class Interpreter {
                         for (int i = 0; i < constraintTokens.length; i++) {
                             String constraintToken = constraintTokens[i];
                             for (int j = 0; j < featureTypes.size(); j++) {
-                                if (!constraintToken.equals(featureTypes.get(j).identifier)) { // NOTE: featureTagToken is the custom types handle.
+                                if (!constraintToken.equals(featureTypes.get(j).identifier)) { // NOTE: featureTagToken is the custom types resource.
                                     hasError = true;
                                 }
                             }
@@ -777,10 +777,10 @@ public class Interpreter {
                 */
                 // TODO: Create new version of type here if feature is changed?
 
-                Type baseType = Handle.getType(namespace.handle);
-//                Type baseType = Handle.getType(namespace.typeReferences.request(featureIdentifier));
+                Type baseType = Resource.getType(namespace.resource);
+//                Type baseType = Resource.getType(namespace.typeReferences.request(featureIdentifier));
                 Type replacementType = Type.request(baseType, featureIdentifier, feature);
-                namespace.handle = replacementType;
+                namespace.resource = replacementType;
 
                 // TODO: Factor this into a function in Namespace (to automate tracking of most-recent type)
                 namespace.references.put("type " + replacementType.identifier, Reference.create(replacementType));
@@ -794,7 +794,7 @@ public class Interpreter {
 //                System.out.println("\tbaseType.id: " + baseType.uid);
 //                System.out.println("\treplacementType.id: " + replacementType.uid);
 
-//                Handle.getType(namespace.handle).features.put(featureIdentifier, feature);
+//                Resource.getType(namespace.resource).features.put(featureIdentifier, feature);
 //                long uid = Manager.add(feature);
 //                // TODO: initialize "text" with default empty string construct reference (and other types accordingly)
 
@@ -871,8 +871,8 @@ public class Interpreter {
 ////                    } else if (feature.listType == Type.request("any")) {
 //                    } else if (feature.listTypes.contains(Type.request("any"))) {
 //                        System.out.print("can contain " + Type.request("any") + "");
-////                    } else if (TypeId.has(feature.listType.handle)) {
-//                    } else { // if (TypeId.has(feature.listType.handle)) {
+////                    } else if (TypeId.has(feature.listType.resource)) {
+//                    } else { // if (TypeId.has(feature.listType.resource)) {
 //                        for (int i = 0; i < feature.listTypes.size(); i++) {
 //                            System.out.print("can contain " + feature.listTypes.request(i) + ": ");
 //                        }
@@ -907,7 +907,7 @@ public class Interpreter {
                 System.out.println(Color.ANSI_RED + "Error: Bad feature syntax." + Color.ANSI_RESET);
             }
 
-        } else if (Handle.isType(namespace.handle)) {
+        } else if (Resource.isType(namespace.resource)) {
 
             // TODO:
 
@@ -922,23 +922,23 @@ public class Interpreter {
     public void setTask(Namespace namespace) {
 
         // Determine interpreter's object. Type or instance?
-        if (Handle.isStructure(namespace.handle)) {
+        if (Resource.isStructure(namespace.resource)) {
 
             String[] inputLineTokens = namespace.expression.split("[ ]+");
 
             // Defaults
             String featureIdentifier = null;
 
-            // Determine handle
+            // Determine resource
             if (inputLineTokens.length >= 3) {
 
-                // Extract feature handle and feature state
+                // Extract feature resource and feature state
                 featureIdentifier = inputLineTokens[1];
                 String stateExpression = inputLineTokens[2];
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure currentStructure = Handle.getStructure(namespace.handle);
+                Structure currentStructure = Resource.getStructure(namespace.resource);
                 HashMap<String, Feature> currentConstructFeatures = currentStructure.type.features; // (HashMap<String, Feature>) currentStructure.object;
 
                 Structure currentFeatureStructure = Structure.getStates(currentStructure).get(featureIdentifier);
@@ -973,13 +973,13 @@ public class Interpreter {
                     boolean isSameConstruct = true;
                     Structure replacementStructure = Structure.request(currentStructure, featureIdentifier, replacementFeatureStructure);
                     if (replacementStructure != null) {
-                        ((Reference) namespace.handle).object = replacementStructure;
+                        ((Reference) namespace.resource).object = replacementStructure;
                         if (currentStructure == replacementStructure) {
                             isSameConstruct = true;
                         } else {
                             isSameConstruct = false;
                         }
-                        currentStructure = (Structure) ((Reference) namespace.handle).object;
+                        currentStructure = (Structure) ((Reference) namespace.resource).object;
                     }
 
                     // Print the feature construct
@@ -989,7 +989,7 @@ public class Interpreter {
                     // Print the in-namespace construct (with the new feature construct)
                     if (replacementStructure != null) {
                         System.out.print(Color.ANSI_CYAN + (isSameConstruct ? "[SAME CONSTRUCT] " : "[SWITCHED CONSTRUCT] ") + Color.ANSI_RESET);
-                        System.out.println(((Reference) namespace.handle).toColorString());
+                        System.out.println(((Reference) namespace.resource).toColorString());
                     }
                 }
 
@@ -1006,7 +1006,7 @@ public class Interpreter {
     public void addTask(Namespace namespace) {
 
         // Determine interpreter's object. Type or instance?
-        if (Handle.isStructure(namespace.handle)) {
+        if (Resource.isStructure(namespace.resource)) {
 
             // Defaults
             String featureIdentifier = null;
@@ -1029,7 +1029,7 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure currentStructure = (Structure) ((Reference) namespace.handle).object;
+                Structure currentStructure = (Structure) ((Reference) namespace.resource).object;
                 HashMap<String, Feature> currentConstructFeatures = currentStructure.type.features; // (HashMap<String, Feature>) currentStructure.object;
 
                 // Check if feature is valid. If not, show error.
@@ -1066,16 +1066,16 @@ public class Interpreter {
 //                    System.out.println("reference -> " + replacementStructure);
 
                     if (replacementStructure != null) {
-                        ((Reference) namespace.handle).object = replacementStructure;
+                        ((Reference) namespace.resource).object = replacementStructure;
                         if (currentStructure == replacementStructure) {
                             System.out.print("[SAME CONSTRUCT] ");
                         } else {
                             System.out.print("[SWITCHED CONSTRUCT] ");
                         }
-                        currentStructure = (Structure) ((Reference) namespace.handle).object;
+                        currentStructure = (Structure) ((Reference) namespace.resource).object;
 //                    System.out.println("REPLACEMENT: " + replacementStructure);
-//                        System.out.println("reference " + currentStructure.type.toColorString() + " (id: " + namespace.handle.uid + ") -> construct " + currentStructure.type.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
-                        System.out.println(currentStructure.type.identifier + ".id=" + namespace.handle.uid + " -> " + currentStructure.type.identifier + ".id=" + currentStructure.uid);
+//                        System.out.println("reference " + currentStructure.type.toColorString() + " (id: " + namespace.resource.uid + ") -> construct " + currentStructure.type.toColorString() + " (id: " + currentStructure.uid + ")" + " (uuid: " + currentStructure.uuid + ")");
+                        System.out.println(currentStructure.type.identifier + ".id=" + namespace.resource.uid + " -> " + currentStructure.type.identifier + ".id=" + currentStructure.uid);
                     }
 
                 } else {
@@ -1086,16 +1086,16 @@ public class Interpreter {
 
 
 
-//                Structure currentStructure = (Structure) ((Reference) handle).object;
+//                Structure currentStructure = (Structure) ((Reference) resource).object;
 ////                Structure currentFeatureStructure = currentStructure.states.request(featureIdentifier);
 //
 ////                Structure replacementFeatureConstruct = Structure.request(stateExpression);
 ////                Structure replacementConstruct = Manager.getPersistentConstruct(currentStructure, featureIdentifier, replacementFeatureConstruct);
 //
-////                ((Structure) handle).insert(featureIdentifier, featureContentToken);
+////                ((Structure) resource).insert(featureIdentifier, featureContentToken);
 //
 //                System.out.print(featureIdentifier + " : ");
-////                List list = (List) ((Structure) handle).states.request(featureIdentifier).object;
+////                List list = (List) ((Structure) resource).states.request(featureIdentifier).object;
 //
 //
 //                Structure additionalFeatureConstruct = Structure.request(stateExpression); // replacementConstruct
@@ -1131,14 +1131,14 @@ public class Interpreter {
             List<Type> typeIdList = Type.list();
             for (int i = 0; i < typeIdList.size(); i++) {
                 List<Reference> referenceList = Manager.get(Reference.class);
-                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).handle + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).resource + Application.ANSI_RESET + " (" + constructList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
 //                int typeReferenceCount = 0;
 //                for (int j = 0; j < referenceList.size(); j++) {
 //                    if (((Structure) (((Reference) referenceList.request(j)).object)).type == typeIdList.request(i)) {
 //                        typeReferenceCount++;
 //                    }
 //                }
-//                System.out.println(Color.ANSI_BLUE + typeIdList.request(i).handle + Color.ANSI_RESET + " (count: " + typeReferenceCount + ")");
+//                System.out.println(Color.ANSI_BLUE + typeIdList.request(i).resource + Color.ANSI_RESET + " (count: " + typeReferenceCount + ")");
                 System.out.println(Color.ANSI_BLUE + typeIdList.get(i).identifier + Color.ANSI_RESET);
             }
 
@@ -1162,28 +1162,28 @@ public class Interpreter {
                     if (identifierTypeToken.equals("id")) {
                         Structure structure = null;
                         Type type = null;
-                        Handle handle = Manager.get(uid);
-                        if (handle == null) {
+                        Resource resource = Manager.get(uid);
+                        if (resource == null) {
                             System.out.println(Error.get("No type with UID " + uid));
                             return;
                         }
 
-                        if (handle.getClass() == Reference.class) {
-                            Reference reference = (Reference) handle;
+                        if (resource.getClass() == Reference.class) {
+                            Reference reference = (Reference) resource;
                             structure = (Structure) reference.object;
-                        } else if (handle.getClass() == Structure.class) {
-                            structure = (Structure) handle;
+                        } else if (resource.getClass() == Structure.class) {
+                            structure = (Structure) resource;
                             type = structure.type;
-//                        } else if (handle.getClass() == Type.class) {
+//                        } else if (resource.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) handle;
+//                            //                                Type type = (Type) resource;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
-                        } else if (handle.getClass() == Type.class) {
-                            type = (Type) handle;
+                        } else if (resource.getClass() == Type.class) {
+                            type = (Type) resource;
                             structure = null;
-    //                        } else if (handle.getClass() == Type.class) {
+    //                        } else if (resource.getClass() == Type.class) {
     //                            System.out.println("Error: The UID is for a type.");
-    //                            //                                Type type = (Type) handle;
+    //                            //                                Type type = (Type) resource;
     //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                         }
 
@@ -1201,7 +1201,7 @@ public class Interpreter {
                                 System.out.println(Color.ANSI_BLUE + structure.type.identifier + Color.ANSI_RESET + " primitive structure representing a list that contains constructs");
                             } else {
 
-//                                System.out.println(Color.ANSI_BLUE + structure.type.handle + Color.ANSI_RESET);
+//                                System.out.println(Color.ANSI_BLUE + structure.type.resource + Color.ANSI_RESET);
                                 if (structure != null) {
                                     System.out.println(structure.toColorString());
                                 } else {
@@ -1335,7 +1335,7 @@ public class Interpreter {
 //            List<Type> typeList = Type.list();
 //            for (int i = 0; i < typeList.size(); i++) {
 //                List<Structure> structureList = Manager.getStructureList(typeList.get(i));
-//                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).handle + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
+//                // System.out.println("(id: " + typeIdList.request(i).uid + ") " + Application.ANSI_BLUE + typeIdList.request(i).resource + Application.ANSI_RESET + " (" + structureList.size() + ") (uuid: " + typeIdList.request(i).uuid + ")");
 //                System.out.println(Color.ANSI_BLUE + typeList.get(i).identifier + Color.ANSI_RESET + " (count: " + structureList.size() + ")");
 //            }
 
@@ -1412,20 +1412,20 @@ public class Interpreter {
                         if (addressTypeToken.equals("id")) {
                             Structure structure = null;
                             long uid = Long.parseLong(addressToken.trim());
-                            Handle handle = Manager.get(uid);
-                            if (handle == null) {
+                            Resource resource = Manager.get(uid);
+                            if (resource == null) {
                                 System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
                                 return;
                             }
 
-//                            if (handle.getClass() == Reference.class) {
-//                                Reference reference = (Reference) handle;
+//                            if (resource.getClass() == Reference.class) {
+//                                Reference reference = (Reference) resource;
 //                                structure = (Structure) reference.object;
-//                            } else if (handle.getClass() == Structure.class) {
-                                structure = (Structure) handle;
-//                        } else if (handle.getClass() == Type.class) {
+//                            } else if (resource.getClass() == Structure.class) {
+                                structure = (Structure) resource;
+//                        } else if (resource.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) handle;
+//                            //                                Type type = (Type) resource;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
 //                            }
 
@@ -1545,20 +1545,20 @@ public class Interpreter {
                         if (addressTypeToken.equals("id")) {
                             Structure structure = null;
                             long uid = Long.parseLong(addressToken.trim());
-                            Handle handle = Manager.get(uid);
-                            if (handle == null) {
+                            Resource resource = Manager.get(uid);
+                            if (resource == null) {
                                 System.out.println(Color.ANSI_RED + "Error: No type with UID " + uid + Color.ANSI_RESET);
                                 return;
                             }
 
-                            if (handle.getClass() == Reference.class) {
-                                Reference reference = (Reference) handle;
+                            if (resource.getClass() == Reference.class) {
+                                Reference reference = (Reference) resource;
                                 structure = (Structure) reference.object;
-                            } else if (handle.getClass() == Structure.class) {
-                                structure = (Structure) handle;
-//                        } else if (handle.getClass() == Type.class) {
+                            } else if (resource.getClass() == Structure.class) {
+                                structure = (Structure) resource;
+//                        } else if (resource.getClass() == Type.class) {
 //                            System.out.println("Error: The UID is for a type.");
-//                            //                                Type type = (Type) handle;
+//                            //                                Type type = (Type) resource;
 //                            //                                System.out.println("Found " + type.types + " with UID " + uid);
                             }
 
@@ -1666,12 +1666,12 @@ public class Interpreter {
         String[] inputLineTokens = namespace.expression.split("[ ]+");
 
         // Determine interpreter's object. Type or instance?
-        if (Handle.isType(namespace.handle)) {
+        if (Resource.isType(namespace.resource)) {
 
 //            // Defaults
 //            String featureTagToken = null;
 //
-//            // Determine handle
+//            // Determine resource
 //            if (inputLineTokens.length >= 2) {
 //                featureTagToken = inputLineTokens[1];
 //            }
@@ -1717,7 +1717,7 @@ public class Interpreter {
             // TODO: ^^ this is analogous to the feature-level domain, but for multiple features
 
             // Add VariableMap Option/Configuration
-            Type type = (Type) namespace.handle;
+            Type type = (Type) namespace.resource;
             if (type.configurations == null) {
                 type.configurations = new List<>();
             }
@@ -1754,14 +1754,14 @@ public class Interpreter {
 //                currentConcept.features.put(featureTagToken, feature);
 //
 //                // Print response
-//                System.out.println("added feature '" + feature.handle + "' of types '" + feature.types + "' (" + currentConcept.features.size() + ")");
+//                System.out.println("added feature '" + feature.resource + "' of types '" + feature.types + "' (" + currentConcept.features.size() + ")");
 //            } else {
 //                // Print response
 //                System.out.println("error: bad feature syntax");
 //            }
 
 
-        } else if (Handle.isStructure(namespace.handle)) {
+        } else if (Resource.isStructure(namespace.resource)) {
 
             // TODO:
 
@@ -1968,9 +1968,9 @@ public class Interpreter {
 //    public void solvePathConfigurationTask(Namespace namespace) {
 //
 //        // solve uid(34)
-//        // solve path <path-handle>
+//        // solve path <path-resource>
 //
-//        // request path <handle>
+//        // request path <resource>
 //        // edit path
 //        // set source-port[OLD_construct-types] uid:34
 //        // set target-port[OLD_construct-types] uid:34
@@ -1982,7 +1982,7 @@ public class Interpreter {
 //
 //        String[] inputLineTokens = namespace.expression.split("[ ]+");
 //
-//        // TODO: Parse handle token (for index, UID, UUID; handle/key/handle)
+//        // TODO: Parse resource token (for index, UID, UUID; resource/key/resource)
 //
 //        PathConstruct pathConstruct = (PathConstruct) Manager_v1.get(inputLineTokens[1]);
 //

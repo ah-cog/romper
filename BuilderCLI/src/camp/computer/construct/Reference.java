@@ -3,7 +3,7 @@ package camp.computer.construct;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-public class Reference extends Handle {
+public class Reference extends Resource {
 
     // TODO: OWNER/USER (has a timeline of these?)
 
@@ -11,7 +11,7 @@ public class Reference extends Handle {
     public Class classType = null; // Type.class or Structure.class
     public Object object = null; // Type or Structure
 
-    // TODO?: handle string?
+    // TODO?: resource string?
     // TODO: type list (restricts types that can be referenced)
     // TODO: domain list (restricts constructs that can be referenced)
 

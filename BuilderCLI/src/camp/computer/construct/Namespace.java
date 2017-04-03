@@ -27,7 +27,7 @@ public class Namespace {
 
     public String expression = null;
 
-    public Handle handle = null;
+    public Resource resource = null;
 
     private Namespace() {
     }

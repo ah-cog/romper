@@ -4,7 +4,7 @@ import java.util.HashMap;
 //import java.util.List;
 import java.util.Map;
 
-import camp.computer.construct.Handle;
+import camp.computer.construct.Resource;
 import camp.computer.construct.Type;
 import camp.computer.construct.Structure;
 import camp.computer.construct.Feature;
@@ -15,31 +15,31 @@ public class Manager {
     public static long elementCounter = 0L;
 
 //    private static HashMap<Long, Type> elements = new HashMap<>();
-    private static HashMap<Long, Handle> elements = new HashMap<>();
+    private static HashMap<Long, Resource> elements = new HashMap<>();
 
-    public static long add(Handle handle) {
+    public static long add(Resource resource) {
         long uid = Manager.elementCounter++;
-        handle.uid = uid;
-        Manager.elements.put(uid, handle);
+        resource.uid = uid;
+        Manager.elements.put(uid, resource);
         return uid;
     }
 
-    public static List<Handle> get() {
+    public static List<Resource> get() {
         return new List<>(elements.values());
     }
 
-    public static <T extends Handle> List<T> get(Class classType) {
+    public static <T extends Resource> List<T> get(Class classType) {
         List<T> constructList = new List<>();
-        for (Handle handle : elements.values()) {
-            if (handle.getClass() == classType) {
-                constructList.add((T) handle);
+        for (Resource resource : elements.values()) {
+            if (resource.getClass() == classType) {
+                constructList.add((T) resource);
             }
         }
         return constructList;
     }
 
 //    public static Type request(long uid) {
-    public static Handle get(long uid) {
+    public static Resource get(long uid) {
         return elements.get(uid);
     }
 
@@ -52,7 +52,7 @@ public class Manager {
 //
 //            if (stateType == TypeId.request("none")) {
 //                // Look for existing (persistent) state for the given expression
-//                List<Handle> identiferList = Manager.request();
+//                List<Resource> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.request(i).getClass() == State.class) {
 //                        State state = (State) identiferList.request(i);
@@ -68,7 +68,7 @@ public class Manager {
 //                // [ ] text(id:234)
 //
 //                // Look for existing (persistent) state for the given expression
-//                List<Handle> identiferList = Manager.request();
+//                List<Resource> identiferList = Manager.request();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.request(i).getClass() == State.class) {
 //                        State state = (State) identiferList.request(i);
@@ -92,26 +92,26 @@ public class Manager {
 //
 //                    long uid = Long.parseLong(addressToken.trim());
 //
-//                    Handle handle = Manager.request(uid);
-////                    if (handle != null) {
-////                        if (handle.getClass() == Structure.class) {
+//                    Resource resource = Manager.request(uid);
+////                    if (resource != null) {
+////                        if (resource.getClass() == Structure.class) {
 ////                            State state = State.getState(stateType);
-////                            state.object = handle;
+////                            state.object = resource;
 ////                            return state;
 ////                        }
 ////                    }
 //
 //
 //                    // Look for existing (persistent) state for the given expression
-//                    if (handle != null) {
-//                        List<Handle> identiferList = Manager.request();
+//                    if (resource != null) {
+//                        List<Resource> identiferList = Manager.request();
 //                        for (int i = 0; i < identiferList.size(); i++) {
 //                            if (identiferList.request(i).getClass() == State.class) {
 //                                State state = (State) identiferList.request(i);
 ////                            String textContent = expression.substring(1, expression.length() - 1);
 //                                // TODO: Also check TypeId?
 //                                if (state.objectType == Structure.class && state.object != null
-//                                        && state.object == handle) {
+//                                        && state.object == resource) {
 //                                    return state;
 //                                }
 //                            }
@@ -131,7 +131,7 @@ public class Manager {
 //
 //            if (type == TypeId.request("none")) {
 //                // Look for existing (persistent) state for the given expression
-//                List<Handle> identiferList = Manager.get();
+//                List<Resource> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -147,7 +147,7 @@ public class Manager {
 //                // [ ] text(id:234)
 //
 //                // Search for persistent "empty text" object (i.e., the default text).
-//                List<Handle> identiferList = Manager.get();
+//                List<Resource> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -164,7 +164,7 @@ public class Manager {
 //                // TODO: Also support looking up by construct permutation contained in list?
 //
 //                // Look for persistent "empty list" object (i.e., the default list).
-//                List<Handle> identiferList = Manager.get();
+//                List<Resource> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -177,10 +177,10 @@ public class Manager {
 //
 //            } else {
 //
-//                Type type = Type.request(type.handle);
+//                Type type = Type.request(type.resource);
 //
 //                // Look for persistent "empty list" object (i.e., the default list).
-//                List<Handle> identiferList = Manager.get();
+//                List<Resource> identiferList = Manager.get();
 //                for (int i = 0; i < identiferList.size(); i++) {
 //                    if (identiferList.get(i).getClass() == Structure.class) {
 //                        Structure structure = (Structure) identiferList.get(i);
@@ -235,7 +235,7 @@ public class Manager {
 
             if (type == Type.request("none")) {
                 // Look for existing (persistent) state for the given expression
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -251,7 +251,7 @@ public class Manager {
                 // [ ] text(id:234)
 
                 // Search for persistent "empty text" object (i.e., the default text).
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -268,7 +268,7 @@ public class Manager {
                 // TODO: Also support looking up by construct permutation contained in list?
 
                 // Look for persistent "empty list" object (i.e., the default list).
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -284,7 +284,7 @@ public class Manager {
 //                Type type = Type.request(type);
 
                 // Look for persistent "empty list" object (i.e., the default list).
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -338,7 +338,7 @@ public class Manager {
 //        TypeId type = TypeId.request("list");
 //
 //        // Look for persistent "empty list" object (i.e., the default list).
-//        List<Handle> identiferList = Manager.request();
+//        List<Resource> identiferList = Manager.request();
 //        for (int i = 0; i < identiferList.size(); i++) {
 //            if (identiferList.request(i).getClass() == Structure.class) {
 //                Structure candidateConstruct = (Structure) identiferList.request(i);
@@ -418,22 +418,22 @@ public class Manager {
     // TODO: Move to Structure.list(Type)
     public static List<Structure> getStructureList(Type type) {
 
-//        Type type2 = Type.request(type.handle);
+//        Type type2 = Type.request(type.resource);
 
         List<Structure> structureList = new List<>();
-        for (Handle handle : elements.values()) {
-            if (handle.getClass() == Structure.class) {
-                if (((Structure) handle).type == type) {
-                    structureList.add((Structure) handle);
+        for (Resource resource : elements.values()) {
+            if (resource.getClass() == Structure.class) {
+                if (((Structure) resource).type == type) {
+                    structureList.add((Structure) resource);
                 }
             }
         }
         return structureList;
     }
 
-//    public static List<Handle> request(Class classType) {
-//        List<Handle> elements = new ArrayList<>();
-//        for (Handle element : Manager.elements.values()) {
+//    public static List<Resource> request(Class classType) {
+//        List<Resource> elements = new ArrayList<>();
+//        for (Resource element : Manager.elements.values()) {
 //            if (element.getClass() == classType) {
 //                elements.add(element);
 //            }
@@ -442,7 +442,7 @@ public class Manager {
 //    }
 
 //    public static Type request(String constructUri) {
-//    public static Handle get(String constructUri) {
+//    public static Resource get(String constructUri) {
 //
 //        // Parse:
 //        // 3
@@ -453,13 +453,13 @@ public class Manager {
 //        // edit port(uid:25)         # _global_ lookup by UID
 //        // edit port(uuid:<uuid>)    # _global_ lookup by UUID
 //        // edit port(1)              # _relative_ lookup list item by index
-//        // edit my-OLD_construct-handle     # _global?_ lookup by handle
+//        // edit my-OLD_construct-resource     # _global?_ lookup by resource
 //        // edit :device(1):port(1)   # explicit "full path" lookup prefixed by ":" indicating "from workspace..."
 //        //
-//        // edit port(my-handle)              # _relative_ lookup list item by list handle and element handle?
+//        // edit port(my-resource)              # _relative_ lookup list item by list resource and element resource?
 //        // edit port                # lookup by property label
 //
-////        if (handle.startsWith("port")) {
+////        if (resource.startsWith("port")) {
 ////
 ////        }
 //
@@ -509,22 +509,22 @@ public class Manager {
 //
 //        } else {
 //
-////            String handle = constructUri.substring(1, constructUri.length() - 1);
+////            String resource = constructUri.substring(1, constructUri.length() - 1);
 //            String title = String.valueOf(constructUri);
 //
-//            List<Handle> addresses = new ArrayList<>(elements.values());
+//            List<Resource> addresses = new ArrayList<>(elements.values());
 //
 ////            for (long uid : elements.keySet()) {
 ////                Type OLD_construct = elements.clone(uid);
-////                if (OLD_construct.handle != null && OLD_construct.handle.equals(handle)) {
+////                if (OLD_construct.resource != null && OLD_construct.resource.equals(resource)) {
 ////                    return OLD_construct;
 ////                }
 ////            }
 //
 //            for (int i = 0; i < addresses.size(); i++) {
-//                Handle handle = addresses.get(i);
-//                if (handle.tag != null && handle.tag.equals(title)) {
-//                    return handle;
+//                Resource resource = addresses.get(i);
+//                if (resource.tag != null && resource.tag.equals(title)) {
+//                    return resource;
 //                }
 //            }
 //
@@ -534,7 +534,7 @@ public class Manager {
 //
 //    }
 
-    public static Handle remove(long uid) {
+    public static Resource remove(long uid) {
 
         if (elements.containsKey(uid)) {
             return elements.remove(uid);

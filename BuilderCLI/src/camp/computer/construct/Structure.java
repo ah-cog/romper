@@ -8,7 +8,7 @@ import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-public class Structure extends Handle {
+public class Structure extends Resource {
 
     // In Redis, primitive types has types and content; non-primitive has no content.
     // TODO: Use "features" object as a HashMap for non-primitive to reference features;
@@ -311,7 +311,7 @@ public class Structure extends Handle {
                 // TODO: Also support looking up by construct permutation contained in list?
 
                 // Look for existing (persistent) state for the given expression
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -333,32 +333,32 @@ public class Structure extends Handle {
 
                     long uid = Long.parseLong(addressToken.trim());
 
-                    Handle handle = Manager.get(uid);
-//                    if (handle != null) {
-//                        if (handle.getClass() == Structure.class) {
+                    Resource resource = Manager.get(uid);
+//                    if (resource != null) {
+//                        if (resource.getClass() == Structure.class) {
 //                            State state = State.getState(stateType);
-//                            state.object = handle;
+//                            state.object = resource;
 //                            return state;
 //                        }
 //                    }
 
-                    if (handle != null) {
-                        return (Structure) handle;
+                    if (resource != null) {
+                        return (Structure) resource;
                     }
 
 //                    // Look for existing (persistent) state for the given expression
-//                    if (handle != null) {
-//                        List<Handle> identiferList = Manager.request();
+//                    if (resource != null) {
+//                        List<Resource> identiferList = Manager.request();
 //                        for (int i = 0; i < identiferList.size(); i++) {
 //                            if (identiferList.request(i).getClass() == Structure.class) {
 //                                Structure structure = (Structure) identiferList.request(i);
 ////                            String textContent = expression.substring(1, expression.length() - 1);
 //                                // TODO: Also check TypeId?
 //                                if (structure.objectType == Map.class && structure.object != null) {
-////                                        && structure.object == handle) {
-////                                        && structure.object == handle) {
+////                                        && structure.object == resource) {
+////                                        && structure.object == resource) {
 //                                    for (Structure featureConstruct : structure.states.values()) {
-//                                        if (features.containsValue(handle)) { // TODO: iterate through features to see if contains feature...
+//                                        if (features.containsValue(resource)) { // TODO: iterate through features to see if contains feature...
 //                                            return structure;
 //                                        }
 //                                    }
@@ -386,10 +386,10 @@ public class Structure extends Handle {
 //                    String addressToken = expression.substring(expression.indexOf(":") + 1, expression.indexOf(")")).trim(); // text between ':' and ')'
 //
 //                    long uid = Long.parseLong(addressToken.trim());
-//                    Handle handle = Manager.request(uid);
-//                    if (handle != null) {
+//                    Resource resource = Manager.request(uid);
+//                    if (resource != null) {
 //                        structure = Structure.request(constructTypeId);
-//                        structure.object = handle;
+//                        structure.object = resource;
 //                        return structure;
 //                    } else {
 //                        System.out.println(Error.request("Error: " + expression + " does not exist."));
@@ -417,12 +417,12 @@ public class Structure extends Handle {
     // TODO: Refactor to separate request, create, requestOrCreate
     public static Structure request(String expression) { // previously, getPersistentConstruct
 
-        // Search for <em>handle</em> (default structure or structure handle).
+        // Search for <em>resource</em> (default structure or structure resource).
         List<Structure> structureList = Manager.get(Structure.class);
         for (int i = 0; i < structureList.size(); i++) {
             if (structureList.get(i).type.identifier.equals(expression)
                     && structureList.get(i).type.features == null) {
-                // Return the <em>default</em> {@code Type} for the handle.
+                // Return the <em>default</em> {@code Type} for the resource.
                 return structureList.get(i);
             }
         }
@@ -434,11 +434,11 @@ public class Structure extends Handle {
             String typeToken = expressionTokens[0];
             long id = Long.parseLong(expressionTokens[1].split("=")[1]);
 
-            Handle handle = Manager.get(id);
-            if (handle != null) {
-                if (handle.getClass() == Structure.class) {
+            Resource resource = Manager.get(id);
+            if (resource != null) {
+                if (resource.getClass() == Structure.class) {
                     // TODO: Check that type matches type identifier!
-                    return (Structure) handle;
+                    return (Structure) resource;
                 } else {
                     return null; // Return {@code null} if class isn't Structure.
                 }
@@ -510,7 +510,7 @@ public class Structure extends Handle {
                 // TODO: Also support looking up by construct permutation contained in list?
 
                 // Look for existing (persistent) state for the given expression
-                List<Handle> identiferList = Manager.get();
+                List<Resource> identiferList = Manager.get();
                 for (int i = 0; i < identiferList.size(); i++) {
                     if (identiferList.get(i).getClass() == Structure.class) {
                         Structure structure = (Structure) identiferList.get(i);
@@ -537,7 +537,7 @@ public class Structure extends Handle {
         Type type = Type.request("list");
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Handle> identiferList = Manager.get();
+        List<Resource> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
@@ -627,7 +627,7 @@ public class Structure extends Handle {
         Type type2 = currentStructure.type; // Structure type
 
         // Look for persistent "empty list" object (i.e., the default list).
-        List<Handle> identiferList = Manager.get();
+        List<Resource> identiferList = Manager.get();
         for (int i = 0; i < identiferList.size(); i++) {
             if (identiferList.get(i).getClass() == Structure.class) {
                 Structure candidateStructure = (Structure) identiferList.get(i);
