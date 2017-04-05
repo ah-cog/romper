@@ -8,6 +8,7 @@ public class Resource {
 
     public UUID uuid = UUID.randomUUID(); // universal resource (unique among all in central repo)
 
+    // TODO: Replace with .type() != null
     public static boolean isType(Resource resource) {
         return (resource != null && resource.getClass() == Type.class);
     }
@@ -16,15 +17,26 @@ public class Resource {
         return (resource != null && resource.getClass() == Reference.class && ((Reference) resource).object.getClass() == Structure.class);
     }
 
-    public static Type getType(Resource resource) {
-        if (Resource.isType(resource)) {
+    /**
+     * Returns this {@code Resource} as a {@Type}.
+     * @param resource
+     * @return
+     */
+    public static Type type(Resource resource) {
+        if (resource != null && resource.getClass() == Type.class) {
             return (Type) resource;
         }
         return null;
     }
 
-    public static Structure getStructure(Resource resource) {
-        if (Resource.isStructure(resource)) {
+    /**
+     * Returns a {@code Structure} reference to {@code resource} if it is of type
+     * (genesis moment: "ifitisof") {@code Structure}.
+     * @param resource
+     * @return
+     */
+    public static Structure structure(Resource resource) {
+        if (resource != null && resource.getClass() == Reference.class && ((Reference) resource).object.getClass() == Structure.class) {
             return (Structure) ((Reference) resource).object;
         }
         return null;

@@ -30,12 +30,15 @@ public class Interpreter {
         Interpreter.instance = this;
 
         // Instantiate primitive types
-        Type.requestOrCreate("type"); // TypeId.add("type");
         Type.requestOrCreate("none");
+        Type.requestOrCreate("type"); // TypeId.add("type");
         Type.requestOrCreate("number");
         Type.requestOrCreate("text");
         Type.requestOrCreate("list");
-        Type.requestOrCreate("table"); // i.e., map
+        Type.requestOrCreate("map"); // i.e., map
+
+        Type customType = Type.requestOrCreate("custom");
+//        customType.testInit();
         // "any" isn't actually represented with a type, since it's a constraint, not a type. It's
         // encoded in the way Types and Structure are represented in memory.
 
@@ -469,7 +472,7 @@ public class Interpreter {
 
 //                // <REFACTOR>
 //                // Check if the feature already exists in the current object
-//                if (Resource.getType(namespace.resource).features.containsKey(featureIdentifier)) {
+//                if (Resource.type(namespace.resource).features.containsKey(featureIdentifier)) {
 //                    System.out.println(Color.ANSI_RED + "Warning: Namespace already contains feature '" + featureIdentifier + "'. A new construct revision will be generated." + Color.ANSI_RESET);
 //                }
 //                // </REFACTOR>
@@ -777,8 +780,8 @@ public class Interpreter {
                 */
                 // TODO: Create new version of type here if feature is changed?
 
-                Type baseType = Resource.getType(namespace.resource);
-//                Type baseType = Resource.getType(namespace.typeReferences.request(featureIdentifier));
+                Type baseType = Resource.type(namespace.resource);
+//                Type baseType = Resource.type(namespace.typeReferences.request(featureIdentifier));
                 Type replacementType = Type.request(baseType, featureIdentifier, feature);
                 namespace.resource = replacementType;
 
@@ -794,7 +797,7 @@ public class Interpreter {
 //                System.out.println("\tbaseType.id: " + baseType.uid);
 //                System.out.println("\treplacementType.id: " + replacementType.uid);
 
-//                Resource.getType(namespace.resource).features.put(featureIdentifier, feature);
+//                Resource.type(namespace.resource).features.put(featureIdentifier, feature);
 //                long uid = Manager.add(feature);
 //                // TODO: initialize "text" with default empty string construct reference (and other types accordingly)
 
@@ -915,6 +918,10 @@ public class Interpreter {
 
     }
 
+    public void setTask(Structure structure, String featureIdentifier, Structure feature) {
+
+    }
+
     // e.g.,
     // set mode 'analog'
     // set direction 'input'
@@ -938,10 +945,10 @@ public class Interpreter {
 
                 // TODO: if featureContentToken is instance UID/UUID, look it up and pass that into "set"
 
-                Structure currentStructure = Resource.getStructure(namespace.resource);
+                Structure currentStructure = Resource.structure(namespace.resource);
                 HashMap<String, Feature> currentConstructFeatures = currentStructure.type.features; // (HashMap<String, Feature>) currentStructure.object;
 
-                Structure currentFeatureStructure = Structure.getStates(currentStructure).get(featureIdentifier);
+//                Structure currentFeatureStructure = Structure.getStates(currentStructure).get(featureIdentifier);
 
                 if (currentConstructFeatures.get(featureIdentifier).types != null
                         && (currentConstructFeatures.get(featureIdentifier).types.size() == 1 && currentConstructFeatures.get(featureIdentifier).types.contains(Type.request("list")))) {

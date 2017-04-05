@@ -58,6 +58,16 @@ public class Structure extends Resource {
 
     // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
 
+    /**
+     * Returns the {@code Structure}'s {@code object} member variable as a {@code Map}.
+     */
+    public static HashMap<String, Structure> map(Structure structure) {
+        if (structure.objectType == Map.class) {
+            return (HashMap<String, Structure>) structure.object;
+        }
+        return null;
+    }
+
     // TODO:
     // 1. Use types, features, and states for non-console (structure) constructs (custom non-primitive constructs)
     // 2. For console states (i.e., to replace State), don't use features or states hashes. Store actual data in objectType and object (from State).
@@ -82,7 +92,7 @@ public class Structure extends Resource {
 //        } else if (this.type.identifier.equals("reference")) {
 //            this.objectType = Structure.class; // TODO: this.objectType = Type.class OR Structure.class;
 //            this.object = null;
-        } else if (this.type.identifier.equals("table")) { // i.e., map
+        } else if (this.type.identifier.equals("map")) { // i.e., map
             this.objectType = Map.class;
             this.object = new HashMap<String, Structure>();
         } else if (this.type.identifier != null) {
@@ -165,6 +175,93 @@ public class Structure extends Resource {
 
             long uid = Manager.add(newTextStructure);
             return newTextStructure;
+        } else {
+            Type type = Type.request(text);
+            if (type != null) {
+                List<Structure> structureList = null;
+
+                if (type == Type.request("none")) {
+                    // Look for existing (persistent) state for the given expression
+                    structureList = Manager.get(Structure.class);
+                    for (int i = 0; i < structureList.size(); i++) {
+                        Structure structure = structureList.get(i);
+                        if (structure.type == Type.request("none") && structure.objectType == null && structure.object == null) {
+                            return structure;
+                        }
+                    }
+                    // State wasn't found, so create a new one and return it
+                    Type noneType = Type.request(type.identifier);
+                    return Structure.create(noneType);
+                } else if (type == Type.request("text")) {
+
+                    // e.g.,
+                    // 'foo'
+                    // text.id=234
+
+                    // Look for existing (persistent) state for the given expression
+                    structureList = Manager.get(Structure.class);
+                    for (int i = 0; i < structureList.size(); i++) {
+                        Structure structure = structureList.get(i);
+                        String textContent = "";
+                        if (text.startsWith("'") && text.endsWith("'")) {
+                            textContent = text.substring(1, text.length() - 1);
+                        }
+                        if (structure.type == Type.request("text") && structure.objectType == String.class && textContent.equals(structure.object)) {
+                            return structure;
+                        }
+                    }
+                    // State wasn't found, so create a new one and return it
+                    // TODO: Store in the database
+                    Structure structure = null;
+                    if (text.startsWith("'") && text.endsWith("'")) {
+                        Type typeType = Type.request(type.identifier);
+                        structure = new Structure(typeType);
+                        long uid = Manager.add(structure);
+                        structure.object = text.substring(1, text.length() - 1);
+                    } else {
+                        Type type2 = Type.request(type.identifier);
+                        structure = Structure.create(type2);
+                        structure.object = "";
+                    }
+                    return structure;
+
+                } else if (type == Type.request("list")) {
+
+                    // TODO: Same existence-checking procedure as for construct? (i.e., look up "list(id:34)")
+                    // TODO: Also support looking up by construct permutation contained in list?
+
+                    // Look for existing (persistent) state for the given expression
+                    List<Resource> identiferList = Manager.get();
+                    for (int i = 0; i < identiferList.size(); i++) {
+                        if (identiferList.get(i).getClass() == Structure.class) {
+                            Structure structure = (Structure) identiferList.get(i);
+                            if (structure.type == Type.request("list") && structure.objectType == List.class && structure.object != null) {
+                                // TODO: Look for permutation of a list (matching list of constructs)?
+                                return structure;
+                            }
+                        }
+                    }
+                } else if (type == Type.request("map")) {
+
+                    // Look for existing (persistent) state for the given expression
+                    List<Resource> identiferList = Manager.get();
+                    for (int i = 0; i < identiferList.size(); i++) {
+                        if (identiferList.get(i).getClass() == Structure.class) {
+                            Structure structure = (Structure) identiferList.get(i);
+                            if (structure.type.identifier.equals("map") && structure.objectType == Map.class && structure.object != null) {
+                                // TODO: Look for permutation of a list (matching list of constructs)?
+                                return structure;
+                            }
+                        }
+                    }
+
+                    // Table not found, so create it.
+                    Type type2 = Type.request(type.identifier);
+                    Structure structure = Structure.create(type2);
+                    return structure;
+
+                }
+            }
         }
         return null;
     }
@@ -213,6 +310,13 @@ public class Structure extends Resource {
                 newStructureStates.put(featureIdentifier, states.get(featureIdentifier));
             }
         }
+
+        // Add any new features
+        if (!newStructureStates.containsKey(targetFeature)) {
+            newStructureStates.put(targetFeature, replacementStructure);
+        }
+
+        // TODO: Remove features
 
         long uid = Manager.add(newStructure);
         return newStructure;
@@ -613,6 +717,8 @@ public class Structure extends Resource {
 
     }
 
+    // structure.set(String name, Structure structure)
+
     /**
      * Requests a {@code Structure} by feature change. Creates {@code Structure} if it doesn't
      * exist in the persistent store.
@@ -640,6 +746,61 @@ public class Structure extends Resource {
                     //       (2) same list of constructs.
                     List candidateConstructList = (List) candidateStructure.object;
                     List currentConstructList = (List) currentStructure.object;
+
+                } else if (candidateStructure.type.identifier.equals("map") && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
+
+                    // TODO: iterate through the map's keys and values
+//                    HashMap<String, Structure> candidateConstructFeatures = (HashMap<String, Structure>) candidateStructure.type.object; // (HashMap<String, Feature>) candidateStructure.object;
+//                    HashMap<String, Structure> currentConstructFeatures = (HashMap<String, Structure>) currentStructure.type.object; // (HashMap<String, Feature>) currentStructure.object;
+                    HashMap<String, Structure> candidateConstructFeatures = (HashMap<String, Structure>) candidateStructure.object; // (HashMap<String, Feature>) candidateStructure.object;
+                    HashMap<String, Structure> currentConstructFeatures = (HashMap<String, Structure>) currentStructure.object; // (HashMap<String, Feature>) currentStructure.object;
+
+                    // Compare identifer, types, domain, listTypes
+                    // TODO: Move comparison into Type.hasConstruct(type, construct);
+                    boolean isConstructMatch = true;
+                    if (currentConstructFeatures.size() == 0 && candidateConstructFeatures.size() == 0) {
+                        isConstructMatch = false;
+                    } else if (/*!currentConstructFeatures.containsKey(featureToReplace) &&*/ !candidateConstructFeatures.containsKey(featureToReplace)) {
+                        isConstructMatch = false;
+                    } else if (candidateConstructFeatures.size() != currentConstructFeatures.size()) {
+                        isConstructMatch = false;
+                    } else {
+
+                        // TODO: Handle case when btoh candidate and current are of size zero! Look for addition/removal|set/unset?
+                        // TODO: ^ base the logic off of "add"
+
+                        // Check if the feature is non-existent in the current structure to
+                        // determine if it needs to be added.
+//                        if (!currentConstructFeatures.containsKey(featureToReplace)) {
+//
+//                        }
+
+                        // Compare candidate construct (from repository) with the current construct being updated.
+                        for (String featureIdentifier : currentConstructFeatures.keySet()) {
+                            if (featureIdentifier.equals(featureToReplace)) {
+                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
+                                        || !Structure.getStates(candidateStructure).containsKey(featureIdentifier)
+                                        || Structure.getStates(candidateStructure).get(featureIdentifier) != featureStructureReplacement) {
+//                                        || !candidateConstructFeatures.containsValue(featureStructureReplacement)) {
+                                    isConstructMatch = false;
+                                }
+                            } else {
+                                if (!candidateConstructFeatures.containsKey(featureIdentifier)
+                                        || !Structure.getStates(candidateStructure).containsKey(featureIdentifier)
+                                        || Structure.getStates(candidateStructure).get(featureIdentifier) != Structure.getStates(currentStructure).get(featureIdentifier)) {
+//                                        || !candidateConstructFeatures.containsValue(type.features.request(featureIdentifier))) {
+                                    isConstructMatch = false;
+                                }
+                            }
+                        }
+
+                        // TODO: Additional checks...
+
+                    }
+
+                    if (isConstructMatch) {
+                        return candidateStructure;
+                    }
 
                 } else if (candidateStructure.type == type2 && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
 //                } else if (Structure.isComposite(construct)) {

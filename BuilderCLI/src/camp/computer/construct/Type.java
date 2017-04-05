@@ -20,6 +20,16 @@ public class Type extends Resource {
 
     public String identifier = null;
 
+//    // <STRUCTURE_ONLY>
+//    /**
+//     * {@code type} is set to {@code null} when the {@code Type} class represents a <em>type</em>.
+//     *
+//     * When representing a <em>structure</em>, {@code type} references the {@code Type} that
+//     * represents the <em>type</em> used to instantiate the <em>structure</em>.
+//     */
+//    Type type = null; // The <em>structure</em> used to create this {@code Type}.
+//    // </STRUCTURE_ONLY>
+
     /**
      * {@code features} is {@code null} for <em>none</em>, <em>type</em>, <em>text</em>,
      * <em>number</em>, <em>list</em> (i.e., the primitive types).
@@ -35,8 +45,19 @@ public class Type extends Resource {
     // TODO: (cont'd) Map<String, List<String>> configurations = null;
     public List<Configuration> configurations = null; // new ArrayList<>();
 
-    // TODO: Structure("map")   for features
-    // TODO: Structure("list")  for configurations
+    // <STRUCTURE>
+    public Type type = null;
+
+//    public Structure structure = null;
+    // null for "none"
+    // String for "text"
+    // Double for "number"
+    // [DELETE] Structure for non-primitive types
+    // List for "list" (allocates ArrayList<Object>)
+    // Map for non-primitive construct (allocates HashMap or TreeMap)
+    public Class objectType = null;
+    public Object object = null;
+    // </STRUCTURE>
 
     /**
      * Constructor to create the <em>default type</em> identified by {@code resource}.
@@ -45,6 +66,38 @@ public class Type extends Resource {
      */
     private Type(String identifier) {
         this.identifier = identifier;
+
+        // TODO: NOTE: THIS IS NOT THE PLACE FOR THIS! BECAUSE I NEED TO RETURN ONLY COMPLETE TYPES
+        // TODO: (...) HERE AND NEVER CHANGE THINGS OUT!
+        if (!identifier.equals("none") && !identifier.equals("type")
+                && !identifier.equals("number") && !identifier.equals("text")
+                && !identifier.equals("list") && !identifier.equals("map")) {
+            this.object = Structure.create("map");
+            if (this.object == null) {
+                System.out.println("Type.structure is NULL");
+            }
+            // TODO: The "put" operations here should create new version of the Type structure!
+            // TODO: Persist different versions of the Type structure!
+//            Structure.map((Structure) object).put("features", Structure.request("map"));
+//            Structure.map((Structure) object).put("configurations", Structure.request("map"));
+
+
+//            Structure replacementStructure = null;
+//            replacementStructure = Structure.request(Structure.request("map"), "features", Structure.request("map"));
+//            Structure.map((Structure) object).put("features", replacementStructure);
+//            replacementStructure = Structure.request(Structure.request("map"), "configurations", Structure.request("map"));
+//            Structure.map((Structure) object).put("configurations", replacementStructure);
+            Structure replacementStructure = null;
+            replacementStructure = Structure.request((Structure) this.object, "features", Structure.request("map"));
+//            Structure.map((Structure) object).put("features", replacementStructure);
+            replacementStructure = Structure.request(replacementStructure, "configurations", Structure.request("map"));
+//            Structure.map((Structure) object).put("configurations", replacementStructure);
+            this.object = replacementStructure;
+        }
+
+        // object is a Structure for non-primitives
+        // object binds to Java types for primitives
+        // ^ this allows gradual "scaling up and encircling" Java as the basis of the interpreter
     }
 
     /**
@@ -190,9 +243,6 @@ public class Type extends Resource {
      *
      * e.g.,
      * Type.request("none") => Type with "none" resource, null features, null configurations
-     *
-     * @param identifier
-     * @return
      */
     public static Type request(String expression) {
 
