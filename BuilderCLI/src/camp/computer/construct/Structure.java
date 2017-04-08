@@ -102,7 +102,7 @@ public class Structure extends Resource {
             } else if (this.parent.identifier.equals("list")) {
                 this.objectType = List.class;
                 this.object = new List<>();
-            } else if (this.parent.identifier.equals("map")) { // i.e., map
+            } else if (this.parent.identifier.equals("structure")) { // i.e., map
                 this.objectType = Map.class;
                 this.object = new HashMap<String, Structure>();
             } else if (this.parent.identifier.equals("type")) {
@@ -304,7 +304,7 @@ public class Structure extends Resource {
 //        } else if (this.type.identifier.equals("reference")) {
 //            this.objectType = Structure.class; // TODO: this.objectType = Type.class OR Structure.class;
 //            this.object = null;
-        } else if (this.type.identifier.equals("map")) { // i.e., map
+        } else if (this.type.identifier.equals("structure")) { // i.e., map
             this.objectType = Map.class;
             this.object = new HashMap<String, Structure>();
 //            this.object = new HashMap<String, Resource>();
@@ -457,14 +457,14 @@ public class Structure extends Resource {
                             }
                         }
                     }
-                } else if (type == Type.request("map")) {
+                } else if (type == Type.request("structure")) {
 
                     // Look for existing (persistent) state for the given expression
                     List<Resource> identiferList = Manager.get();
                     for (int i = 0; i < identiferList.size(); i++) {
                         if (identiferList.get(i).getClass() == Structure.class) {
                             Structure structure = (Structure) identiferList.get(i);
-                            if (structure.type.identifier.equals("map") && structure.objectType == Map.class && structure.object != null) {
+                            if (structure.type.identifier.equals("structure") && structure.objectType == Map.class && structure.object != null) {
                                 // TODO: Look for permutation of a list (matching list of constructs)?
                                 return structure;
                             }
@@ -963,7 +963,7 @@ public class Structure extends Resource {
                     List candidateConstructList = (List) candidateStructure.object;
                     List currentConstructList = (List) currentStructure.object;
 
-                } else if (candidateStructure.type.identifier.equals("map") && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
+                } else if (candidateStructure.type.identifier.equals("structure") && candidateStructure.objectType == Map.class && candidateStructure.object != null) {
 
                     // TODO: iterate through the map's keys and values
 //                    HashMap<String, Structure> candidateConstructFeatures = (HashMap<String, Structure>) candidateStructure.type.object; // (HashMap<String, Feature>) candidateStructure.object;

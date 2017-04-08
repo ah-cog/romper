@@ -35,31 +35,8 @@ public class Interpreter {
         Type.requestOrCreate("number");
         Type.requestOrCreate("text");
         Type.requestOrCreate("list");
-        Type.requestOrCreate("map"); // i.e., map
+        Type.requestOrCreate("structure"); // i.e., map
 
-        Type customType = Type.requestOrCreate("custom");
-//        customType.testInit();
-        // "any" isn't actually represented with a type, since it's a constraint, not a type. It's
-        // encoded in the way Types and Structure are represented in memory.
-
-//        // Instantiate primitive concepts
-//        if (!Type.exists("none")) {
-//            Type noneType = Type.request("none");
-//        }
-//
-//        /*
-//        if (!Type.exists(Type.request("number"))) {
-//            Type numberConcept = Type.request(Type.request("number"));
-//        }
-//        */
-//
-//        if (!Type.exists("text")) {
-//            Type textType = Type.request("text");
-//        }
-//
-//        if (!Type.exists("list")) {
-//            Type listType = Type.request("list");
-//        }
     }
 
     public static Interpreter getInstance() {
