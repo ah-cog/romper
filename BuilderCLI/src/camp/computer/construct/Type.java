@@ -9,26 +9,9 @@ import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
-/**
- * TODO: Integrate Type and Structure
- * TODO: ^ this will enable Reference to replace "Object object" to "Structure structure"
- */
 public class Type extends Resource {
 
-    // TODO: Remove resource and features and replace with "Structure structure" and allocate it according to the "resource" string passed into the constructor or request(...)
-    // TODO: (cont'd) type "resource" allocates <em>text</em> Structure (so even resource text will be unique in memory).
-
     public String identifier = null;
-
-//    // <STRUCTURE_ONLY>
-//    /**
-//     * {@code type} is set to {@code null} when the {@code Type} class represents a <em>type</em>.
-//     *
-//     * When representing a <em>structure</em>, {@code type} references the {@code Type} that
-//     * represents the <em>type</em> used to instantiate the <em>structure</em>.
-//     */
-//    Type type = null; // The <em>structure</em> used to create this {@code Type}.
-//    // </STRUCTURE_ONLY>
 
     /**
      * {@code features} is {@code null} for <em>none</em>, <em>type</em>, <em>text</em>,
@@ -45,6 +28,12 @@ public class Type extends Resource {
     // TODO: (cont'd) Map<String, List<String>> configurations = null;
     public List<Configuration> configurations = null; // new ArrayList<>();
 
+    // Type type = (Type) this;
+    // type.get("features").get("mode")
+    //      ^ returns       ^ returns Feature in "features" map with key "mode"
+    //        Structure:
+    //        "none" or "map"
+
     // <STRUCTURE>
     public Type type = null;
 
@@ -57,7 +46,17 @@ public class Type extends Resource {
     // Map for non-primitive construct (allocates HashMap or TreeMap)
     public Class objectType = null;
     public Object object = null;
+    // object is:
+    // null for ???
+    //
     // </STRUCTURE>
+
+    // identifier:
+    // object = none
+    //
+    // type:
+    // object = Structure[map]."features" <= <map>
+    // object = Structure[map].features
 
     /**
      * Constructor to create the <em>default type</em> identified by {@code resource}.
@@ -69,31 +68,24 @@ public class Type extends Resource {
 
         // TODO: NOTE: THIS IS NOT THE PLACE FOR THIS! BECAUSE I NEED TO RETURN ONLY COMPLETE TYPES
         // TODO: (...) HERE AND NEVER CHANGE THINGS OUT!
-        if (!identifier.equals("none") && !identifier.equals("type")
-                && !identifier.equals("number") && !identifier.equals("text")
-                && !identifier.equals("list") && !identifier.equals("map")) {
-            this.object = Structure.create("map");
-            if (this.object == null) {
-                System.out.println("Type.structure is NULL");
-            }
-            // TODO: The "put" operations here should create new version of the Type structure!
-            // TODO: Persist different versions of the Type structure!
-//            Structure.map((Structure) object).put("features", Structure.request("map"));
-//            Structure.map((Structure) object).put("configurations", Structure.request("map"));
-
-
-//            Structure replacementStructure = null;
-//            replacementStructure = Structure.request(Structure.request("map"), "features", Structure.request("map"));
-//            Structure.map((Structure) object).put("features", replacementStructure);
-//            replacementStructure = Structure.request(Structure.request("map"), "configurations", Structure.request("map"));
-//            Structure.map((Structure) object).put("configurations", replacementStructure);
-            Structure replacementStructure = null;
-            replacementStructure = Structure.request((Structure) this.object, "features", Structure.request("map"));
-//            Structure.map((Structure) object).put("features", replacementStructure);
-            replacementStructure = Structure.request(replacementStructure, "configurations", Structure.request("map"));
-//            Structure.map((Structure) object).put("configurations", replacementStructure);
-            this.object = replacementStructure;
-        }
+//        if (!identifier.equals("none") && !identifier.equals("type")
+//                && !identifier.equals("number") && !identifier.equals("text")
+//                && !identifier.equals("list") && !identifier.equals("map")) {
+//            this.object = Structure.create("map");
+//            if (this.object == null) {
+//                System.out.println("Type.structure is NULL");
+//            }
+//            // TODO: The "put" operations here should create new version of the Type structure!
+//            // TODO: Persist different versions of the Type structure!
+////            Structure.map((Structure) object).put("features", Structure.request("map"));
+////            Structure.map((Structure) object).put("configurations", Structure.request("map"));
+//
+//
+////            Structure replacementStructure = null;
+////            replacementStructure = Structure.request((Structure) this.object, "features", Structure.request("map"));
+////            replacementStructure = Structure.request(replacementStructure, "configurations", Structure.request("map"));
+////            this.object = replacementStructure;
+//        }
 
         // object is a Structure for non-primitives
         // object binds to Java types for primitives
@@ -111,12 +103,14 @@ public class Type extends Resource {
 
         this.identifier = baseType.identifier;
 
-        if (baseType.features != null) {
-            this.features = new HashMap<>();
-            for (String featureIdentifier : baseType.features.keySet()) {
-                this.features.put(featureIdentifier, baseType.features.get(featureIdentifier));
-            }
-        }
+//        if (baseType.object != null) {
+//            this.object = new HashMap<>();
+//            HashMap<String, Resource> baseTypeMap = (HashMap<String, Resource>) ((Structure) baseType.object).object;
+//            HashMap<String, Resource> newTypeMap = (HashMap<String, Resource>) ((Structure) this.object).object;
+//            for (String featureIdentifier : baseTypeMap.keySet()) {
+//                newTypeMap.put(featureIdentifier, baseTypeMap.get(featureIdentifier));
+//            }
+//        }
 
         // TODO: Copy the type's configurations.
 
@@ -214,14 +208,19 @@ public class Type extends Resource {
 
         Type newType = new Type(baseType);
 
-        // Copy states from source Structure.
-//        for (String featureIdentifier : baseConstruct.states.keySet()) {
-//            if (featureIdentifier.equals(targetFeature)) {
-//                newType.states.put(targetFeature, replacementConstruct);
-//            } else {
-//                newType.states.put(featureIdentifier, baseConstruct.states.request(featureIdentifier));
-//            }
-//        }
+        // Copy states from source Type (if non-null)
+        if (baseType.features != null) {
+            newType.features = new HashMap<>();
+            for (String featureIdentifier : baseType.features.keySet()) {
+                if (featureIdentifier.equals(targetFeature)) {
+                    newType.features.put(targetFeature, replacementFeature);
+                } else {
+                    newType.features.put(featureIdentifier, baseType.features.get(featureIdentifier));
+                }
+            }
+        }
+
+        // Add, replace, or remove feature with {@code targetFeature} identifier.
         if (replacementFeature == null) {
             // Remove the feature
             newType.features.remove(targetFeature);
@@ -309,8 +308,6 @@ public class Type extends Resource {
     // to add or change a feature: request(type, "ports", new Feature(...))
     // to remove a feature: request(type, "ports", null)
     public static Type request(Type baseType, String targetFeature, Feature replacementFeature) {
-//    public static Type request(Type type, String feature, Structure replacementFeature) {
-//        request(new Map(new Pair(key, Feature), new Pair(key, Feature)))
 
         // TODO: Lookup Feature in DB (as if it were a construct, creating it if needed)
         // TODO: Check if {@code type} exists with the specified featureIdentifier set to Feature, with all else equal
@@ -321,10 +318,18 @@ public class Type extends Resource {
             if (identiferList.get(i).getClass() == Type.class) {
                 Type candidateType = (Type) identiferList.get(i);
 
+                // Handle special case for "none"
+                // TODO: Handle more elegantly?
+                if (candidateType.object == null) {
+                    continue;
+                }
+
                 // Check (1) if constructs are based on the same specified type version, and
                 //       (2) same set of features and assignments to constructs except the specified feature to change.
-                HashMap<String, Feature> baseConceptFeatures = (HashMap<String, Feature>) baseType.features;
-                HashMap<String, Feature> candidateConceptFeatures = (HashMap<String, Feature>) candidateType.features;
+//                HashMap<String, Feature> baseConceptFeatures = (HashMap<String, Feature>) baseType.features;
+//                HashMap<String, Feature> candidateConceptFeatures = (HashMap<String, Feature>) candidateType.features;
+                HashMap<String, Resource> baseConceptFeatures = (HashMap<String, Resource>) ((Structure) baseType.object).object;
+                HashMap<String, Resource> candidateConceptFeatures = (HashMap<String, Resource>) ((Structure) candidateType.object).object;
 
                 // Compare identifer, types, domain, listTypes
                 // TODO: Move comparison into Type.hasConstruct(type, construct);
@@ -348,7 +353,7 @@ public class Type extends Resource {
                     } else {
 
                         // Compare candidate construct (from repository) with the current construct being updated.
-                        // First, ensure all features in the base type are present in the candidate type.
+                        // First, ensure all features in the parent type are present in the candidate type.
                         for (String featureIdentifier : baseConceptFeatures.keySet()) {
 //                            if (featureIdentifier.equals(targetFeature)) {
 //                                if (!candidateConceptFeatures.containsKey(featureIdentifier)) {
@@ -388,7 +393,7 @@ public class Type extends Resource {
                     } else {
 
                         // Compare candidate construct (from repository) with the current construct being updated.
-                        // First, ensure all features in the base type are present in the candidate type.
+                        // First, ensure all features in the parent type are present in the candidate type.
                         for (String featureIdentifier : baseConceptFeatures.keySet()) {
                             if (featureIdentifier.equals(targetFeature)) {
                                 if (!candidateConceptFeatures.containsKey(featureIdentifier)) {

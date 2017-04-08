@@ -8,7 +8,18 @@ import camp.computer.util.List;
 import camp.computer.util.console.Color;
 import camp.computer.workspace.Manager;
 
+/**
+ * Structure.identifier(resource)
+ * Structure.type(resource)
+ * Structure.structure(resource)
+ * <p>
+ * Structure.type(resource).get("features").get("mode").set("digital")
+ */
 public class Structure extends Resource {
+
+    // <TYPE>
+    public String identifier = null;
+    // </TYPE>
 
     // In Redis, primitive types has types and content; non-primitive has no content.
     // TODO: Use "features" object as a HashMap for non-primitive to reference features;
@@ -17,7 +28,13 @@ public class Structure extends Resource {
     // TODO:      Double for primitive "number" types;
     // TODO:      null for primitive "none" types
 
+    // TODO: Make this a list for [ identifier | types | object/structure ]
     public Type type = null; // The {@code Structure} used to create this Structure.
+    // Will replace "Type type"
+    // null for "identifier"
+    // refers to "identifier" Structure for "type"
+    // refers to "type" Structure for "structure"
+    public Structure parent = null;
 
     // null for "none"
     // String for "text"
@@ -28,49 +45,244 @@ public class Structure extends Resource {
     public Class objectType = null;
     public Object object = null;
 
-    // <TODO>
-    // Update Tuple class to extend List. Rename to List (or Sequence)!
-    //
-    // (a) For non-primitive, don't store Map<String, Feature>. That's stored in the referenced Type!
-    // (cont'd) Instead, create a Map<String, Structure> to store the states corresponding to
-    // (cont'd) features. Then (b) remove the Structure.states HashMap. Leaves Structure as general
-    // (cont'd) purpose data structuring primitive/construct.
-    //
-    // For "reference" type (or "index"), set type = "reference", classType = Structure.class,
-    // (cont'd) object = referenced/indexed Construct.
-    //
-    // [A] Rename "Feature" to "Container" since it can contain any Type or Structure.
-    // [B] For "feature", there are multiple types, so replace "Type type" with "List<Type> types"
-    //     in Structure. "feature" is the only Structure that has more than one type (?).
-    // [C] For feature, also add Structure.domain and Structure.listTypes (?) or use Map?
-    //
-    // Add custom List(...), Map(...)/Dictionary(...) classes with convenient constructors and for
-    // (cont'd) use in the Manager.
-    //
-    // Add configuration to {@code Type}, but not Structure for now.
-    //
-    // Add constraint solver back into the new model (finally!).
-    // </TODO>
+    /**
+     * Constructor for creating <em>identifiers</em> (structures representing <em>identifiers</em>).
+     */
+    private Structure(String identifier) {
+        this.identifier = identifier;
+    }
 
-    // This is only present for non-primitive types (that instantiate a Map)
-    // TODO: Allocate object/objectType to store states. Refer to Type for features.
-//    public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
-
-    // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
+    public static boolean isIdentifier(Structure structure) {
+        if (structure.identifier != null
+                && structure.parent == null
+                && structure.objectType == null
+                && structure.object == null) {
+            return true;
+        }
+        return false;
+    }
 
     /**
-     * Returns the {@code Structure}'s {@code object} member variable as a {@code Map}.
+     * Creates <em>default</em> {@code Structure} to represent either a <em>type</em> or
+     * <em>structure</em>.
+     * <p>
+     * Assumes <em>type</em> and <em>structure</em> have been created for <em>none</em> identifier.
      */
-    public static HashMap<String, Structure> map(Structure structure) {
-        if (structure.objectType == Map.class) {
-            return (HashMap<String, Structure>) structure.object;
+    private Structure(Structure parent) {
+
+        // TODO: rename parent to parent (or simply parent)
+
+        // This could be either an <em>identifier</em> or <em>type</em>.
+        this.parent = parent;
+
+        if (Structure.isIdentifier(parent)) {
+            // Create a <em>type</em> Structure.
+            // TODO: init .object as a "map" Structure with "features" and "configuration" keys (map onto Structure)
+
+            // TODO: only do the following for non-primitive types (i.e., for compositions)?
+            if (!parent.identifier.equals("none")) {
+                this.objectType = Structure.class;
+//            this.object = Structure.requestStructure(Structure.requestIdentifier("map"));
+                this.object = Structure.requestStructure(Structure.requestType(Structure.requestIdentifier("none"))); // my default, <em>type</em> structure is <em>none</em> (for every identifier).
+            }
+        } else if (Structure.isType(parent)) {
+            // Create a <em>structure</em> Structure.
+            // TODO: initialize Structure is is done in `Structure(Type type)`
+
+            // Allocate default object based on specified classType
+            if (this.parent.identifier.equals("none")) {
+                this.objectType = null;
+                this.object = null;
+            } else if (this.parent.identifier.equals("number")) {
+                this.objectType = Double.class;
+                this.object = 0; // TODO: Default to null (i.e., "none" structure)?
+            } else if (this.parent.identifier.equals("text")) {
+                this.objectType = String.class;
+                this.object = ""; // TODO: Default to null?
+            } else if (this.parent.identifier.equals("list")) {
+                this.objectType = List.class;
+                this.object = new List<>();
+            } else if (this.parent.identifier.equals("map")) { // i.e., map
+                this.objectType = Map.class;
+                this.object = new HashMap<String, Structure>();
+            } else if (this.parent.identifier.equals("type")) {
+                // TODO: `object` set to <em>map</em> `Structure` or remove (NOT HashMap)
+
+                // `object` = <em>map</em>
+                // Structure.object
+
+
+                // type.port.features (map)
+                // type.port.configurations (list)
+
+                // The "features" and "configurations" maps can be the same across different types.
+                // For example, two types could have the same features, but different
+                // configurations. Because the types have the same set of features, that set should
+                // not be stored redundantly in working memory (or in the persistent memory such
+                // as Redis). Instead, would-be redundant data structures, such as the set of
+                // features in this case, should be stored as {@code Structure}s themselves. It's
+                // important to note that this only makes sharing data structures to prevent
+                // data redundancy (and therefore potential for inconsistency) _in the
+                // interpreter's working memory (or RAM)_. It does not mean that Redis will not
+                // store redundant information, per se. However, it can add efficiency to the
+                // task of implementing an interface to Redis or another DBMS because the
+                // strategies implemented in the interpreter to prevent redundancy in data and
+                // structure, particularly in the {@code Structure}, and to manage re-use can
+                // be reflected in DBMS implementations, making the implementation process more
+                // natural and straightforward to do.
+
+                // Same as below (for custom structures), but only contains "features" and
+                // "configurations", which point to <em>none</em> for an identifier's default
+                // <em>type</em>.
+                this.object = Map.class;
+                this.object = new HashMap<String, Structure>();
+
+                HashMap<String, Structure> profile = (HashMap<String, Structure>) this.object;
+                profile.put("features", Structure.requestStructure(Structure.requestType(Structure.requestIdentifier("none"))));
+                profile.put("configurations", Structure.requestStructure(Structure.requestType(Structure.requestIdentifier("none"))));
+
+            } else if (this.parent.identifier != null) {
+                this.objectType = Map.class;
+                this.object = new HashMap<String, Structure>();
+
+                // This returns only the default <em>structure</em> (i.e., <code>object</code> is
+                // set to <em>none</em>).
+
+//                Structure features = this.parent.object;
+//                Structure features = this.parent.object;
+
+                // Initialize each {@code Feature} to the default value of <em>none</em>.
+                HashMap<String, Structure> states = (HashMap<String, Structure>) this.object;
+                if (type.features != null) {
+                    //                for (Feature feature : type.features.values()) {
+                    for (String featureKey : type.features.keySet()) {
+                        Type noneType = Type.request("none");
+                        Structure structure = Structure.create(noneType);
+                        //                    states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
+                        states.put(featureKey, structure); // Initialize with only available types if there's only one available
+                    }
+                }
+            }
         }
+    }
+
+    public static boolean isType(Structure structure) {
+        if (structure.parent != null
+                && Structure.isIdentifier(structure.parent)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isStructure(Structure structure) {
+        if (structure.parent != null
+                && Structure.isType(structure.parent)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns <em>default</em> <em>identifier</em> {@code Structure}.
+     */
+    public static Structure requestIdentifier(String identifier) {
+
+        // Search for an existing {@code Structure} representing the <em>identifier</em>.
+        List<Structure> structureList = Manager.get(Structure.class);
+        for (int i = 0; i < structureList.size(); i++) {
+            if (Structure.isIdentifier(structureList.get(i))
+                    && structureList.get(i).identifier.equals(identifier)) {
+                return structureList.get(i);
+            }
+        }
+
+        // No existing {@code Structure} exists for the <em>identifier</em> so create one.
+        Structure identifierStructure = new Structure(identifier);
+        long id = Manager.add(identifierStructure);
+        if (id != -1) {
+            return identifierStructure;
+        }
+
         return null;
     }
 
-    // TODO:
-    // 1. Use types, features, and states for non-console (structure) constructs (custom non-primitive constructs)
-    // 2. For console states (i.e., to replace State), don't use features or states hashes. Store actual data in objectType and object (from State).
+    /**
+     * Returns <em>default</em> <em>type</em> {@code Structure} for the <em>identifier</em>
+     * represented by {@code parent} (i.e., with <code>object</code> set to
+     * <em>none</em> unless the {@code parent} represents <em>none</em>. In this
+     * latter, special case, <code>object</code> is set to <code>null</code>.
+     */
+    public static Structure requestType(Structure identifierStructure) {
+        // TODO: Search for the {@code Structure} representing the default <em>type</em> for the
+        // TODO: (...) <em>identifier</em> represented by {@code parent}.
+
+        // Search for an existing {@code Structure} representing the <em>identifier</em>.
+        List<Structure> structureList = Manager.get(Structure.class);
+        for (int i = 0; i < structureList.size(); i++) {
+            if (Structure.isType(structureList.get(i))
+                    && structureList.get(i).parent == identifierStructure) {
+                if (identifierStructure.identifier.equals("none")) {
+                    if (structureList.get(i).objectType == null
+                            && structureList.get(i).object == null) {
+                        return structureList.get(i);
+                    }
+                } else {
+                    if (structureList.get(i).objectType == Structure.class
+                            && structureList.get(i).object == Structure.requestStructure(Structure.requestType(Structure.requestIdentifier("none")))) {
+                        return structureList.get(i);
+                    }
+                }
+                return structureList.get(i);
+            }
+        }
+
+        // No existing {@code Structure} exists for the <em>identifier</em> so create one.
+        Structure typeStructure = new Structure(identifierStructure);
+        long id = Manager.add(typeStructure);
+        if (id != -1) {
+            return typeStructure;
+        }
+
+        return null;
+    }
+
+    // default structure for each identifier has <code>object</code> equal to <em>none</em> (just
+    // like default <em>type<em>)
+    public static Structure requestStructure(Structure typeStructure) {
+
+        // Search for an existing {@code Structure} representing the <em>identifier</em>.
+        List<Structure> structureList = Manager.get(Structure.class);
+        for (int i = 0; i < structureList.size(); i++) {
+            if (Structure.isStructure(structureList.get(i))
+                    && structureList.get(i).parent == typeStructure) {
+                // Check for default <em>type</em> {@code Structure} (i.e., <code>object</code>
+                // is set to <em>none</em> and <code>objectType</code> is set to
+                // <code>Structure.class</code>).
+                if (typeStructure.parent.identifier.equals("none")) {
+                    if (structureList.get(i).objectType == null
+                            && structureList.get(i).object == null) {
+                        return structureList.get(i);
+                    }
+                } else {
+                    if (structureList.get(i).objectType == Structure.class
+                            && structureList.get(i).object == Structure.requestStructure(Structure.requestType(Structure.requestIdentifier("none")))) {
+                        return structureList.get(i);
+                    }
+                }
+                return structureList.get(i);
+            }
+        }
+
+        // No existing {@code Structure} exists for the <em>identifier</em> so create one.
+        Structure structure = new Structure(typeStructure);
+        long id = Manager.add(structure);
+        if (id != -1) {
+            return structure;
+        }
+
+        return null;
+    }
+
 
     private Structure(Type type) {
 
@@ -95,6 +307,8 @@ public class Structure extends Resource {
         } else if (this.type.identifier.equals("map")) { // i.e., map
             this.objectType = Map.class;
             this.object = new HashMap<String, Structure>();
+//            this.object = new HashMap<String, Resource>();
+//            this.object = null; // TODO: Assign something...
         } else if (this.type.identifier != null) {
             this.objectType = Map.class;
             this.object = new HashMap<String, Structure>();
@@ -102,10 +316,12 @@ public class Structure extends Resource {
             // Initialize each {@code Feature} to the default value of <em>none</em>.
             HashMap<String, Structure> states = (HashMap<String, Structure>) this.object;
             if (type.features != null) {
-                for (Feature feature : type.features.values()) {
+//                for (Feature feature : type.features.values()) {
+                for (String featureKey : type.features.keySet()) {
                     Type noneType = Type.request("none");
                     Structure structure = Structure.create(noneType);
-                    states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
+//                    states.put(feature.identifier, structure); // Initialize with only available types if there's only one available
+                    states.put(featureKey, structure); // Initialize with only available types if there's only one available
                 }
             }
         }
@@ -125,7 +341,7 @@ public class Structure extends Resource {
         while (structureIterator.hasNext()) {
             Structure structure = structureIterator.next(); // must be called before you can call i.remove()
             if (structure.type.identifier.equals(type.identifier)) {
-            // if (structure.type == type) {
+                // if (structure.type == type) {
                 count++;
             }
         }
@@ -143,7 +359,7 @@ public class Structure extends Resource {
         while (structureIterator.hasNext()) {
             Structure structure = structureIterator.next(); // must be called before you can call i.remove()
             if (!structure.type.identifier.equals(type.identifier)) {
-            // if (structure.type == type) {
+                // if (structure.type == type) {
                 structureIterator.remove();
             }
         }
@@ -291,8 +507,8 @@ public class Structure extends Resource {
      * Creates a {@code Structure} by specified feature change. Creates {@code Structure} if it
      * doesn't exist in the persistent store.
      *
-     * @param baseStructure The reference {@code Structure} for the feature replacement.
-     * @param targetFeature The feature to replace in {@code baseStructure} with {@code replacementStructure}.
+     * @param baseStructure        The reference {@code Structure} for the feature replacement.
+     * @param targetFeature        The feature to replace in {@code parent} with {@code replacementStructure}.
      * @param replacementStructure The {@code Structure} to assign to the feature identified by {@code targetFeature}.
      * @return
      */
@@ -325,29 +541,29 @@ public class Structure extends Resource {
 
     /**
      * If the State does not exist (in cache or persistent store), then returns null.
-     *
+     * <p>
      * Retrieves State from persistent store if it exists! Also caches it!
-     *
+     * <p>
      * <strong>Examples of {@code Expression}:</strong>
-     *
+     * <p>
      * none
-     *
+     * <p>
      * 'foo'
      * text('foo')
      * text.'foo'
      * text(id:34)
      * text.id=34
-     *
+     * <p>
      * 66
      * number(66)
      * number(66)
      * number(id:12)
      * number.id=12
-     *
+     * <p>
      * text(id:34), 'foo', 'bar'
      * list(text(id:34), 'foo', 'bar')
      * list(id:44)
-     *
+     * <p>
      * port(id:99)
      */
     public static Structure request2(String expression) { // previously, getPersistentConstruct
@@ -722,10 +938,10 @@ public class Structure extends Resource {
     /**
      * Requests a {@code Structure} by feature change. Creates {@code Structure} if it doesn't
      * exist in the persistent store.
-     *
+     * <p>
      * Returns the persistent {@code Structure}, if exists, that would result from applying
      * {@code expression} to the specified {@code construct}.
-     *
+     * <p>
      * If no such {@code Structure} exists, returns {@code null}.
      */
     public static Structure request(Structure currentStructure, String featureToReplace, Structure featureStructureReplacement) {
@@ -767,7 +983,7 @@ public class Structure extends Resource {
                     } else {
 
                         // TODO: Handle case when btoh candidate and current are of size zero! Look for addition/removal|set/unset?
-                        // TODO: ^ base the logic off of "add"
+                        // TODO: ^ parent the logic off of "add"
 
                         // Check if the feature is non-existent in the current structure to
                         // determine if it needs to be added.
@@ -899,7 +1115,7 @@ public class Structure extends Resource {
         if (type == Type.request("text")) {
             String content = (String) this.object;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " '" + content + "' (id: " + uid + ")" + " (uuid: " + uuid + ")";
-            return  "'" + content + "' " + Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + ".id=" + uid;
+            return "'" + content + "' " + Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + ".id=" + uid;
         } else {
             return Color.ANSI_BLUE + type.identifier + Color.ANSI_RESET + ".id=" + uid;
             // return Color.ANSI_BLUE + type + Color.ANSI_RESET + " (id: " + uid + ")" + " (uuid: " + uuid + ")";

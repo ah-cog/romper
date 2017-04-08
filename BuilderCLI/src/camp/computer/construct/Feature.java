@@ -32,6 +32,17 @@ public class Feature extends Resource {
     public List<Structure> domain; // if size == 0, then 'none'! if null, then 'any'!
     // TODO: Create a separate feature domain for each types in featureType
 
+    // type type
+    // has identifier text
+    // has features map : text -> structure
+    // has configurations list
+
+    // type feature
+    // has identifier text
+    // has types list : type
+    // has domain list : structure
+    // has listTypes list : type
+
     /**
      * Only used for <em>list</em> {@code TypeId}.
      *
@@ -43,11 +54,11 @@ public class Feature extends Resource {
     // TODO: Remove listTypes and add it to the "list" primitive construct's architecture?
     // </FEATURE_ONLY>
 
-    // <REFERENCE_ONLY>
-    // This is the reference ROOT construct
-    public Class classType = null; // Type.class or Structure.class
-    public Object object = null; // Type or Structure
-    // </REFERENCE_ONLY>
+//    // <REFERENCE_ONLY>
+//    // This is the reference ROOT construct
+//    public Class classType = null; // Type.class or Structure.class
+//    public Object object = null; // Type or Structure
+//    // </REFERENCE_ONLY>
 
     private Feature(String identifier, List<Type> types, List<Structure> domain, List<Type> listTypes) {
 

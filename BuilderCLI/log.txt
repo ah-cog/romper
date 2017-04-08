@@ -1,0 +1,10 @@
+	no feature match > 
+created feature [33m[1mmode[0m
+	no type match > 
+created type port.id=10
+port -> port.id=7
+	no feature match > 
+created feature [33m[1mdirection[0m
+	no type match > 
+created type port.id=13
+port -> port.id=10

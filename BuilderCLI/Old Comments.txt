@@ -1,0 +1,37 @@
+    // <TODO>
+    // Update Tuple class to extend List. Rename to List (or Sequence)!
+    //
+    // (a) For non-primitive, don't store Map<String, Feature>. That's stored in the referenced Type!
+    // (cont'd) Instead, create a Map<String, Structure> to store the states corresponding to
+    // (cont'd) features. Then (b) remove the Structure.states HashMap. Leaves Structure as general
+    // (cont'd) purpose data structuring primitive/construct.
+    //
+    // For "reference" type (or "index"), set type = "reference", classType = Structure.class,
+    // (cont'd) object = referenced/indexed Construct.
+    //
+    // [A] Rename "Feature" to "Container" since it can contain any Type or Structure.
+    // [B] For "feature", there are multiple types, so replace "Type type" with "List<Type> types"
+    //     in Structure. "feature" is the only Structure that has more than one type (?).
+    // [C] For feature, also add Structure.domain and Structure.listTypes (?) or use Map?
+    //
+    // Add custom List(...), Map(...)/Dictionary(...) classes with convenient constructors and for
+    // (cont'd) use in the Manager.
+    //
+    // Add configuration to {@code Type}, but not Structure for now.
+    //
+    // Add constraint solver back into the new model (finally!).
+    // </TODO>
+
+----
+
+    // This is only present for non-primitive types (that instantiate a Map)
+    // TODO: Allocate object/objectType to store states. Refer to Type for features.
+//    public HashMap<String, Structure> states = new HashMap<>(); // TODO: Remove? Remove setupConfiguration?
+
+    // TODO: configuration(s) : assign state to multiple features <-- do this for _Container_ not Type
+
+    // TODO:
+    // 1. Use types, features, and states for non-console (structure) constructs (custom non-primitive constructs)
+    // 2. For console states (i.e., to replace State), don't use features or states hashes. Store actual data in objectType and object (from State).
+
+----
