@@ -17,7 +17,7 @@ public class Application {
 
         // TODO: Save/Load/IASM for Projects
 
-        System.out.println("Builder (Version 0.4.5)");
+        System.out.println("Romper 0.4.5");
 
         Interpreter.getInstance().start();
 
