@@ -11,6 +11,8 @@ Romper is a declarative modeling language.
 
 #### `open`
 
+Opens and executes a Romper script.
+
 #### `namespace`
 
 #### `type`
