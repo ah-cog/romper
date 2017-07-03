@@ -9,6 +9,36 @@ Romper is a declarative modeling language.
 
 ## Usage
 
+#### `open`
+
+#### `namespace`
+
+#### `type`
+
+#### `has`
+
+#### `let`
+
+#### `structure|struct`
+
+#### `set`
+
+#### `add`
+
+#### `remove|rem|rm`
+
+#### `name`
+
+#### `browse|view`
+
+#### `describe|ds`
+
+#### `transcript|history`
+
+#### `exit`
+
+## Usage (Old)
+
 ``import file <filename>``
 Imports the file _filename_ in the directory relative to the working directory. Note that this file can import files, itself, enabling file hierarchies to be loaded with a single top-level file.
 
