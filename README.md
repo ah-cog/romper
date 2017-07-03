@@ -39,7 +39,7 @@ Opens and executes a Romper script.
 
 #### `exit`
 
-## Usage (Old)
+## Example Usage
 
 ``import file <filename>``
 Imports the file _filename_ in the directory relative to the working directory. Note that this file can import files, itself, enabling file hierarchies to be loaded with a single top-level file.
@@ -80,3 +80,7 @@ Bidrectional ⟷ Bidirectional
 ### Voltage
 TTL – TTL
 CMOS – CMOS
+
+## Data Model
+
+Romper stores its data model in a collection of YAML files.
